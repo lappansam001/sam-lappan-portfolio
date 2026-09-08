@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Booking Management — Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f0f0;color:#333}
+header{background:#e61f26;color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative;z-index:10}
+.logo{font-size:30px;font-weight:900;font-style:italic;letter-spacing:-1px;color:#fff;line-height:1}
+.logo-tag{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-top:2px}
+.demo-badge{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:6px;color:#fff}
+main{max-width:1200px;margin:28px auto;padding:0 24px;position:relative;z-index:2}
+.section{display:none}.section.active{display:block}
+.card{background:#fff;border-radius:8px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.09);margin-bottom:24px}
+.card-title{font-size:13px;font-weight:700;color:#e61f26;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #eee;letter-spacing:.5px;text-transform:uppercase}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;color:#777;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+.label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.label-row label{margin-bottom:0}
+.label-action{font-size:11px;color:#e61f26;cursor:pointer;font-weight:600;text-decoration:none;white-space:nowrap}
+.label-action:hover{text-decoration:underline}
+input[type=text],input[type=email],input[type=date],select,textarea{padding:9px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;color:#333;transition:border-color .15s;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#e61f26;box-shadow:0 0 0 3px rgba(230,31,38,.08)}
+.ac-wrap{position:relative}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #e61f26;border-top:none;border-radius:0 0 6px 6px;max-height:220px;overflow-y:auto;z-index:500;display:none;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.ac-drop.open{display:block}
+.ac-item{padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f5f5f5}
+.ac-item:hover,.ac-item.sel{background:#fff0f0;color:#e61f26}
+.ac-item:last-child{border-bottom:none}
+.ac-badge{font-size:10px;color:#aaa;margin-left:6px}
+.btn{padding:9px 20px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.3px}
+.btn-primary{background:#e61f26;color:#fff}.btn-primary:hover{background:#c91920}
+.btn-secondary{background:#f0f0f0;color:#444}.btn-secondary:hover{background:#e2e2e2}
+.btn-danger{background:#dc3545;color:#fff}.btn-danger:hover{background:#b02a37}
+.btn-excel{background:#1d6f42;color:#fff}.btn-excel:hover{background:#155534}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.form-actions{display:flex;gap:12px;margin-top:20px}
+.out-area{display:none}.out-area.show{display:block}
+.email-box{background:#fafafa;border:1.5px solid #ddd;border-radius:6px;padding:20px;font-family:'Courier New',monospace;font-size:13px;line-height:1.75;white-space:pre-wrap}
+.copy-row{display:flex;justify-content:flex-end;margin-top:10px}
+.tabs{display:flex;gap:3px}
+.tab-btn{padding:9px 22px;border:1.5px solid #ddd;border-bottom:none;border-radius:6px 6px 0 0;cursor:pointer;font-size:13px;font-weight:700;background:#ececec;color:#666;transition:all .15s}
+.tab-btn.active{background:#e61f26;color:#fff;border-color:#e61f26}
+.tab-pane{display:none;background:#fff;border:1.5px solid #ddd;border-radius:0 8px 8px 8px;padding:20px}
+.tab-pane.active{display:block}
+.tab-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.tab-hdr h3{font-size:15px;font-weight:700}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px}
+th{background:#f5f5f5;padding:9px 10px;text-align:left;font-weight:700;color:#555;border-bottom:2px solid #ddd;white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:#fefafa}
+input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#e61f26}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:10px;padding:28px;width:90%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-wide{max-width:700px}
+.modal h3{font-size:15px;font-weight:700;color:#e61f26;margin-bottom:20px;text-transform:uppercase;letter-spacing:.3px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #eee}
+.accom-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;margin-top:12px}
+.accom-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #eee;border-radius:6px;font-size:13px}
+.accom-row-info{flex:1;min-width:0}
+.accom-row-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.accom-row-meta{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.accom-badge{font-size:10px;font-weight:700;background:#e61f26;color:#fff;padding:2px 6px;border-radius:3px;margin-right:4px}
+.accom-custom-badge{background:#555}
+.empty-msg{text-align:center;color:#aaa;padding:24px;font-style:italic;font-size:13px}
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;padding:11px 20px;border-radius:6px;font-size:13px;z-index:3000;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.err{background:#c0392b}
+.opt-note{font-size:10px;color:#aaa;font-weight:400;text-transform:none;margin-left:4px}
+.extra-row{grid-column:1/-1;background:#fff8f8;border:1.5px dashed #e61f26;border-radius:8px;padding:16px;margin-top:8px}
+.extra-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.extra-row-header h4{font-size:12px;font-weight:700;color:#e61f26;text-transform:uppercase;letter-spacing:.5px}
+.add-row-strip{display:flex;align-items:center;gap:10px;margin-top:4px;grid-column:1/-1}
+.second-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.notif-card{border-radius:7px;padding:14px 16px;margin-bottom:10px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start}
+.notif-upcoming{background:#fffbea;border-color:#f59e0b}
+.notif-checkin{background:#fff0f0;border-color:#e61f26}
+.notif-checkout{background:#eff6ff;border-color:#3b82f6}
+.notif-confirmed{background:#f0fdf4;border-color:#22c55e}
+.notif-invoice{background:#faf5ff;border-color:#7c3aed}
+.notif-chase{background:#fff7ed;border-color:#f97316}
+.notif-clickable{cursor:pointer;transition:filter .15s}
+.notif-clickable:hover{filter:brightness(0.96)}
+.btn-coding{background:#7c3aed;color:#fff;border:none}
+.btn-coding:hover{background:#6d28d9;color:#fff}
+.notif-icon{font-size:19px;line-height:1;flex-shrink:0;margin-top:1px}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13.5px;font-weight:700;margin-bottom:7px;color:#222;line-height:1.4}
+.notif-meta{font-size:12px;color:#555;display:flex;flex-wrap:wrap;gap:10px}
+.notif-meta span{white-space:nowrap}
+.notif-meta strong{color:#333}
+.notif-empty{text-align:center;color:#aaa;padding:44px 20px;font-size:14px}
+.notif-badge{display:inline-block;background:#e61f26;color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.cl-inp{border:1px solid transparent;background:transparent;padding:2px 5px;font-size:12px;width:90px;border-radius:3px;color:#333;transition:all .12s}
+.cl-inp:hover{border-color:#ccc;background:#fafafa}
+.cl-inp:focus{outline:none;border-color:#e61f26;background:#fff;box-shadow:0 0 0 2px rgba(230,31,38,.08)}
+.cl-inp-wide{width:120px}
+.cl-tbl td{max-width:140px}
+.cl-tbl td.cl-reason{white-space:normal;min-width:170px;max-width:220px}
+.cl-tbl td.cl-ns{max-width:130px;font-size:11px;color:#666}
+
+/* ── TOPBAR / LAMP NAV ─────────────────────────────────── */
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 28px;background:#fff;position:sticky;top:0;z-index:150;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lamp-nav-wrap{justify-self:center}
+.lamp-nav{position:relative;display:flex;gap:2px;background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.lamp-item{position:relative;z-index:2;border:none;background:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .2s;white-space:nowrap}
+.lamp-item.active{color:#fff}
+.lamp-item:hover:not(.active){color:#e61f26}
+.lamp-ico{font-size:14px;line-height:1}
+.lamp-highlight{position:absolute;top:5px;bottom:5px;border-radius:999px;background:#e61f26;transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);z-index:1}
+.lamp-glow{position:absolute;top:-7px;height:3px;border-radius:3px;background:#e61f26;box-shadow:0 0 14px 3px rgba(230,31,38,.65);transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);z-index:1}
+.btn-logout{padding:8px 18px;border:1.5px solid #e61f26;background:#fff;color:#e61f26;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-logout:hover{background:#fff0f0}
+@media(max-width:820px){.lamp-label{display:none}.lamp-item{padding:9px 13px}.topbar{padding:12px 14px}}
+
+/* ── RIPPLE GRID BACKGROUND ────────────────────────────── */
+.ripple-bg{position:fixed;inset:0;z-index:1;display:grid;grid-auto-rows:42px;overflow:hidden}
+.ripple-cell{border:1px solid rgba(0,0,0,.03);transition:background .4s}
+.ripple-cell:hover{background:rgba(230,31,38,.1)}
+.ripple-cell.pulse{background:rgba(230,31,38,.26)}
+
+/* ── HOME TAB ──────────────────────────────────────────── */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.week-card{border:1px solid #eee;border-radius:8px;padding:14px;background:#fafafa}
+.week-card-state{display:inline-block;font-size:10px;font-weight:700;background:#e61f26;color:#fff;padding:2px 8px;border-radius:4px;margin-bottom:8px;letter-spacing:.4px}
+.week-card-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.week-card-meta{font-size:12px;color:#777;margin-bottom:6px}
+.week-card-dates{font-size:12px;color:#333;font-weight:600}
+.todo-list{display:flex;flex-direction:column;gap:8px}
+.todo-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #eee;border-radius:6px;font-size:13px}
+.todo-check{width:20px;height:20px;border-radius:5px;border:2px solid #f97316;background:#fff;cursor:pointer;flex-shrink:0}
+.todo-check:hover{background:#fff7ed}
+
+/* ── EXCEL-STYLE COLUMN FILTERS ────────────────────────── */
+.fh-wrap{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.fh-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:9px;padding:2px 4px;border-radius:3px;line-height:1}
+.fh-btn:hover{color:#e61f26}
+.fh-btn.active{color:#e61f26}
+.fh-btn.is-filtered{color:#f59e0b;background:rgba(245,158,11,.15)}
+.filter-pop{position:absolute;z-index:900;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 10px 26px rgba(0,0,0,.15);padding:10px;display:none;min-width:190px}
+.filter-pop.open{display:block}
+.filter-input{width:100%;padding:7px 9px;border:1.5px solid #ddd;border-radius:5px;font-size:12.5px;margin-bottom:8px;box-sizing:border-box}
+.filter-radio-row{display:flex;flex-direction:column;gap:6px;font-size:12.5px;margin-bottom:8px;font-weight:400;text-transform:none;letter-spacing:0;color:#444}
+.filter-radio-row label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.filter-actions{display:flex;justify-content:flex-end}
+
+/* ── UPCOMING/PAST SUB-TABS ────────────────────────────── */
+.subtabs{display:flex;gap:8px;margin-bottom:14px}
+.subtab-btn{padding:7px 16px;border:1.5px solid #ddd;border-radius:20px;background:#f7f7f7;font-size:12.5px;font-weight:700;color:#666;cursor:pointer;transition:all .15s}
+.subtab-btn.active{background:#e61f26;border-color:#e61f26;color:#fff}
+.subtab-btn:hover:not(.active){border-color:#e61f26;color:#e61f26}
+
+/* ── CALENDAR DATE PICKER ──────────────────────────────── */
+.dp-wrap{position:relative}
+.dp-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:14px;color:#333;cursor:pointer;text-align:left}
+.dp-btn:hover{border-color:#e61f26}
+.dp-label.muted{color:#999}
+.dp-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:600;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px;display:none;width:250px}
+.dp-pop.open{display:block}
+.dp-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12.5px;font-weight:700;color:#333}
+.dp-nav button{border:none;background:#f5f5f5;border-radius:5px;width:26px;height:26px;cursor:pointer;font-size:14px;color:#666}
+.dp-nav button:hover{background:#fff0f0;color:#e61f26}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:12px;text-align:center}
+.dp-dow{color:#aaa;font-weight:700;font-size:10px;padding:4px 0}
+.dp-day{padding:6px 0;border-radius:5px;cursor:pointer}
+.dp-day:hover{background:#fff0f0}
+.dp-day.today{background:#f0f0f0;font-weight:700}
+.dp-day.sel{background:#e61f26;color:#fff;font-weight:700}
+.dp-day.muted{color:#ddd;cursor:default}
+
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}.second-date-grid{grid-template-columns:1fr}main{padding:0 12px}.tabs{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<div class="ripple-bg" id="rippleBg"></div>
+
+<header>
+  <div>
+    <div class="logo">TravelDesk</div>
+    <div class="logo-tag">Travel Booking Management</div>
+  </div>
+  <div class="demo-badge">Demo Project</div>
+</header>
+
+<div class="topbar">
+  <div></div>
+  <div class="lamp-nav-wrap">
+    <nav class="lamp-nav" id="lampNav">
+      <div class="lamp-highlight" id="lampHighlight"></div>
+      <div class="lamp-glow" id="lampGlow"></div>
+      <button class="lamp-item active" data-tab="home" onclick="showSection('home',this)"><span class="lamp-ico">&#127968;</span><span class="lamp-label">Home</span></button>
+      <button class="lamp-item" data-tab="booking" onclick="showSection('booking',this)"><span class="lamp-ico">&#128197;</span><span class="lamp-label">Booking</span></button>
+      <button class="lamp-item" data-tab="dashboard" onclick="showSection('dashboard',this)"><span class="lamp-ico">&#128202;</span><span class="lamp-label">Dashboard</span></button>
+      <button class="lamp-item" data-tab="chargelog" onclick="showSection('chargelog',this)"><span class="lamp-ico">&#129534;</span><span class="lamp-label">Charge Log</span></button>
+      <button class="lamp-item" data-tab="notifications" onclick="showSection('notifications',this)" id="nav-notifications"><span class="lamp-ico">&#128276;</span><span class="lamp-label">Notifications</span></button>
+      <button class="lamp-item" data-tab="users" onclick="showSection('users',this)"><span class="lamp-ico">&#128101;</span><span class="lamp-label">Users</span></button>
+    </nav>
+  </div>
+  <div style="justify-self:end"><button class="btn-logout" onclick="toast('This is a demo — there\'s no real login here.')">Log out</button></div>
+</div>
+
+<main>
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <div class="card">
+    <div class="card-title">This Week's Travel</div>
+    <div class="home-grid" id="homeWeekGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">To Do: Invoices to Chase</div>
+    <div class="todo-list" id="homeTodoList"></div>
+  </div>
+</div>
+
+<!-- BOOKING TOOL -->
+<div id="booking" class="section">
+  <div class="card">
+    <div class="card-title">New Booking</div>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <div class="label-row">
+          <label>Driver Name</label>
+          <span style="display:flex;gap:10px"><span class="label-action" onclick="openManageDrivers()">Manage</span><span class="label-action" onclick="openAddDriver()">+ Add custom</span></span>
+        </div>
+        <div class="ac-wrap">
+          <input type="text" id="driverName" placeholder="Search driver…" autocomplete="off">
+          <div class="ac-drop" id="dd-driver"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="text" id="driverContact" placeholder="Auto-filled on driver select">
+      </div>
+
+      <div class="form-group">
+        <label>Check In</label>
+        <div class="dp-wrap" data-for="checkIn">
+          <button type="button" class="dp-btn"><span class="dp-cal-ico">&#128197;</span><span class="dp-label muted">Check-in date</span></button>
+          <input type="hidden" id="checkIn" value="">
+          <div class="dp-pop"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Check Out</label>
+        <div class="dp-wrap" data-for="checkOut">
+          <button type="button" class="dp-btn"><span class="dp-cal-ico">&#128197;</span><span class="dp-label muted">Check-out date</span></button>
+          <input type="hidden" id="checkOut" value="">
+          <div class="dp-pop"></div>
+        </div>
+      </div>
+
+      <div id="extraBookingRowsContainer" style="grid-column:1/-1"></div>
+      <div class="add-row-strip">
+        <button class="btn btn-secondary btn-sm" id="addBookingRowBtn" onclick="addBookingRow()">＋ Add Booking Row</button>
+        <span style="font-size:12px;color:#aaa">Optional — add up to 4 rows total</span>
+      </div>
+
+      <div class="form-group">
+        <div class="label-row">
+          <label>Accommodation Name</label>
+          <span style="display:flex;gap:10px"><span class="label-action" onclick="openManageAccoms()">Manage</span><span class="label-action" onclick="openAddAccom()">+ Add custom</span></span>
+        </div>
+        <div class="ac-wrap">
+          <input type="text" id="accomName" placeholder="Search accommodation…" autocomplete="off">
+          <div class="ac-drop" id="dd-accom"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Accommodation Email</label>
+        <input type="email" id="accomEmail" placeholder="Auto-filled on accommodation select">
+      </div>
+
+      <div class="form-group">
+        <label>Accommodation Phone</label>
+        <input type="text" id="accomPhone" placeholder="Auto-filled on accommodation select">
+      </div>
+
+      <div class="form-group">
+        <label>Accommodation Address</label>
+        <input type="text" id="accomAddress" placeholder="Auto-filled on accommodation select">
+      </div>
+
+      <div class="form-group">
+        <label>State</label>
+        <select id="state">
+          <option value="">Select state…</option>
+          <option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option><option>SA</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="generateBooking()">Generate Booking</button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+    </div>
+  </div>
+
+  <div id="emailOutput" class="card out-area">
+    <div class="card-title">Booking Email</div>
+    <div class="email-box" id="emailText"></div>
+    <div class="copy-row" style="gap:10px">
+      <button class="btn btn-secondary" onclick="copyEmail()">Copy to Clipboard</button>
+      <button class="btn btn-primary" onclick="openInOutlook()">&#9993; Open in Outlook</button>
+    </div>
+  </div>
+
+  <div id="pdfOutput" class="card out-area">
+    <div class="card-title">Chargeback PDF</div>
+    <p style="color:#666;font-size:13px;margin-bottom:16px;">In the live tool this generates a completed Corporate Credit Card Charge Authority form.</p>
+    <button class="btn btn-primary" onclick="downloadChargeback()">Download Chargeback PDF</button>
+  </div>
+</div>
+
+<!-- TRAVEL LOG DASHBOARD -->
+<div id="dashboard" class="section">
+  <div class="tabs" id="stateTabs">
+    <div class="tab-btn active" onclick="showTab('NSW',this)">NSW</div>
+    <div class="tab-btn" onclick="showTab('VIC',this)">VIC</div>
+    <div class="tab-btn" onclick="showTab('QLD',this)">QLD</div>
+    <div class="tab-btn" onclick="showTab('WA',this)">WA</div>
+    <div class="tab-btn" onclick="showTab('SA',this)">SA</div>
+  </div>
+  <div id="pane-NSW" class="tab-pane active">
+    <div class="tab-hdr"><h3>NSW Bookings</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportTravelLog('NSW')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAdd('NSW')">+ Add Booking</button><button class="btn btn-danger btn-sm" onclick="clearAllBookings('NSW')">Clear All</button></div></div>
+    <div class="subtabs"><button class="subtab-btn active" id="stab-up-NSW" onclick="showTlogSubtab('NSW','upcoming',this)">Upcoming Trips (0)</button><button class="subtab-btn" id="stab-past-NSW" onclick="showTlogSubtab('NSW','past',this)">Past Trips (0)</button></div>
+    <div class="tbl-wrap"><table><thead id="th-NSW"></thead><tbody id="tb-NSW"></tbody></table></div>
+  </div>
+  <div id="pane-VIC" class="tab-pane">
+    <div class="tab-hdr"><h3>VIC Bookings</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportTravelLog('VIC')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAdd('VIC')">+ Add Booking</button><button class="btn btn-danger btn-sm" onclick="clearAllBookings('VIC')">Clear All</button></div></div>
+    <div class="subtabs"><button class="subtab-btn active" id="stab-up-VIC" onclick="showTlogSubtab('VIC','upcoming',this)">Upcoming Trips (0)</button><button class="subtab-btn" id="stab-past-VIC" onclick="showTlogSubtab('VIC','past',this)">Past Trips (0)</button></div>
+    <div class="tbl-wrap"><table><thead id="th-VIC"></thead><tbody id="tb-VIC"></tbody></table></div>
+  </div>
+  <div id="pane-QLD" class="tab-pane">
+    <div class="tab-hdr"><h3>QLD Bookings</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportTravelLog('QLD')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAdd('QLD')">+ Add Booking</button><button class="btn btn-danger btn-sm" onclick="clearAllBookings('QLD')">Clear All</button></div></div>
+    <div class="subtabs"><button class="subtab-btn active" id="stab-up-QLD" onclick="showTlogSubtab('QLD','upcoming',this)">Upcoming Trips (0)</button><button class="subtab-btn" id="stab-past-QLD" onclick="showTlogSubtab('QLD','past',this)">Past Trips (0)</button></div>
+    <div class="tbl-wrap"><table><thead id="th-QLD"></thead><tbody id="tb-QLD"></tbody></table></div>
+  </div>
+  <div id="pane-WA" class="tab-pane">
+    <div class="tab-hdr"><h3>WA Bookings</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportTravelLog('WA')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAdd('WA')">+ Add Booking</button><button class="btn btn-danger btn-sm" onclick="clearAllBookings('WA')">Clear All</button></div></div>
+    <div class="subtabs"><button class="subtab-btn active" id="stab-up-WA" onclick="showTlogSubtab('WA','upcoming',this)">Upcoming Trips (0)</button><button class="subtab-btn" id="stab-past-WA" onclick="showTlogSubtab('WA','past',this)">Past Trips (0)</button></div>
+    <div class="tbl-wrap"><table><thead id="th-WA"></thead><tbody id="tb-WA"></tbody></table></div>
+  </div>
+  <div id="pane-SA" class="tab-pane">
+    <div class="tab-hdr"><h3>SA Bookings</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportTravelLog('SA')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAdd('SA')">+ Add Booking</button><button class="btn btn-danger btn-sm" onclick="clearAllBookings('SA')">Clear All</button></div></div>
+    <div class="subtabs"><button class="subtab-btn active" id="stab-up-SA" onclick="showTlogSubtab('SA','upcoming',this)">Upcoming Trips (0)</button><button class="subtab-btn" id="stab-past-SA" onclick="showTlogSubtab('SA','past',this)">Past Trips (0)</button></div>
+    <div class="tbl-wrap"><table><thead id="th-SA"></thead><tbody id="tb-SA"></tbody></table></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifications" class="section">
+  <div class="tabs" id="notifTabs">
+    <div class="tab-btn active" onclick="showNotifTab('NSW',this)">NSW</div>
+    <div class="tab-btn" onclick="showNotifTab('VIC',this)">VIC</div>
+    <div class="tab-btn" onclick="showNotifTab('QLD',this)">QLD</div>
+    <div class="tab-btn" onclick="showNotifTab('WA',this)">WA</div>
+    <div class="tab-btn" onclick="showNotifTab('SA',this)">SA</div>
+  </div>
+  <div id="notif-pane-NSW" class="tab-pane active"><div class="notif-list" id="notif-list-NSW"></div></div>
+  <div id="notif-pane-VIC" class="tab-pane"><div class="notif-list" id="notif-list-VIC"></div></div>
+  <div id="notif-pane-QLD" class="tab-pane"><div class="notif-list" id="notif-list-QLD"></div></div>
+  <div id="notif-pane-WA"  class="tab-pane"><div class="notif-list" id="notif-list-WA"></div></div>
+  <div id="notif-pane-SA"  class="tab-pane"><div class="notif-list" id="notif-list-SA"></div></div>
+</div>
+
+<!-- CHARGE LOG -->
+<div id="chargelog" class="section">
+  <div class="tabs" id="clTabs">
+    <div class="tab-btn active" onclick="showCLTab('NSW',this)">NSW</div>
+    <div class="tab-btn" onclick="showCLTab('VIC',this)">VIC</div>
+    <div class="tab-btn" onclick="showCLTab('QLD',this)">QLD</div>
+    <div class="tab-btn" onclick="showCLTab('WA',this)">WA</div>
+    <div class="tab-btn" onclick="showCLTab('SA',this)">SA</div>
+  </div>
+  <div id="cl-pane-NSW" class="tab-pane active">
+    <div class="tab-hdr"><h3>NSW Charge Log</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportChargeLog('NSW')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAddCL('NSW')">+ Add Entry</button></div></div>
+    <div class="tbl-wrap"><table class="cl-tbl"><thead id="cl-th-NSW"></thead><tbody id="cl-tb-NSW"></tbody></table></div>
+  </div>
+  <div id="cl-pane-VIC" class="tab-pane">
+    <div class="tab-hdr"><h3>VIC Charge Log</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportChargeLog('VIC')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAddCL('VIC')">+ Add Entry</button></div></div>
+    <div class="tbl-wrap"><table class="cl-tbl"><thead id="cl-th-VIC"></thead><tbody id="cl-tb-VIC"></tbody></table></div>
+  </div>
+  <div id="cl-pane-QLD" class="tab-pane">
+    <div class="tab-hdr"><h3>QLD Charge Log</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportChargeLog('QLD')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAddCL('QLD')">+ Add Entry</button></div></div>
+    <div class="tbl-wrap"><table class="cl-tbl"><thead id="cl-th-QLD"></thead><tbody id="cl-tb-QLD"></tbody></table></div>
+  </div>
+  <div id="cl-pane-WA" class="tab-pane">
+    <div class="tab-hdr"><h3>WA Charge Log</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportChargeLog('WA')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAddCL('WA')">+ Add Entry</button></div></div>
+    <div class="tbl-wrap"><table class="cl-tbl"><thead id="cl-th-WA"></thead><tbody id="cl-tb-WA"></tbody></table></div>
+  </div>
+  <div id="cl-pane-SA" class="tab-pane">
+    <div class="tab-hdr"><h3>SA Charge Log</h3><div style="display:flex;gap:6px"><button class="btn btn-excel btn-sm" onclick="exportChargeLog('SA')">&#8595; Export Excel</button><button class="btn btn-primary btn-sm" onclick="openAddCL('SA')">+ Add Entry</button></div></div>
+    <div class="tbl-wrap"><table class="cl-tbl"><thead id="cl-th-SA"></thead><tbody id="cl-tb-SA"></tbody></table></div>
+  </div>
+</div>
+
+<!-- USERS -->
+<div id="users" class="section">
+  <div class="card">
+    <div class="card-title">Add User</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Username</label><input type="text" id="u-username" placeholder="e.g. jsmith"></div>
+      <div class="form-group"><label>Password</label><input type="text" id="u-password" placeholder="Temporary password"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="addUser()">+ Add User</button></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Users</div>
+    <div class="tbl-wrap"><table><thead><tr><th>Username</th><th>Created</th><th>Actions</th></tr></thead><tbody id="usersTbody"></tbody></table></div>
+  </div>
+</div>
+
+</main>
+
+<!-- BOOKING MODAL -->
+<div class="overlay" id="bookingModal" onclick="overlayClick(event,'bookingModal')">
+  <div class="modal">
+    <h3 id="bookingModalTitle">Add Booking</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Driver Name</label>
+        <div class="ac-wrap"><input type="text" id="m-driver" placeholder="Search driver…" autocomplete="off"><div class="ac-drop" id="dd-m-driver"></div></div>
+      </div>
+      <div class="form-group"><label>Contact Number</label><input type="text" id="m-contact" placeholder="Contact number"></div>
+      <div class="form-group"><label>Check In</label><input type="date" id="m-checkIn"></div>
+      <div class="form-group"><label>Check Out</label><input type="date" id="m-checkOut"></div>
+      <div class="form-group full"><label>Destination <span class="opt-note">(city/area)</span></label><input type="text" id="m-dest" placeholder="e.g. Dubbo"></div>
+      <div class="form-group full"><label>Accommodation Name</label><div class="ac-wrap"><input type="text" id="m-accom" placeholder="Search accommodation…" autocomplete="off"><div class="ac-drop" id="dd-m-accom"></div></div></div>
+      <div class="form-group full"><label>Address</label><input type="text" id="m-address" placeholder="Address"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="m-phone" placeholder="Phone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="m-email" placeholder="Email"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bookingModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBookingModal()">Save Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DRIVER MODAL -->
+<div class="overlay" id="driverModal" onclick="overlayClick(event,'driverModal')">
+  <div class="modal">
+    <h3 id="driverModalTitle">Add Custom Driver</h3>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Driver Name</label>
+        <input type="text" id="dr-name" placeholder="e.g. John Smith">
+      </div>
+      <div class="form-group full">
+        <label>Contact Number</label>
+        <input type="text" id="dr-contact" placeholder="e.g. 0400 000 000">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('driverModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDriverModal()">Save Driver</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE DRIVERS MODAL -->
+<div class="overlay" id="manageDriversModal" onclick="overlayClick(event,'manageDriversModal')">
+  <div class="modal modal-wide">
+    <h3>Manage Drivers</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:10px">Search and edit any driver's details.</p>
+    <input type="text" id="driverSearchInp" placeholder="Search by name…" oninput="renderManageDriverList(this.value)" style="margin-bottom:12px">
+    <div id="manageDriverList" class="accom-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('manageDriversModal')">Close</button>
+      <button class="btn btn-primary" onclick="openAddDriver()">+ Add New</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ACCOMMODATION MODAL -->
+<div class="overlay" id="accomModal" onclick="overlayClick(event,'accomModal')">
+  <div class="modal">
+    <h3 id="accomModalTitle">Add Custom Accommodation</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Accommodation Name</label><input type="text" id="ac-name" placeholder="e.g. Best Western Dubbo"></div>
+      <div class="form-group full"><label>Address</label><input type="text" id="ac-address" placeholder="Full street address"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="ac-phone" placeholder="Phone number"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="ac-email" placeholder="Booking email"></div>
+      <div class="form-group"><label>State</label><select id="ac-state"><option value="">Select state…</option><option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option><option>SA</option></select></div>
+      <div class="form-group"><label>Destination <span class="opt-note">(city/area)</span></label><input type="text" id="ac-dest" placeholder="e.g. Dubbo"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('accomModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAccomModal()">Save Accommodation</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE ACCOMMODATIONS MODAL -->
+<div class="overlay" id="manageModal" onclick="overlayClick(event,'manageModal')">
+  <div class="modal modal-wide">
+    <h3>Manage Accommodations</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:10px">Search and edit any accommodation's details.</p>
+    <input type="text" id="accomSearchInp" placeholder="Search by name, suburb, state…" oninput="renderManageAccomList(this.value)" style="margin-bottom:12px">
+    <div id="manageAccomList" class="accom-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('manageModal')">Close</button>
+      <button class="btn btn-primary" onclick="openAddAccom()">+ Add New</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHARGE LOG ADD/EDIT MODAL -->
+<div class="overlay" id="clModal" onclick="overlayClick(event,'clModal')">
+  <div class="modal modal-wide">
+    <h3 id="clModalTitle">Add Charge Log Entry</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Driver Name</label><div class="ac-wrap"><input type="text" id="cl-driver" placeholder="Search driver…" autocomplete="off"><div class="ac-drop" id="dd-cl-driver"></div></div></div>
+      <div class="form-group"><label>Location (City/Area)</label><input type="text" id="cl-dest" placeholder="e.g. Dubbo"></div>
+      <div class="form-group"><label>Check In</label><input type="date" id="cl-checkIn"></div>
+      <div class="form-group"><label>Check Out</label><input type="date" id="cl-checkOut"></div>
+      <div class="form-group full"><label>Accommodation Name</label><div class="ac-wrap"><input type="text" id="cl-accom" placeholder="Search accommodation…" autocomplete="off"><div class="ac-drop" id="dd-cl-accom"></div></div></div>
+      <div class="form-group full"><label>Address</label><input type="text" id="cl-address" placeholder="Address"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="cl-phone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="cl-email"></div>
+      <div class="form-group"><label>Quoted Cost <span class="opt-note">(optional)</span></label><input type="text" id="cl-quotedCost" placeholder="e.g. 150.00"></div>
+      <div class="form-group"><label>Invoice <span class="opt-note">(optional)</span></label><input type="text" id="cl-invoice"></div>
+      <div class="form-group"><label>Invoice Cost <span class="opt-note">(optional)</span></label><input type="text" id="cl-invoiceCost" placeholder="e.g. 150.00"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCLModal()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- NETSUITE CODING MODAL -->
+<div class="overlay" id="codingModal" onclick="overlayClick(event,'codingModal')">
+  <div class="modal modal-wide">
+    <h3>NetSuite Coding</h3>
+    <textarea id="codingText" readonly style="width:100%;height:220px;font-family:monospace;font-size:13px;resize:vertical;border:1px solid #ddd;border-radius:5px;padding:10px;background:#f8f9fa;box-sizing:border-box;color:#222;line-height:1.6"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('codingModal')">Close</button>
+      <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('codingText').value).then(()=>toast('Copied to clipboard!'))">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE RECEIVED MODAL -->
+<div class="overlay" id="clinvoicenotifModal" onclick="overlayClick(event,'clinvoicenotifModal')">
+  <div class="modal">
+    <h3>Invoice Received</h3>
+    <p style="margin:0 0 14px;font-size:14px;color:#555">Driver: <strong id="clinvoicenotif-driver"></strong><br>Accommodation: <strong id="clinvoicenotif-accom"></strong></p>
+    <div class="form-grid">
+      <div class="form-group"><label>Invoice Number / Reference <span class="opt-note">(optional)</span></label><input type="text" id="clinvoicenotif-invoice" placeholder="e.g. INV-00123"></div>
+      <div class="form-group"><label>Invoice Cost</label><input type="text" id="clinvoicenotif-invoiceCost" placeholder="e.g. 150.00"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clinvoicenotifModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCLFromInvoiceNotif()">Update Charge Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TO CHARGE LOG FROM NOTIFICATION -->
+<div class="overlay" id="clnotifModal" onclick="overlayClick(event,'clnotifModal')">
+  <div class="modal">
+    <h3>Add to Charge Log</h3>
+    <p style="margin:0 0 14px;font-size:14px;color:#555">Driver: <strong id="clnotif-driver"></strong><br>Accommodation: <strong id="clnotif-accom"></strong></p>
+    <div class="form-grid">
+      <div class="form-group"><label>Booking Reference <span class="opt-note">(optional)</span></label><input type="text" id="clnotif-bookingRef" placeholder="e.g. BK12345"></div>
+      <div class="form-group"><label>Quoted Cost <span class="opt-note">(optional)</span></label><input type="text" id="clnotif-quotedCost" placeholder="e.g. 150.00"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clnotifModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCLFromNotif()">Add to Charge Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="overlay" id="resetPwModal" onclick="overlayClick(event,'resetPwModal')">
+  <div class="modal">
+    <h3>Reset Password</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>New Password</label><input type="text" id="rp-password" placeholder="New password"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('resetPwModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveResetPassword()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── IN-MEMORY STORE (replaces backend API) ───────────────
+// This demo runs entirely in the browser. Instead of calling a server,
+// data is held in memory and resets on page refresh.
+const _db = { bookings: [], chargelogs: [], confirmedNotifs: [], invoiceNotifs: [], accoms: [], drivers: [] };
+let _idCounter = 1;
+function _newId() { return 'id_' + (_idCounter++) + '_' + Date.now(); }
+
+// Mock API: mimics the original async api() but operates on _db in memory.
+async function api(url, opts = {}) {
+  const method = (opts.method || 'GET').toUpperCase();
+  const body = opts.body;
+  // Bookings
+  if (url === '/api/bookings' && method === 'POST') { const rec = { ...body, id: _newId() }; _db.bookings.push(rec); return rec; }
+  let m;
+  if ((m = url.match(/^\/api\/bookings\/([A-Z]{2,3})$/)) && method === 'GET') { return _db.bookings.filter(b => b.state === m[1]); }
+  if ((m = url.match(/^\/api\/bookings\/(.+)$/)) && method === 'PATCH') { const b = _db.bookings.find(x => x.id === m[1]); if (b) Object.assign(b, body); return b || {}; }
+  if ((m = url.match(/^\/api\/bookings\/(.+)$/)) && method === 'DELETE') { _db.bookings = _db.bookings.filter(x => x.id !== m[1]); return { ok: true }; }
+  // Charge logs
+  if (url === '/api/chargelogs' && method === 'POST') { const rec = { ...body, id: body.id || _newId() }; _db.chargelogs.push(rec); return rec; }
+  if ((m = url.match(/^\/api\/chargelogs\/([A-Z]{2,3})$/)) && method === 'GET') { return _db.chargelogs.filter(e => e.state === m[1]); }
+  if ((m = url.match(/^\/api\/chargelogs\/(.+)$/)) && method === 'PATCH') { const e = _db.chargelogs.find(x => x.id === m[1]); if (e) Object.assign(e, body); return e || {}; }
+  if ((m = url.match(/^\/api\/chargelogs\/(.+)$/)) && method === 'DELETE') { _db.chargelogs = _db.chargelogs.filter(x => x.id !== m[1]); return { ok: true }; }
+  // Notifs
+  if (url === '/api/notifs/confirmed' && method === 'GET') return _db.confirmedNotifs;
+  if (url === '/api/notifs/confirmed' && method === 'POST') { const rec = { ...body, id: _newId() }; _db.confirmedNotifs.push(rec); return rec; }
+  if ((m = url.match(/^\/api\/notifs\/confirmed\/(.+)$/)) && method === 'DELETE') { _db.confirmedNotifs = _db.confirmedNotifs.filter(x => x.id !== m[1]); return { ok: true }; }
+  if (url === '/api/notifs/invoice' && method === 'GET') return _db.invoiceNotifs;
+  if (url === '/api/notifs/invoice' && method === 'POST') { const rec = { ...body, id: _newId() }; _db.invoiceNotifs.push(rec); return rec; }
+  if ((m = url.match(/^\/api\/notifs\/invoice\/(.+)$/)) && method === 'DELETE') { _db.invoiceNotifs = _db.invoiceNotifs.filter(x => x.id !== m[1]); return { ok: true }; }
+  // Accoms / drivers (custom)
+  if (url === '/api/accoms' && method === 'GET') return _db.accoms;
+  if (url === '/api/accoms' && method === 'POST') { const rec = { ...body, id: _newId() }; _db.accoms.push(rec); return rec; }
+  if ((m = url.match(/^\/api\/accoms\/(.+)$/)) && method === 'PUT') { const a = _db.accoms.find(x => x.id === m[1]); if (a) Object.assign(a, body); return a || {}; }
+  if ((m = url.match(/^\/api\/accoms\/(.+)$/)) && method === 'DELETE') { _db.accoms = _db.accoms.filter(x => x.id !== m[1]); return { ok: true }; }
+  if (url === '/api/drivers' && method === 'GET') return _db.drivers;
+  if (url === '/api/drivers' && method === 'POST') { const rec = { ...body, id: _newId() }; _db.drivers.push(rec); return rec; }
+  if ((m = url.match(/^\/api\/drivers\/(.+)$/)) && method === 'PUT') { const d = _db.drivers.find(x => x.id === m[1]); if (d) Object.assign(d, body); return d || {}; }
+  if ((m = url.match(/^\/api\/drivers\/(.+)$/)) && method === 'DELETE') { _db.drivers = _db.drivers.filter(x => x.id !== m[1]); return { ok: true }; }
+  return {};
+}
+
+// ── DATA (placeholder / sample only) ─────────────────────
+const DRIVERS = [
+  {name:'Alex Driver',     contact:'0400 000 101'},
+  {name:'Sam Carter',      contact:'0400 000 102'},
+  {name:'Jordan Lee',      contact:'0400 000 103'},
+  {name:'Riley Morgan',    contact:'0400 000 104'},
+  {name:'Casey Nguyen',    contact:'0400 000 105'},
+  {name:'Taylor Brooks',   contact:'0400 000 106'},
+  {name:'Jamie Patel',     contact:'0400 000 107'},
+  {name:'Drew Wilson',     contact:'0400 000 108'},
+];
+
+const BUILTIN_ACCOMS = [
+  {name:'Riverside Motor Inn',address:'1 Sample St Dubbo NSW 2830',phone:'02 0000 0001',email:'stay@example.com',state:'NSW',dest:'Dubbo'},
+  {name:'Highview Lodge Goulburn',address:'2 Sample St Goulburn NSW 2580',phone:'02 0000 0002',email:'stay@example.com',state:'NSW',dest:'Goulburn'},
+  {name:'Parkside Motel Wagga',address:'3 Sample St Wagga Wagga NSW 2650',phone:'02 0000 0003',email:'stay@example.com',state:'NSW',dest:'Wagga Wagga'},
+  {name:'Coastal Village Motel',address:'4 Sample St Shellharbour NSW 2529',phone:'02 0000 0004',email:'stay@example.com',state:'NSW',dest:'Shellharbour'},
+  {name:'Armidale Country Inn',address:'5 Sample St Armidale NSW 2350',phone:'02 0000 0005',email:'stay@example.com',state:'NSW',dest:'Armidale'},
+  {name:'Lakeside Inn Bega',address:'6 Sample St Bega NSW 2550',phone:'02 0000 0006',email:'stay@example.com',state:'NSW',dest:'Bega'},
+  {name:'Riverbank Motel Swan Hill',address:'7 Sample St Swan Hill VIC 3585',phone:'03 0000 0007',email:'stay@example.com',state:'VIC',dest:'Swan Hill'},
+  {name:'Bayview Hotel Warrnambool',address:'8 Sample St Warrnambool VIC 3280',phone:'03 0000 0008',email:'stay@example.com',state:'VIC',dest:'Warrnambool'},
+  {name:'Alpine Motel Bairnsdale',address:'9 Sample St Bairnsdale VIC 3875',phone:'03 0000 0009',email:'stay@example.com',state:'VIC',dest:'Bairnsdale'},
+  {name:'Capital Inn Horsham',address:'10 Sample St Horsham VIC 3400',phone:'03 0000 0010',email:'stay@example.com',state:'VIC',dest:'Horsham'},
+  {name:'Sunset Motor Inn Rockhampton',address:'11 Sample St Rockhampton QLD 4700',phone:'07 0000 0011',email:'stay@example.com',state:'QLD',dest:'Rockhampton'},
+  {name:'Greenfields Motel Murgon',address:'12 Sample St Murgon QLD 4605',phone:'07 0000 0012',email:'stay@example.com',state:'QLD',dest:'Murgon'},
+  {name:'Harbour Lodge Bundaberg',address:'13 Sample St Bundaberg QLD 4670',phone:'07 0000 0013',email:'stay@example.com',state:'QLD',dest:'Bundaberg'},
+  {name:'Albany Heights Motel',address:'14 Sample St Albany WA 6330',phone:'08 0000 0014',email:'stay@example.com',state:'WA',dest:'Albany'},
+  {name:'Geraldton Bay Inn',address:'15 Sample St Geraldton WA 6530',phone:'08 0000 0015',email:'stay@example.com',state:'WA',dest:'Geraldton'},
+  {name:'Goldfields Motel Kalgoorlie',address:'16 Sample St Kalgoorlie WA 6430',phone:'08 0000 0016',email:'stay@example.com',state:'WA',dest:'Kalgoorlie'},
+  {name:'Esperance Shores Motel',address:'17 Sample St Esperance WA 6450',phone:'08 0000 0017',email:'stay@example.com',state:'WA',dest:'Esperance'},
+  {name:'Whyalla Gateway Motel',address:'18 Sample St Whyalla SA 5600',phone:'08 0000 0018',email:'stay@example.com',state:'SA',dest:'Whyalla'},
+  {name:'Eyre Peninsula Inn',address:'19 Sample St Cummins SA 5631',phone:'08 0000 0019',email:'stay@example.com',state:'SA',dest:'Cummins'},
+  {name:'Riverland Motel Berri',address:'20 Sample St Berri SA 5343',phone:'08 0000 0020',email:'stay@example.com',state:'SA',dest:'Berri'},
+];
+
+let customAccoms  = [];
+let customDrivers = [];
+
+function getAllAccoms() {
+  const overriddenNames = new Set(customAccoms.map(a => a.name));
+  const builtins = BUILTIN_ACCOMS.filter(a => !overriddenNames.has(a.name));
+  return [...builtins, ...customAccoms.map(a => ({...a, custom:true}))];
+}
+function getAllDrivers() {
+  const overriddenNames = new Set(customDrivers.map(d => d.name));
+  const builtins = DRIVERS.filter(d => !overriddenNames.has(d.name));
+  return [...builtins, ...customDrivers.map(d => ({...d, custom:true}))];
+}
+
+let bookings = {NSW:[],VIC:[],QLD:[],WA:[],SA:[]};
+let tlogSubtab = {NSW:'upcoming',VIC:'upcoming',QLD:'upcoming',WA:'upcoming',SA:'upcoming'};
+let tlogFilters = {}, clFilters = {};
+['NSW','VIC','QLD','WA','SA'].forEach(s => {
+  tlogFilters[s] = {driverName:'',contact:'',dest:'',accomName:'',accomAddress:'',accomPhone:'',accomEmail:'',sent:'all',confirmed:'all',invoice:'all'};
+  clFilters[s]   = {manager:'',name:'',location:'',month:'',business:''};
+});
+
+// ── RIPPLE GRID BACKGROUND ────────────────────────────────
+function buildRippleGrid() {
+  const el = document.getElementById('rippleBg');
+  const cell = 42;
+  const cols = Math.ceil(window.innerWidth / cell) + 1;
+  const rows = Math.ceil(window.innerHeight / cell) + 1;
+  el.style.gridTemplateColumns = `repeat(${cols}, ${cell}px)`;
+  el.dataset.cols = cols;
+  const frag = document.createDocumentFragment();
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const d = document.createElement('div');
+      d.className = 'ripple-cell'; d.dataset.r = r; d.dataset.c = c;
+      frag.appendChild(d);
+    }
+  }
+  el.innerHTML = '';
+  el.appendChild(frag);
+}
+function rippleFrom(cellEl) {
+  const cols = +document.getElementById('rippleBg').dataset.cols;
+  const r0 = +cellEl.dataset.r, c0 = +cellEl.dataset.c;
+  document.querySelectorAll('.ripple-cell').forEach(cell => {
+    const r = +cell.dataset.r, c = +cell.dataset.c;
+    const dist = Math.hypot(r - r0, c - c0);
+    if (dist > 6) return;
+    setTimeout(() => {
+      cell.classList.add('pulse');
+      setTimeout(() => cell.classList.remove('pulse'), 350);
+    }, dist * 40);
+  });
+}
+document.getElementById('rippleBg').addEventListener('click', e => { if (e.target.classList.contains('ripple-cell')) rippleFrom(e.target); });
+function _debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+window.addEventListener('resize', _debounce(buildRippleGrid, 300));
+
+// ── LAMP NAV ──────────────────────────────────────────────
+function positionLamp(btn) {
+  if (!btn) return;
+  const nav = document.getElementById('lampNav');
+  const hi = document.getElementById('lampHighlight');
+  const gl = document.getElementById('lampGlow');
+  const navRect = nav.getBoundingClientRect(), r = btn.getBoundingClientRect();
+  const left = r.left - navRect.left, width = r.width;
+  hi.style.left = left + 'px'; hi.style.width = width + 'px';
+  gl.style.left = (left + width * 0.2) + 'px'; gl.style.width = (width * 0.6) + 'px';
+}
+window.addEventListener('resize', _debounce(() => positionLamp(document.querySelector('.lamp-item.active')), 200));
+
+// ── BOOKING ROWS ──────────────────────────────────────────
+let _bookingRows = [];
+
+function addBookingRow() {
+  const n = [2,3,4].find(s => !_bookingRows.includes(s));
+  if (!n) return;
+  _bookingRows.push(n);
+  const c = document.getElementById('extraBookingRowsContainer');
+  const div = document.createElement('div');
+  div.className = 'extra-row'; div.id = 'bookingRow-'+n;
+  div.innerHTML =
+    '<div class="extra-row-header">' +
+      '<h4>Booking Row '+n+'</h4>' +
+      '<span class="label-action" onclick="removeBookingRow('+n+')">✕ Remove</span>' +
+    '</div>' +
+    '<div class="second-date-grid">' +
+      '<div class="form-group">' +
+        '<label>Driver Name</label>' +
+        '<div class="ac-wrap">' +
+          '<input type="text" id="driverName'+n+'" placeholder="Search driver…" autocomplete="off">' +
+          '<div class="ac-drop" id="dd-driver'+n+'"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Contact Number</label>' +
+        '<input type="text" id="driverContact'+n+'" placeholder="Auto-filled on driver select">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Check In</label>' +
+        '<div class="dp-wrap" data-for="checkIn'+n+'">' +
+          '<button type="button" class="dp-btn"><span class="dp-cal-ico">&#128197;</span><span class="dp-label muted">Check-in date</span></button>' +
+          '<input type="hidden" id="checkIn'+n+'" value="">' +
+          '<div class="dp-pop"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Check Out</label>' +
+        '<div class="dp-wrap" data-for="checkOut'+n+'">' +
+          '<button type="button" class="dp-btn"><span class="dp-cal-ico">&#128197;</span><span class="dp-label muted">Check-out date</span></button>' +
+          '<input type="hidden" id="checkOut'+n+'" value="">' +
+          '<div class="dp-pop"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  c.appendChild(div);
+  setupAC('driverName'+n, 'dd-driver'+n, getAllDrivers, 'name', function(d) {
+    document.getElementById('driverContact'+n).value = d.contact;
+  });
+  mountDatePicker('checkIn'+n, 'Check-in date');
+  mountDatePicker('checkOut'+n, 'Check-out date');
+  if (_bookingRows.length >= 3) document.getElementById('addBookingRowBtn').disabled = true;
+}
+
+function removeBookingRow(n) {
+  _bookingRows = _bookingRows.filter(function(x) { return x !== n; });
+  const row = document.getElementById('bookingRow-'+n); if (row) row.remove();
+  document.getElementById('addBookingRowBtn').disabled = false;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.lamp-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  positionLamp(btn);
+  if (id === 'notifications') refreshAllNotifications();
+  if (id === 'home') renderHome();
+  if (id === 'users') renderUsers();
+}
+function showNotifTab(state, el) {
+  document.querySelectorAll('#notifications .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#notifTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('notif-pane-'+state).classList.add('active'); el.classList.add('active');
+}
+function showTab(state, el) {
+  document.querySelectorAll('#dashboard .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#stateTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-'+state).classList.add('active'); el.classList.add('active');
+}
+function showCLTab(state, el) {
+  document.querySelectorAll('#chargelog .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#clTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('cl-pane-'+state).classList.add('active'); el.classList.add('active');
+}
+function showTlogSubtab(state, sub, el) {
+  tlogSubtab[state] = sub;
+  const pane = document.getElementById('pane-'+state);
+  pane.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTable(state);
+}
+
+// ── AUTOCOMPLETE ──────────────────────────────────────────
+function setupAC(inputId, dropId, dataOrFn, key, onPick) {
+  const inp  = document.getElementById(inputId);
+  const drop = document.getElementById(dropId);
+  const getData = typeof dataOrFn === 'function' ? dataOrFn : () => dataOrFn;
+  let matches = [], cur = -1;
+  function render(val) {
+    const q = val.trim().toLowerCase();
+    if (!q) { drop.classList.remove('open'); return; }
+    matches = getData().filter(d => d[key].toLowerCase().includes(q));
+    if (!matches.length) { drop.classList.remove('open'); return; }
+    cur = -1; drop.innerHTML = '';
+    matches.forEach((mm, i) => {
+      const div = document.createElement('div');
+      div.className = 'ac-item';
+      div.innerHTML = esc(mm[key]) + (mm.custom ? '<span class="ac-badge">custom</span>' : '');
+      div.addEventListener('mousedown', e => { e.preventDefault(); pick(i); });
+      drop.appendChild(div);
+    });
+    drop.classList.add('open');
+  }
+  function pick(i) {
+    if (i < 0 || i >= matches.length) return;
+    inp.value = matches[i][key]; drop.classList.remove('open');
+    if (onPick) onPick(matches[i]);
+  }
+  function hilite(idx) { drop.querySelectorAll('.ac-item').forEach((el,i) => el.classList.toggle('sel', i===idx)); }
+  inp.addEventListener('input', () => render(inp.value));
+  inp.addEventListener('keydown', e => {
+    if (!drop.classList.contains('open')) return;
+    if (e.key==='ArrowDown'){e.preventDefault();cur=Math.min(cur+1,matches.length-1);hilite(cur);}
+    else if(e.key==='ArrowUp'){e.preventDefault();cur=Math.max(cur-1,0);hilite(cur);}
+    else if(e.key==='Enter'&&cur>=0){e.preventDefault();pick(cur);}
+    else if(e.key==='Escape'){drop.classList.remove('open');}
+  });
+  inp.addEventListener('blur', () => setTimeout(() => drop.classList.remove('open'), 150));
+}
+
+setupAC('driverName','dd-driver', getAllDrivers, 'name', d => { document.getElementById('driverContact').value = d.contact; });
+setupAC('accomName','dd-accom', getAllAccoms, 'name', a => {
+  document.getElementById('accomEmail').value = a.email;
+  document.getElementById('accomPhone').value = a.phone;
+  document.getElementById('accomAddress').value = a.address;
+  document.getElementById('state').value = a.state || '';
+  _selDest = a.dest || '';
+});
+setupAC('m-driver','dd-m-driver', getAllDrivers, 'name', d => { document.getElementById('m-contact').value = d.contact; });
+setupAC('m-accom','dd-m-accom', getAllAccoms, 'name', a => {
+  document.getElementById('m-address').value = a.address;
+  document.getElementById('m-phone').value   = a.phone;
+  document.getElementById('m-email').value   = a.email;
+  document.getElementById('m-dest').value    = a.dest || '';
+});
+
+let _selDest = '';
+
+// ── DATE HELPERS ──────────────────────────────────────────
+function fmtDate(iso) { if (!iso) return ''; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; }
+function isoOf(disp) { if (!disp || !disp.includes('/')) return disp || ''; const [d,m,y] = disp.split('/'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; }
+function todayDisp() { const n = new Date(); return `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()}`; }
+function v(id) { return document.getElementById(id).value.trim(); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function parseDate(dateStr) {
+  if (!dateStr || !dateStr.includes('/')) return null;
+  const [d, m, y] = dateStr.split('/');
+  const dt = new Date(+y, +m-1, +d); dt.setHours(0,0,0,0);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
+// ── CALENDAR DATE PICKER ──────────────────────────────────
+const DP_DOW = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const DP_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function _pad2(n){ return String(n).padStart(2,'0'); }
+function _toIso(y,m,d){ return `${y}-${_pad2(m+1)}-${_pad2(d)}`; }
+function fmtDateShort(iso) { if (!iso) return ''; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+function buildCalendarHTML(year, month, selIso) {
+  const first = new Date(year, month, 1);
+  const startDow = first.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayIso = _toIso(today.getFullYear(), today.getMonth(), today.getDate());
+  let cells = '';
+  for (let i = 0; i < startDow; i++) { const d = daysInPrev - startDow + 1 + i; cells += `<div class="dp-day muted">${d}</div>`; }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = _toIso(year, month, d);
+    let cls = 'dp-day';
+    if (iso === todayIso) cls += ' today';
+    if (iso === selIso) cls += ' sel';
+    cells += `<div class="${cls}" data-iso="${iso}">${d}</div>`;
+  }
+  const totalCells = startDow + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= trailing; i++) { cells += `<div class="dp-day muted">${i}</div>`; }
+  return `<div class="dp-nav"><button type="button" class="dp-prev">&#8249;</button><span>${DP_MONTHS[month]} ${year}</span><button type="button" class="dp-next">&#8250;</button></div>
+   <div class="dp-grid">${DP_DOW.map(d=>`<div class="dp-dow">${d}</div>`).join('')}${cells}</div>`;
+}
+function closeAllDatePickers(){ document.querySelectorAll('.dp-pop.open').forEach(p=>p.classList.remove('open')); }
+document.addEventListener('click', closeAllDatePickers);
+function mountDatePicker(id, placeholder) {
+  const wrap = document.querySelector(`.dp-wrap[data-for="${id}"]`);
+  if (!wrap) return;
+  const btn = wrap.querySelector('.dp-btn'), label = wrap.querySelector('.dp-label'), hidden = document.getElementById(id), pop = wrap.querySelector('.dp-pop');
+  label.textContent = hidden.value ? fmtDateShort(hidden.value) : placeholder;
+  label.classList.toggle('muted', !hidden.value);
+  let viewYear, viewMonth;
+  function setView(iso) {
+    if (iso) { const [y,m] = iso.split('-'); viewYear = +y; viewMonth = +m-1; }
+    else { const n = new Date(); viewYear = n.getFullYear(); viewMonth = n.getMonth(); }
+  }
+  function renderCal() {
+    pop.innerHTML = buildCalendarHTML(viewYear, viewMonth, hidden.value);
+    pop.querySelectorAll('.dp-day[data-iso]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        hidden.value = cell.dataset.iso;
+        label.textContent = fmtDateShort(cell.dataset.iso);
+        label.classList.remove('muted');
+        closeAllDatePickers();
+      });
+    });
+    pop.querySelector('.dp-prev').addEventListener('click', e => { e.stopPropagation(); viewMonth--; if (viewMonth<0){viewMonth=11;viewYear--;} renderCal(); });
+    pop.querySelector('.dp-next').addEventListener('click', e => { e.stopPropagation(); viewMonth++; if (viewMonth>11){viewMonth=0;viewYear++;} renderCal(); });
+  }
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = pop.classList.contains('open');
+    closeAllDatePickers();
+    if (!isOpen) { setView(hidden.value); renderCal(); pop.classList.add('open'); }
+  });
+}
+function resetDatePicker(id, placeholder) {
+  const wrap = document.querySelector(`.dp-wrap[data-for="${id}"]`); if (!wrap) return;
+  const label = wrap.querySelector('.dp-label'); label.textContent = placeholder; label.classList.add('muted');
+}
+
+// ── BOOKING FORM ──────────────────────────────────────────
+async function generateBooking() {
+  const driverName    = v('driverName'), driverContact = v('driverContact');
+  const accomName     = v('accomName'),  accomEmail    = v('accomEmail');
+  const accomPhone    = v('accomPhone'), accomAddress  = v('accomAddress');
+  const state         = v('state'),      checkIn       = v('checkIn'), checkOut = v('checkOut');
+
+  if (!driverName || !accomName || !state || !checkIn || !checkOut) {
+    toast('Please fill in all required fields.', true); return;
+  }
+
+  const rows = [{ name: driverName, contact: driverContact, checkIn, checkOut }];
+  for (const n of _bookingRows) {
+    const name = v('driverName'+n), ci = v('checkIn'+n), co = v('checkOut'+n);
+    if (!name || !ci || !co) { toast('Please fill in all fields for Booking Row '+n+', or remove it.', true); return; }
+    rows.push({ name, contact: v('driverContact'+n), checkIn: ci, checkOut: co });
+  }
+
+  const travelLines = rows.map(function(r) {
+    return 'Name: '+r.name+'\nCheck In: '+fmtDate(r.checkIn)+'  |  Check Out: '+fmtDate(r.checkOut)+'\nContact: '+r.contact;
+  });
+
+  const plural = rows.length > 1 ? 'travellers' : 'traveller';
+  const emailBody =
+'Dear Reception,\n\n' +
+'I am emailing to request bookings at '+accomName+' for the following '+plural+'. If you can please let me know at your earliest convenience if these bookings are available. I have added a chargeback statement for all expenses related to these bookings:\n\n' +
+travelLines.join('\n\n') +
+'\n\nPlease send email confirmations for these bookings directly to me.\n\nKind regards,\nTravel Bookings Team';
+
+  document.getElementById('emailText').textContent = emailBody;
+  document.getElementById('emailOutput').classList.add('show');
+  document.getElementById('pdfOutput').classList.add('show');
+
+  const a = getAllAccoms().find(function(x){return x.name===accomName;});
+  const dest = a ? (a.dest || '') : _selDest;
+
+  const commonFields = { state, dest, accomName, accomAddress, accomPhone, accomEmail, sent: false, confirmed: false, invoice: false };
+
+  const entries = rows.map(function(r) {
+    return Object.assign({}, commonFields, {
+      driverName: r.name,
+      driverContact: r.contact,
+      checkIn: fmtDate(r.checkIn),
+      checkOut: fmtDate(r.checkOut),
+    });
+  });
+
+  try {
+    for (const entry of entries) {
+      const b = await api('/api/bookings', { method: 'POST', body: entry });
+      bookings[state].push(b);
+    }
+    renderTable(state);
+    const n = entries.length;
+    toast('Booking generated — '+n+' Travel Log '+(n===1?'entry':'entries')+' created!');
+    setTimeout(() => document.getElementById('emailOutput').scrollIntoView({ behavior: 'smooth' }), 100);
+  } catch(e) {
+    toast('Save failed: ' + e.message, true);
+  }
+}
+
+function clearForm() {
+  ['driverName','driverContact','accomName','accomEmail','accomPhone','accomAddress']
+    .forEach(function(id) { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('checkIn').value = ''; document.getElementById('checkOut').value = '';
+  resetDatePicker('checkIn','Check-in date'); resetDatePicker('checkOut','Check-out date');
+  document.getElementById('state').value = '';
+  document.getElementById('emailOutput').classList.remove('show');
+  document.getElementById('pdfOutput').classList.remove('show');
+  [..._bookingRows].forEach(function(n) { removeBookingRow(n); });
+  _selDest = '';
+}
+
+function copyEmail() { navigator.clipboard.writeText(document.getElementById('emailText').textContent).then(() => toast('Email copied to clipboard!')); }
+
+function openInOutlook() {
+  const body    = document.getElementById('emailText').textContent;
+  const accom   = document.getElementById('accomName').value.trim();
+  const toEmail = document.getElementById('accomEmail').value.trim();
+  const subject = `Accommodation Booking Request — ${accom}`;
+  const mailto  = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+}
+
+// ── PDF (disabled in demo) ────────────────────────────────
+function downloadChargeback() {
+  toast('PDF generation is not available in this demo.', true);
+}
+
+// ── CODING ────────────────────────────────────────────────
+function findCLEntry(state, b) { return (chargeLogs[state] || []).find(e => e.name === b.driverName && e.checkIn === b.checkIn); }
+function canGenerateCoding(state, b) {
+  if (!b.sent || !b.confirmed || !b.invoice) return false;
+  const e = findCLEntry(state, b); if (!e) return false;
+  return !!(String(e.quotedCost||'').trim() && String(e.invoiceCost||'').trim());
+}
+function openCodingModal(state, bookingId) {
+  const b = (bookings[state] || []).find(x => x.id === bookingId); if (!b) return;
+  const e = findCLEntry(state, b); if (!e) return;
+  const qc = parseCost(e.quotedCost), ic = parseCost(e.invoiceCost), diff = ic - qc;
+  const loc2 = e.location2 || CL_LOC2[state] || '';
+  const parts = b.driverName.trim().split(/\s+/);
+  const initial = parts[0] ? parts[0][0].toUpperCase() : '';
+  const surname = (parts.length > 1 ? parts[parts.length-1] : parts[0] || '').toUpperCase();
+  let coding =
+`NS ACC Code: 6175050
+NS ACC Name: Travel and Entertainment : Travel-Hotel
+NS Subsidiary: Sample Company Pty Limited
+NS Line of Business: Field Operations : Events
+Location: ${loc2}
+Description: BF ${state} TRAVEL ${initial} ${surname} $${qc.toFixed(2)}`;
+  if (Math.abs(diff) > 0.001) {
+    coding += `\n\nNS ACC Code: 6175090
+NS ACC Name: Travel and Entertainment : Meals
+NS Subsidiary: Sample Company Pty Limited
+NS Line of Business: Field Operations : Events
+Location: ${loc2}
+Description: BF ${state} TRAVEL ${initial} ${surname} $${Math.abs(diff).toFixed(2)}`;
+  }
+  document.getElementById('codingText').value = coding;
+  document.getElementById('codingModal').classList.add('open');
+}
+
+// ── EXCEL-STYLE COLUMN FILTERS ─────────────────────────────
+let _openFilterBtn = null;
+const filterPopEl = document.createElement('div');
+filterPopEl.className = 'filter-pop';
+document.body.appendChild(filterPopEl);
+filterPopEl.addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', e => { if (_openFilterBtn && !filterPopEl.contains(e.target) && !e.target.closest('.fh-btn')) closeFilterPop(); });
+
+function closeFilterPop() { filterPopEl.classList.remove('open'); if (_openFilterBtn) _openFilterBtn.classList.remove('active'); _openFilterBtn = null; }
+
+function toggleFilterDrop(btn) {
+  const isSame = _openFilterBtn === btn;
+  closeFilterPop();
+  if (isSame) return;
+  _openFilterBtn = btn;
+  btn.classList.add('active');
+  const { store, state, col, type } = btn.dataset;
+  const filters = store === 'cl' ? clFilters[state] : tlogFilters[state];
+  function apply(val) {
+    filters[col] = val;
+    btn.classList.toggle('is-filtered', type === 'bool' ? val !== 'all' : !!val);
+    if (store === 'cl') renderChargeTable(state); else renderTable(state);
+  }
+  let html;
+  if (type === 'bool') {
+    const cur = filters[col] || 'all';
+    html = `<div class="filter-radio-row">
+      <label><input type="radio" name="fr" value="all" ${cur==='all'?'checked':''}> All</label>
+      <label><input type="radio" name="fr" value="yes" ${cur==='yes'?'checked':''}> &#10003; Ticked</label>
+      <label><input type="radio" name="fr" value="no" ${cur==='no'?'checked':''}> &#10007; Unticked</label>
+    </div><div class="filter-actions"><button type="button" class="btn btn-secondary btn-xs" id="filterClearBtn">Clear</button></div>`;
+  } else {
+    const cur = filters[col] || '';
+    html = `<input type="text" class="filter-input" id="filterTextInp" value="${esc(cur)}" placeholder="Search…">
+      <div class="filter-actions"><button type="button" class="btn btn-secondary btn-xs" id="filterClearBtn">Clear</button></div>`;
+  }
+  filterPopEl.innerHTML = html;
+  const r = btn.getBoundingClientRect();
+  filterPopEl.style.left = (r.left + window.scrollX) + 'px';
+  filterPopEl.style.top  = (r.bottom + window.scrollY + 6) + 'px';
+  filterPopEl.classList.add('open');
+  if (type === 'bool') {
+    filterPopEl.querySelectorAll('input[type=radio]').forEach(rd => rd.addEventListener('change', e => apply(e.target.value)));
+  } else {
+    const inp = filterPopEl.querySelector('#filterTextInp');
+    inp.addEventListener('input', e => apply(e.target.value));
+    inp.focus();
+  }
+  document.getElementById('filterClearBtn').addEventListener('click', () => { apply(type==='bool'?'all':''); closeFilterPop(); });
+}
+
+function applyTlogFilters(state, rows) {
+  const f = tlogFilters[state]; if (!f) return rows;
+  return rows.filter(b => {
+    const checks = [
+      [f.driverName, b.driverName], [f.contact, b.driverContact], [f.dest, b.dest],
+      [f.accomName, b.accomName], [f.accomAddress, b.accomAddress], [f.accomPhone, b.accomPhone], [f.accomEmail, b.accomEmail]
+    ];
+    for (const [fv, val] of checks) { if (fv && !String(val||'').toLowerCase().includes(fv.toLowerCase())) return false; }
+    if (f.sent!=='all' && (f.sent==='yes' ? !b.sent : !!b.sent)) return false;
+    if (f.confirmed!=='all' && (f.confirmed==='yes' ? !b.confirmed : !!b.confirmed)) return false;
+    if (f.invoice!=='all' && (f.invoice==='yes' ? !b.invoice : !!b.invoice)) return false;
+    return true;
+  });
+}
+function applyClFilters(state, rows) {
+  const f = clFilters[state]; if (!f) return rows;
+  return rows.filter(e => {
+    const checks = [[f.manager,e.manager],[f.name,e.name],[f.location,e.location],[f.month,e.month],[f.business,e.business]];
+    for (const [fv, val] of checks) { if (fv && !String(val||'').toLowerCase().includes(fv.toLowerCase())) return false; }
+    return true;
+  });
+}
+
+// ── TABLE HEADERS ─────────────────────────────────────────
+function fhTH(label, state, col, type, store) {
+  store = store || 'tlog';
+  return `<th><div class="fh-wrap"><span>${label}</span><button type="button" class="fh-btn" data-store="${store}" data-state="${state}" data-col="${col}" data-type="${type}" onclick="toggleFilterDrop(this)">&#9662;</button></div></th>`;
+}
+function buildTlogTH(s) {
+  return `<tr>
+    ${fhTH('Driver Name',s,'driverName','text')}
+    ${fhTH('Contact',s,'contact','text')}
+    <th>Check In</th><th>Check Out</th>
+    ${fhTH('Destination',s,'dest','text')}
+    ${fhTH('Accommodation',s,'accomName','text')}
+    ${fhTH('Address',s,'accomAddress','text')}
+    ${fhTH('Phone',s,'accomPhone','text')}
+    ${fhTH('Email',s,'accomEmail','text')}
+    ${fhTH('Sent',s,'sent','bool')}
+    ${fhTH('Confirmed',s,'confirmed','bool')}
+    ${fhTH('Invoice',s,'invoice','bool')}
+    <th>Coding</th><th>Actions</th>
+  </tr>`;
+}
+function buildCLTH(s) {
+  return `<tr>
+    ${fhTH('Manager',s,'manager','text','cl')}
+    <th>No.</th>
+    ${fhTH('Name',s,'name','text','cl')}
+    <th>Reason</th><th>Date Booked</th><th>Check In</th><th>Check Out</th>
+    ${fhTH('Month',s,'month','text','cl')}
+    <th>Item</th>
+    ${fhTH('Location',s,'location','text','cl')}
+    <th>Quoted Cost</th><th>Invoice</th><th>Invoice Cost</th>
+    ${fhTH('Business',s,'business','text','cl')}
+    <th>Address</th><th>Phone</th><th>Email</th><th>NS ACC Code</th><th>NS Account Name</th><th>NS Subsidiary</th><th>NS Line of Business</th><th>NS Cost Centre</th><th>Location2</th><th>Actions</th>
+  </tr>`;
+}
+['NSW','VIC','QLD','WA','SA'].forEach(s => {
+  document.getElementById('th-'+s).innerHTML    = buildTlogTH(s);
+  document.getElementById('cl-th-'+s).innerHTML = buildCLTH(s);
+});
+
+// ── TABLE RENDERING ───────────────────────────────────────
+function renderTable(state) {
+  const tbody = document.getElementById('tb-'+state);
+  const all = bookings[state] || [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isUpcoming = b => { const co = parseDate(b.checkOut); return !co || co >= today; };
+  const sub = tlogSubtab[state] || 'upcoming';
+  const upCount = all.filter(isUpcoming).length, pastCount = all.length - upCount;
+  const upBtn = document.getElementById('stab-up-'+state), pastBtn = document.getElementById('stab-past-'+state);
+  if (upBtn) upBtn.textContent = `Upcoming Trips (${upCount})`;
+  if (pastBtn) pastBtn.textContent = `Past Trips (${pastCount})`;
+
+  let rows = all.filter(b => sub === 'upcoming' ? isUpcoming(b) : !isUpcoming(b));
+  rows = applyTlogFilters(state, rows);
+  rows = rows.slice().sort((a,c) => {
+    const da = parseDate(a.checkIn) || new Date(0), dc = parseDate(c.checkIn) || new Date(0);
+    return sub === 'upcoming' ? da - dc : dc - da;
+  });
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="14" class="empty-msg">No ${sub==='upcoming'?'upcoming':'past'} bookings${all.length?' match your filters':'. Generate one or click + Add Booking'}.</td></tr>`; return;
+  }
+  tbody.innerHTML = rows.map(b => `<tr>
+    <td title="${esc(b.driverName)}">${esc(b.driverName)}</td>
+    <td>${esc(b.driverContact)}</td><td>${esc(b.checkIn)}</td><td>${esc(b.checkOut)}</td>
+    <td>${esc(b.dest||'')}</td><td title="${esc(b.accomName)}">${esc(b.accomName)}</td>
+    <td title="${esc(b.accomAddress)}">${esc(b.accomAddress)}</td><td>${esc(b.accomPhone)}</td>
+    <td title="${esc(b.accomEmail)}">${esc(b.accomEmail)}</td>
+    <td style="text-align:center"><input type="checkbox" ${b.sent?'checked':''} onchange="toggle('${state}','${b.id}','sent',this.checked)"></td>
+    <td style="text-align:center"><input type="checkbox" ${b.confirmed?'checked':''} onchange="toggle('${state}','${b.id}','confirmed',this.checked)"></td>
+    <td style="text-align:center"><input type="checkbox" ${b.invoice?'checked':''} onchange="toggle('${state}','${b.id}','invoice',this.checked)"></td>
+    <td style="text-align:center">${canGenerateCoding(state,b)?`<button class="btn btn-coding btn-xs" onclick="openCodingModal('${state}','${b.id}')">Generate Coding</button>`:''}</td>
+    <td style="white-space:nowrap"><button class="btn btn-secondary btn-xs" onclick="openEdit('${state}','${b.id}')">Edit</button><button class="btn btn-danger btn-xs" style="margin-left:3px" onclick="delBooking('${state}','${b.id}')">Del</button></td>
+  </tr>`).join('');
+}
+
+async function toggle(state,id,field,val){
+  const b = bookings[state].find(x=>x.id===id); if(!b) return; b[field]=val;
+  try {
+    await api(`/api/bookings/${id}`, {method:'PATCH', body:{[field]:val}});
+    if(field==='confirmed'){
+      if(val){ const notif=await api('/api/notifs/confirmed',{method:'POST',body:{state,bookingId:id,driverName:b.driverName,accomName:b.accomName,checkIn:b.checkIn,checkOut:b.checkOut}}); confirmedNotifs.push(notif); }
+      else { const ex=confirmedNotifs.find(n=>n.bookingId===id); if(ex){ await api(`/api/notifs/confirmed/${ex.id}`,{method:'DELETE'}); confirmedNotifs=confirmedNotifs.filter(n=>n.bookingId!==id); } }
+      refreshAllNotifications();
+    } else if(field==='invoice'){
+      if(val){ const notif=await api('/api/notifs/invoice',{method:'POST',body:{state,bookingId:id,driverName:b.driverName,accomName:b.accomName,checkIn:b.checkIn,checkOut:b.checkOut}}); invoiceNotifs.push(notif); }
+      else { const ex=invoiceNotifs.find(n=>n.bookingId===id); if(ex){ await api(`/api/notifs/invoice/${ex.id}`,{method:'DELETE'}); invoiceNotifs=invoiceNotifs.filter(n=>n.bookingId!==id); } }
+      refreshAllNotifications();
+    }
+    renderTable(state);
+  } catch(e) { b[field]=!val; toast('Update failed: '+e.message, true); }
+}
+async function delBooking(state,id){
+  if(!confirm('Delete this booking?')) return;
+  try { await api(`/api/bookings/${id}`,{method:'DELETE'}); bookings[state]=bookings[state].filter(x=>x.id!==id); renderTable(state); toast('Booking deleted.'); }
+  catch(e) { toast('Delete failed: '+e.message, true); }
+}
+async function clearAllBookings(state){
+  if(!confirm(`Are you sure you want to delete all bookings for ${state}?`)) return;
+  try { await Promise.all(bookings[state].map(b => api(`/api/bookings/${b.id}`,{method:'DELETE'}))); bookings[state]=[]; renderTable(state); toast(`All ${state} bookings cleared.`); }
+  catch(e) { toast('Clear failed: '+e.message, true); }
+}
+
+// ── BOOKING MODAL ─────────────────────────────────────────
+let _mState=null, _mEditId=null;
+function openAdd(state){ _mState=state; _mEditId=null; document.getElementById('bookingModalTitle').textContent=`Add Booking — ${state}`; ['m-driver','m-contact','m-checkIn','m-checkOut','m-dest','m-accom','m-address','m-phone','m-email'].forEach(id=>document.getElementById(id).value=''); document.getElementById('bookingModal').classList.add('open'); }
+function openEdit(state,id){
+  _mState=state; _mEditId=id; const b=bookings[state].find(x=>x.id===id); if(!b)return;
+  document.getElementById('bookingModalTitle').textContent=`Edit Booking — ${state}`;
+  document.getElementById('m-driver').value=b.driverName; document.getElementById('m-contact').value=b.driverContact;
+  document.getElementById('m-checkIn').value=isoOf(b.checkIn); document.getElementById('m-checkOut').value=isoOf(b.checkOut);
+  document.getElementById('m-dest').value=b.dest||''; document.getElementById('m-accom').value=b.accomName;
+  document.getElementById('m-address').value=b.accomAddress; document.getElementById('m-phone').value=b.accomPhone; document.getElementById('m-email').value=b.accomEmail;
+  document.getElementById('bookingModal').classList.add('open');
+}
+async function saveBookingModal(){
+  const driverName=v('m-driver'), driverContact=v('m-contact'), checkIn=v('m-checkIn'), checkOut=v('m-checkOut');
+  const dest=v('m-dest'), accomName=v('m-accom'), accomAddress=v('m-address'), accomPhone=v('m-phone'), accomEmail=v('m-email');
+  if(!driverName||!accomName||!checkIn||!checkOut){toast('Fill in Driver, Accommodation and dates.',true);return;}
+  try {
+    if(_mEditId){ const b=bookings[_mState].find(x=>x.id===_mEditId); if(b){ const updated=await api(`/api/bookings/${_mEditId}`,{method:'PATCH',body:{driverName,driverContact,checkIn:fmtDate(checkIn),checkOut:fmtDate(checkOut),dest,accomName,accomAddress,accomPhone,accomEmail}}); Object.assign(b,updated); } toast('Booking updated!'); }
+    else { const b=await api('/api/bookings',{method:'POST',body:{state:_mState,driverName,driverContact,checkIn:fmtDate(checkIn),checkOut:fmtDate(checkOut),dest,accomName,accomAddress,accomPhone,accomEmail,sent:false,confirmed:false,invoice:false}}); bookings[_mState].push(b); toast('Booking added!'); }
+    renderTable(_mState); closeModal('bookingModal');
+  } catch(e) { toast('Save failed: '+e.message, true); }
+}
+
+// ── CUSTOM DRIVER MODAL ───────────────────────────────────
+let _editDriverId = null;
+function openAddDriver(editId) {
+  _editDriverId = editId || null;
+  document.getElementById('driverModalTitle').textContent = editId ? 'Edit Custom Driver' : 'Add Custom Driver';
+  if (editId) {
+    const d = customDrivers.find(x=>x.id===editId);
+    if (d) { document.getElementById('dr-name').value = d.name; document.getElementById('dr-contact').value = d.contact; }
+  } else {
+    document.getElementById('dr-name').value = ''; document.getElementById('dr-contact').value = '';
+  }
+  closeModal('manageDriversModal');
+  document.getElementById('driverModal').classList.add('open');
+}
+async function saveDriverModal(){
+  const name=v('dr-name'), contact=v('dr-contact');
+  if(!name){toast('Driver name is required.',true);return;}
+  try {
+    if(_editDriverId){ const d=customDrivers.find(x=>x.id===_editDriverId); if(d){ const updated=await api(`/api/drivers/${_editDriverId}`,{method:'PUT',body:{name,contact}}); Object.assign(d,updated); } toast('Driver updated!'); }
+    else { const d=await api('/api/drivers',{method:'POST',body:{name,contact}}); customDrivers.push(d); toast('Driver added!'); }
+    closeModal('driverModal');
+    if(document.getElementById('manageDriversModal').classList.contains('open')) renderManageDriverList(document.getElementById('driverSearchInp').value);
+  } catch(e) { toast('Save failed: '+e.message, true); }
+}
+function openManageDrivers(){
+  document.getElementById('driverSearchInp').value = '';
+  renderManageDriverList('');
+  document.getElementById('manageDriversModal').classList.add('open');
+}
+function renderManageDriverList(q) {
+  const el = document.getElementById('manageDriverList');
+  const filter = (q||'').toLowerCase().trim();
+  const overriddenNames = new Set(customDrivers.map(d => d.name));
+  const all = [
+    ...DRIVERS.filter(d => !overriddenNames.has(d.name)),
+    ...customDrivers
+  ].filter(d => !filter || d.name.toLowerCase().includes(filter))
+   .sort((a,b) => a.name.localeCompare(b.name));
+  if (!all.length) { el.innerHTML = '<div class="empty-msg">No drivers match your search.</div>'; return; }
+  el.innerHTML = all.map(d => {
+    const isCustom = !!d.id;
+    const actions = isCustom
+      ? `<button class="btn btn-secondary btn-xs" onclick="event.stopPropagation();closeModal('manageDriversModal');openAddDriver('${d.id}')">Edit</button>
+         <button class="btn btn-danger btn-xs" style="margin-left:3px" onclick="event.stopPropagation();deleteCustomDriver('${d.id}')">Del</button>`
+      : `<button class="btn btn-secondary btn-xs" data-override-name="${esc(d.name)}" data-override-contact="${esc(d.contact)}" onclick="event.stopPropagation();closeModal('manageDriversModal');overrideBuiltinDriver(this.dataset.overrideName,this.dataset.overrideContact)">Edit</button>`;
+    return `<div class="accom-row" onclick="event.stopPropagation()">
+      <div class="accom-row-info">
+        <div class="accom-row-name">${esc(d.name)}</div>
+        <div class="accom-row-meta">${esc(d.contact||'')}</div>
+      </div>
+      ${actions}
+    </div>`;
+  }).join('');
+}
+function overrideBuiltinDriver(name, contact) {
+  const existing = customDrivers.find(c => c.name === name);
+  if (existing) { openAddDriver(existing.id); return; }
+  _editDriverId = null;
+  document.getElementById('driverModalTitle').textContent = 'Edit Driver';
+  document.getElementById('dr-name').value    = name;
+  document.getElementById('dr-contact').value = contact;
+  closeModal('manageDriversModal');
+  document.getElementById('driverModal').classList.add('open');
+}
+async function deleteCustomDriver(id){
+  if(!confirm('Remove this custom driver?')) return;
+  try {
+    await api(`/api/drivers/${id}`,{method:'DELETE'});
+    customDrivers=customDrivers.filter(x=>x.id!==id);
+    renderManageDriverList(document.getElementById('driverSearchInp').value);
+    toast('Driver removed.');
+  } catch(e) { toast('Delete failed: '+e.message, true); }
+}
+
+// ── ADD ACCOMMODATION MODAL ───────────────────────────────
+let _editAccomId = null;
+function openAddAccom(editId) {
+  _editAccomId = editId || null;
+  document.getElementById('accomModalTitle').textContent = editId ? 'Edit Custom Accommodation' : 'Add Custom Accommodation';
+  if (editId) { const a=customAccoms.find(x=>x.id===editId); if(a){ document.getElementById('ac-name').value=a.name; document.getElementById('ac-address').value=a.address; document.getElementById('ac-phone').value=a.phone; document.getElementById('ac-email').value=a.email; document.getElementById('ac-state').value=a.state; document.getElementById('ac-dest').value=a.dest; } }
+  else { ['ac-name','ac-address','ac-phone','ac-email','ac-dest'].forEach(id=>document.getElementById(id).value=''); document.getElementById('ac-state').value=''; }
+  closeModal('manageModal');
+  document.getElementById('accomModal').classList.add('open');
+}
+async function saveAccomModal(){
+  const name=v('ac-name'), address=v('ac-address'), phone=v('ac-phone'), email=v('ac-email'), state=v('ac-state'), dest=v('ac-dest');
+  if(!name||!state){toast('Name and State are required.',true);return;}
+  try {
+    if(_editAccomId){ const a=customAccoms.find(x=>x.id===_editAccomId); if(a){ const updated=await api(`/api/accoms/${_editAccomId}`,{method:'PUT',body:{name,address,phone,email,state,dest}}); Object.assign(a,updated); } toast('Accommodation updated!'); }
+    else { const a=await api('/api/accoms',{method:'POST',body:{name,address,phone,email,state,dest}}); customAccoms.push(a); toast('Accommodation added!'); }
+    closeModal('accomModal');
+    if(document.getElementById('manageModal').classList.contains('open')) renderManageAccomList(document.getElementById('accomSearchInp').value);
+  } catch(e) { toast('Save failed: '+e.message, true); }
+}
+function openManageAccoms(){
+  document.getElementById('accomSearchInp').value = '';
+  renderManageAccomList('');
+  document.getElementById('manageModal').classList.add('open');
+}
+function renderManageAccomList(q) {
+  const el = document.getElementById('manageAccomList');
+  const filter = (q||'').toLowerCase().trim();
+  const overriddenNames = new Set(customAccoms.map(a => a.name));
+  const all = [
+    ...BUILTIN_ACCOMS.filter(a => !overriddenNames.has(a.name)),
+    ...customAccoms
+  ].filter(a => !filter ||
+    a.name.toLowerCase().includes(filter) ||
+    (a.dest||'').toLowerCase().includes(filter) ||
+    (a.state||'').toLowerCase().includes(filter) ||
+    (a.address||'').toLowerCase().includes(filter)
+  ).sort((a,b) => a.name.localeCompare(b.name));
+  if (!all.length) { el.innerHTML = '<div class="empty-msg">No accommodations match your search.</div>'; return; }
+  el.innerHTML = all.map(a => {
+    const isCustom = !!a.id;
+    const actions = isCustom
+      ? `<button class="btn btn-secondary btn-xs" onclick="event.stopPropagation();closeModal('manageModal');openAddAccom('${a.id}')">Edit</button>
+         <button class="btn btn-danger btn-xs" style="margin-left:3px" onclick="event.stopPropagation();deleteCustomAccom('${a.id}')">Del</button>`
+      : `<button class="btn btn-secondary btn-xs" data-override-accom="${esc(a.name)}" onclick="event.stopPropagation();closeModal('manageModal');overrideBuiltinAccom(this.dataset.overrideAccom)">Edit</button>`;
+    return `<div class="accom-row" onclick="event.stopPropagation()">
+      <div class="accom-row-info">
+        <div class="accom-row-name"><span class="accom-badge accom-custom-badge">${esc(a.state)}</span>${esc(a.name)}</div>
+        <div class="accom-row-meta">${esc(a.phone||'')} &nbsp;·&nbsp; ${esc(a.email||'')}</div>
+      </div>
+      ${actions}
+    </div>`;
+  }).join('');
+}
+function overrideBuiltinAccom(name) {
+  const existing = customAccoms.find(c => c.name === name);
+  if (existing) { openAddAccom(existing.id); return; }
+  const builtin = BUILTIN_ACCOMS.find(a => a.name === name);
+  if (!builtin) return;
+  _editAccomId = null;
+  document.getElementById('accomModalTitle').textContent = 'Edit Accommodation';
+  document.getElementById('ac-name').value    = builtin.name;
+  document.getElementById('ac-address').value = builtin.address;
+  document.getElementById('ac-phone').value   = builtin.phone;
+  document.getElementById('ac-email').value   = builtin.email;
+  document.getElementById('ac-state').value   = builtin.state;
+  document.getElementById('ac-dest').value    = builtin.dest;
+  document.getElementById('accomModal').classList.add('open');
+}
+async function deleteCustomAccom(id){
+  if(!confirm('Remove this custom accommodation?')) return;
+  try {
+    await api(`/api/accoms/${id}`,{method:'DELETE'});
+    customAccoms=customAccoms.filter(x=>x.id!==id);
+    renderManageAccomList(document.getElementById('accomSearchInp').value);
+    toast('Accommodation removed.');
+  } catch(e) { toast('Delete failed: '+e.message, true); }
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function overlayClick(e,id){ if(e.target.id===id) closeModal(id); }
+
+// ── TOAST ─────────────────────────────────────────────────
+let _toastT;
+function toast(msg,err=false){ const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(err?' err':''); clearTimeout(_toastT); _toastT=setTimeout(()=>el.classList.remove('show'),2800); }
+
+// ── NOTIFICATIONS ─────────────────────────────────────────
+function getNotifications(state) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const notes = [];
+  for (const b of bookings[state] || []) {
+    const ci = parseDate(b.checkIn), co = parseDate(b.checkOut);
+    if (!ci || !co) continue;
+    if (today > co) { if (!b.invoice) notes.push({ type:'chase', sortDate:co, b }); continue; }
+    const dci = Math.round((ci-today)/86400000), dco = Math.round((co-today)/86400000);
+    if (dco===0) notes.push({ type:'checkout', sortDate:co, b });
+    if (dci===0) notes.push({ type:'checkin',  sortDate:ci, b });
+    if (dci>=1 && dci<=3) notes.push({ type:'upcoming', sortDate:ci, daysAway:dci, b });
+  }
+  for (const n of confirmedNotifs.filter(x=>x.state===state)) notes.push({ type:'confirmed', id:n.id, sortDate:new Date(0), n });
+  for (const n of invoiceNotifs.filter(x=>x.state===state))   notes.push({ type:'invoiceReceived', id:n.id, sortDate:new Date(0), n });
+  notes.sort((a,x) => a.sortDate - x.sortDate);
+  return notes;
+}
+function renderNotifications(state) {
+  const el = document.getElementById('notif-list-'+state); if (!el) return;
+  const notes = getNotifications(state);
+  if (!notes.length) { el.innerHTML=`<div class="notif-empty">&#10003; No active notifications for ${state}</div>`; return; }
+  el.innerHTML = notes.map(n => {
+    if (n.type==='confirmed') { const cn=n.n; return `<div class="notif-card notif-confirmed notif-clickable" onclick="openCLFromNotif('${esc(cn.id)}')"><div class="notif-icon">&#10003;</div><div class="notif-body"><div class="notif-title">New confirmed booking &mdash; Add ${esc(cn.driverName)} at ${esc(cn.accomName)} to the Charge Log</div><div class="notif-meta"><span>Driver: <strong>${esc(cn.driverName)}</strong></span><span>Accommodation: <strong>${esc(cn.accomName)}</strong></span><span>Check In: <strong>${esc(cn.checkIn)}</strong></span><span>Check Out: <strong>${esc(cn.checkOut)}</strong></span><span style="color:#16a34a;font-style:italic">Click to add to Charge Log</span></div></div></div>`; }
+    if (n.type==='invoiceReceived') { const iv=n.n; return `<div class="notif-card notif-invoice notif-clickable" onclick="openCLFromInvoiceNotif('${esc(iv.id)}')"><div class="notif-icon">&#128196;</div><div class="notif-body"><div class="notif-title">Invoice received &mdash; Update Charge Log with invoice details for ${esc(iv.driverName)} at ${esc(iv.accomName)}</div><div class="notif-meta"><span>Driver: <strong>${esc(iv.driverName)}</strong></span><span>Accommodation: <strong>${esc(iv.accomName)}</strong></span><span>Check In: <strong>${esc(iv.checkIn)}</strong></span><span>Check Out: <strong>${esc(iv.checkOut)}</strong></span><span style="color:#7c3aed;font-style:italic">Click to update Charge Log</span></div></div></div>`; }
+    const b=n.b, dest=esc(b.dest||b.accomAddress||''), name=esc(b.driverName), accom=esc(b.accomName), ci=esc(b.checkIn), co=esc(b.checkOut);
+    let cls, icon, title;
+    if (n.type==='chase') { cls='notif-chase'; icon='&#128179;'; title=`Chase invoice &mdash; ${name} checked out of ${accom} in ${dest} on ${co} &mdash; invoice not yet received`; }
+    else if (n.type==='upcoming') { const d=n.daysAway,dw=d===1?'day':'days'; cls='notif-upcoming'; icon='&#9201;'; title=`Upcoming booking &mdash; ${name} checks in to ${accom} in ${dest} in ${d} ${dw} (${ci})`; }
+    else if (n.type==='checkin') { cls='notif-checkin'; icon='&#127968;'; title=`Checking in today &mdash; ${name} is checking in to ${accom} in ${dest} today (${ci})`; }
+    else { cls='notif-checkout'; icon='&#128075;'; title=`Checking out today &mdash; ${name} is checking out of ${accom} in ${dest} today (${co})`; }
+    return `<div class="notif-card ${cls}"><div class="notif-icon">${icon}</div><div class="notif-body"><div class="notif-title">${title}</div><div class="notif-meta"><span>Driver: <strong>${name}</strong></span><span>Accommodation: <strong>${accom}</strong></span><span>Check In: <strong>${ci}</strong></span><span>Check Out: <strong>${co}</strong></span><span>Contact: <strong>${esc(b.driverContact)}</strong></span></div></div></div>`;
+  }).join('');
+}
+let _clFromNotifId = null;
+function openCLFromNotif(notifId) {
+  const n=confirmedNotifs.find(x=>x.id===notifId); if(!n) return;
+  _clFromNotifId=notifId; document.getElementById('clnotif-driver').textContent=n.driverName; document.getElementById('clnotif-accom').textContent=n.accomName; document.getElementById('clnotif-bookingRef').value=''; document.getElementById('clnotif-quotedCost').value=''; document.getElementById('clnotifModal').classList.add('open');
+}
+async function submitCLFromNotif() {
+  const n=confirmedNotifs.find(x=>x.id===_clFromNotifId); if(!n) return;
+  const quotedCost=document.getElementById('clnotif-quotedCost').value.trim();
+  const b=(bookings[n.state]||[]).find(x=>x.id===n.bookingId);
+  const clData=makeCLEntry(n.state,{driverName:n.driverName,checkIn:n.checkIn,checkOut:n.checkOut,dest:b?b.dest:'',accomName:n.accomName,accomAddress:b?b.accomAddress:'',accomPhone:b?b.accomPhone:'',accomEmail:b?b.accomEmail:''});
+  clData.quotedCost=quotedCost; clData.reason=computeReason(clData);
+  try {
+    const clE=await api('/api/chargelogs',{method:'POST',body:clData}); chargeLogs[n.state].push(clE);
+    renderChargeTable(n.state); renderTable(n.state);
+    await api(`/api/notifs/confirmed/${_clFromNotifId}`,{method:'DELETE'}); confirmedNotifs=confirmedNotifs.filter(x=>x.id!==_clFromNotifId); _clFromNotifId=null;
+    closeModal('clnotifModal'); refreshAllNotifications(); toast('Added to Charge Log!');
+  } catch(e) { toast('Save failed: '+e.message, true); }
+}
+let _clFromInvoiceNotifId = null;
+function openCLFromInvoiceNotif(notifId) {
+  const n=invoiceNotifs.find(x=>x.id===notifId); if(!n) return;
+  _clFromInvoiceNotifId=notifId; document.getElementById('clinvoicenotif-driver').textContent=n.driverName; document.getElementById('clinvoicenotif-accom').textContent=n.accomName; document.getElementById('clinvoicenotif-invoice').value=''; document.getElementById('clinvoicenotif-invoiceCost').value=''; document.getElementById('clinvoicenotifModal').classList.add('open');
+}
+async function submitCLFromInvoiceNotif() {
+  const n=invoiceNotifs.find(x=>x.id===_clFromInvoiceNotifId); if(!n) return;
+  const invoiceRef=document.getElementById('clinvoicenotif-invoice').value.trim(), invoiceCost=document.getElementById('clinvoicenotif-invoiceCost').value.trim();
+  const clEntry=(chargeLogs[n.state]||[]).find(e=>e.name===n.driverName&&e.checkIn===n.checkIn);
+  if(!clEntry){toast('No matching Charge Log entry found — add it manually.',true);return;}
+  try {
+    const newReason=computeReason({...clEntry,invoice:invoiceRef,invoiceCost});
+    const updated=await api(`/api/chargelogs/${clEntry.id}`,{method:'PATCH',body:{invoice:invoiceRef,invoiceCost,reason:newReason}}); Object.assign(clEntry,updated);
+    renderChargeTable(n.state); renderTable(n.state);
+    await api(`/api/notifs/invoice/${_clFromInvoiceNotifId}`,{method:'DELETE'}); invoiceNotifs=invoiceNotifs.filter(x=>x.id!==_clFromInvoiceNotifId); _clFromInvoiceNotifId=null;
+    closeModal('clinvoicenotifModal'); refreshAllNotifications(); toast('Charge Log updated with invoice details!');
+  } catch(e) { toast('Update failed: '+e.message, true); }
+}
+function refreshAllNotifications() {
+  const STATES=['NSW','VIC','QLD','WA','SA']; STATES.forEach(s=>renderNotifications(s));
+  const total=STATES.reduce((sum,s)=>sum+getNotifications(s).length,0);
+  const navBtn=document.getElementById('nav-notifications'); const existing=navBtn.querySelector('.notif-badge'); if(existing) existing.remove();
+  if(total>0){ const badge=document.createElement('span'); badge.className='notif-badge'; badge.textContent=total>9?'9+':total; navBtn.appendChild(badge); }
+}
+
+// ── CHARGE LOG CONFIG (placeholder values) ────────────────
+const CL_MANAGER={NSW:'Manager One',VIC:'Manager Two',QLD:'Manager Three',WA:'Manager Four',SA:'Manager Five'};
+const CL_LOC2={NSW:'SYDNEY-OFFICE',VIC:'MELBOURNE-OFFICE',QLD:'BRISBANE-OFFICE',WA:'PERTH-OFFICE',SA:'ADELAIDE-OFFICE'};
+const CL_NS_ACC='6175050', CL_NS_NAME='Travel and Entertainment : Travel-Hotel', CL_NS_SUB='Sample Company Pty Limited', CL_NS_LOB='Field Operations : Events', CL_NS_CC='Operations : General';
+let chargeLogs={NSW:[],VIC:[],QLD:[],WA:[],SA:[]}, confirmedNotifs=[], invoiceNotifs=[];
+function monthFrom(dateDisp) { if(!dateDisp)return''; const m=parseInt((dateDisp.split('/')||[])[1],10); return['','January','February','March','April','May','June','July','August','September','October','November','December'][m]||''; }
+function computeReason(entry) { const parts=(entry.name||'').trim().split(/\s+/); const init=parts[0]?parts[0][0].toUpperCase():''; const sur=(parts.length>1?parts[parts.length-1]:parts[0]||'').toUpperCase(); const cost=(entry.quotedCost||'').replace(/^\$+/,'').trim(); return `BF ${entry.state} TRAVEL ${init} ${sur}${cost?' $'+cost:''}`; }
+function parseCost(val) { const n=parseFloat(String(val||'').replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; }
+function makeCLEntry(state,{driverName='',checkIn='',checkOut='',dest='',accomName='',accomAddress='',accomPhone='',accomEmail=''}) {
+  const e={id:_newId(),state,manager:CL_MANAGER[state]||'',name:driverName,dateBooked:todayDisp(),checkIn,checkOut,month:monthFrom(checkIn),item:'Accom',location:dest,quotedCost:'',invoice:'',invoiceCost:'',business:accomName,address:accomAddress,phone:accomPhone,email:accomEmail,nsAccCode:CL_NS_ACC,nsAccName:CL_NS_NAME,nsSub:CL_NS_SUB,nsLOB:CL_NS_LOB,nsCC:CL_NS_CC,location2:CL_LOC2[state]||''};
+  e.reason=computeReason(e); return e;
+}
+
+// ── CHARGE LOG TABLE ──────────────────────────────────────
+function renderChargeTable(state) {
+  const tbody=document.getElementById('cl-tb-'+state), full=chargeLogs[state]||[];
+  const rows=applyClFilters(state, full);
+  if(!rows.length){ tbody.innerHTML=`<tr><td colspan="24" class="empty-msg">No entries${full.length?' match your filters':' yet. Generate a booking or click + Add Entry'}.</td></tr>`; return; }
+  tbody.innerHTML=rows.map((e)=>{ const ei=esc(e.id),es=esc(state); const idx=full.findIndex(x=>x.id===e.id); return `<tr>
+    <td title="${esc(e.manager)}">${esc(e.manager)}</td><td>${idx+1}</td><td title="${esc(e.name)}">${esc(e.name)}</td>
+    <td class="cl-reason" id="cr-${e.id}">${esc(e.reason)}</td><td>${esc(e.dateBooked)}</td>
+    <td>${esc(e.checkIn)}</td><td>${esc(e.checkOut)}</td><td>${esc(e.month)}</td><td>${esc(e.item)}</td>
+    <td title="${esc(e.location)}">${esc(e.location)}</td>
+    <td><input class="cl-inp" data-s="${es}" data-id="${ei}" data-f="quotedCost" value="${esc(e.quotedCost)}" onchange="clChange(this)" placeholder="0.00"></td>
+    <td><input class="cl-inp cl-inp-wide" data-s="${es}" data-id="${ei}" data-f="invoice" value="${esc(e.invoice)}" onchange="clChange(this)"></td>
+    <td><input class="cl-inp" data-s="${es}" data-id="${ei}" data-f="invoiceCost" value="${esc(e.invoiceCost)}" onchange="clChange(this)" placeholder="0.00"></td>
+    <td title="${esc(e.business)}">${esc(e.business)}</td><td title="${esc(e.address)}">${esc(e.address)}</td>
+    <td>${esc(e.phone)}</td><td title="${esc(e.email)}">${esc(e.email)}</td>
+    <td class="cl-ns">${esc(e.nsAccCode)}</td><td class="cl-ns" title="${esc(e.nsAccName)}">${esc(e.nsAccName)}</td>
+    <td class="cl-ns" title="${esc(e.nsSub)}">${esc(e.nsSub)}</td><td class="cl-ns" title="${esc(e.nsLOB)}">${esc(e.nsLOB)}</td>
+    <td class="cl-ns" title="${esc(e.nsCC)}">${esc(e.nsCC)}</td><td>${esc(e.location2)}</td>
+    <td style="white-space:nowrap"><button class="btn btn-secondary btn-xs" onclick="openEditCL('${es}','${ei}')">Edit</button><button class="btn btn-danger btn-xs" style="margin-left:3px" onclick="delCL('${es}','${ei}')">Del</button></td>
+  </tr>`; }).join('');
+}
+async function clChange(el) {
+  const {s,id,f}=el.dataset; const e=(chargeLogs[s]||[]).find(x=>x.id===id); if(!e) return;
+  e[f]=el.value; const patch={[f]:el.value};
+  if(f==='quotedCost'){ e.reason=computeReason(e); patch.reason=e.reason; const r=document.getElementById('cr-'+id); if(r) r.textContent=e.reason; }
+  try { await api(`/api/chargelogs/${id}`,{method:'PATCH',body:patch}); renderTable(s); }
+  catch(e) { toast('Save failed: '+e.message, true); }
+}
+async function delCL(state,id) {
+  if(!confirm('Delete this charge log entry?')) return;
+  try { await api(`/api/chargelogs/${id}`,{method:'DELETE'}); chargeLogs[state]=(chargeLogs[state]||[]).filter(x=>x.id!==id); renderChargeTable(state); renderTable(state); toast('Entry deleted.'); }
+  catch(e) { toast('Delete failed: '+e.message, true); }
+}
+
+// ── CHARGE LOG MODAL ──────────────────────────────────────
+let _clState=null, _clEditId=null;
+const CL_FIELDS=['cl-driver','cl-dest','cl-checkIn','cl-checkOut','cl-accom','cl-address','cl-phone','cl-email','cl-quotedCost','cl-invoice','cl-invoiceCost'];
+setupAC('cl-driver','dd-cl-driver',getAllDrivers,'name',()=>{});
+setupAC('cl-accom','dd-cl-accom',getAllAccoms,'name',a=>{ document.getElementById('cl-address').value=a.address; document.getElementById('cl-phone').value=a.phone; document.getElementById('cl-email').value=a.email; document.getElementById('cl-dest').value=a.dest||''; });
+function openAddCL(state){ _clState=state; _clEditId=null; document.getElementById('clModalTitle').textContent=`Add Entry — ${state}`; CL_FIELDS.forEach(id=>document.getElementById(id).value=''); document.getElementById('clModal').classList.add('open'); }
+function openEditCL(state,id){
+  _clState=state; _clEditId=id; const e=(chargeLogs[state]||[]).find(x=>x.id===id); if(!e)return;
+  document.getElementById('clModalTitle').textContent=`Edit Entry — ${state}`;
+  document.getElementById('cl-driver').value=e.name; document.getElementById('cl-dest').value=e.location;
+  document.getElementById('cl-checkIn').value=isoOf(e.checkIn); document.getElementById('cl-checkOut').value=isoOf(e.checkOut);
+  document.getElementById('cl-accom').value=e.business; document.getElementById('cl-address').value=e.address;
+  document.getElementById('cl-phone').value=e.phone; document.getElementById('cl-email').value=e.email;
+  document.getElementById('cl-quotedCost').value=e.quotedCost;
+  document.getElementById('cl-invoice').value=e.invoice; document.getElementById('cl-invoiceCost').value=e.invoiceCost;
+  document.getElementById('clModal').classList.add('open');
+}
+async function saveCLModal() {
+  const name=v('cl-driver'),checkIn=v('cl-checkIn'),checkOut=v('cl-checkOut');
+  if(!name||!checkIn||!checkOut){toast('Driver name and dates are required.',true);return;}
+  const fields={name,location:v('cl-dest'),checkIn:fmtDate(checkIn),checkOut:fmtDate(checkOut),month:monthFrom(fmtDate(checkIn)),business:v('cl-accom'),address:v('cl-address'),phone:v('cl-phone'),email:v('cl-email'),quotedCost:v('cl-quotedCost'),invoice:v('cl-invoice'),invoiceCost:v('cl-invoiceCost')};
+  try {
+    if(_clEditId){ const e=(chargeLogs[_clState]||[]).find(x=>x.id===_clEditId); if(e){ const updated=await api(`/api/chargelogs/${_clEditId}`,{method:'PATCH',body:{...fields,reason:computeReason({...e,...fields})}}); Object.assign(e,updated); } toast('Entry updated!'); }
+    else { const base=makeCLEntry(_clState,{driverName:fields.name,checkIn:fields.checkIn,checkOut:fields.checkOut,dest:fields.location,accomName:fields.business,accomAddress:fields.address,accomPhone:fields.phone,accomEmail:fields.email}); base.quotedCost=fields.quotedCost; base.invoice=fields.invoice; base.invoiceCost=fields.invoiceCost; base.reason=computeReason(base); const created=await api('/api/chargelogs',{method:'POST',body:base}); chargeLogs[_clState].push(created); toast('Entry added!'); }
+    renderChargeTable(_clState); renderTable(_clState); closeModal('clModal');
+  } catch(e) { toast('Save failed: '+e.message, true); }
+}
+
+// ── EXCEL EXPORT ──────────────────────────────────────────
+function exportTravelLog(state) {
+  const rows=bookings[state]||[]; if(!rows.length){toast('No bookings to export for '+state,true);return;}
+  const headers=['Driver Name','Contact','Check In','Check Out','Destination','Accommodation','Address','Phone','Email','Sent','Confirmed','Invoice'];
+  const data=rows.map(b=>({'Driver Name':b.driverName,'Contact':b.driverContact,'Check In':b.checkIn,'Check Out':b.checkOut,'Destination':b.dest||'','Accommodation':b.accomName,'Address':b.accomAddress,'Phone':b.accomPhone,'Email':b.accomEmail,'Sent':b.sent?'Yes':'No','Confirmed':b.confirmed?'Yes':'No','Invoice':b.invoice?'Yes':'No'}));
+  const ws=XLSX.utils.json_to_sheet(data,{header:headers});
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,state+' Travel Log');
+  const date=new Date(),stamp=`${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb,`travel-log-${state}-${stamp}.xlsx`); toast(`${state} Travel Log exported!`);
+}
+function exportChargeLog(state) {
+  const rows=chargeLogs[state]||[]; if(!rows.length){toast('No charge log entries to export for '+state,true);return;}
+  const headers=['Manager','No.','Name','Reason','Date Booked','Check In','Check Out','Month','Item','Location','Quoted Cost','Invoice','Invoice Cost','Business','Address','Phone','Email','NS ACC Code','NS Account Name','NS Subsidiary','NS Line of Business','NS Cost Centre','Location2'];
+  const data=rows.map((e,i)=>({'Manager':e.manager,'No.':i+1,'Name':e.name,'Reason':e.reason,'Date Booked':e.dateBooked,'Check In':e.checkIn,'Check Out':e.checkOut,'Month':e.month,'Item':e.item,'Location':e.location,'Quoted Cost':e.quotedCost?parseFloat(e.quotedCost)||e.quotedCost:'','Invoice':e.invoice,'Invoice Cost':e.invoiceCost?parseFloat(e.invoiceCost)||e.invoiceCost:'','Business':e.business,'Address':e.address,'Phone':e.phone,'Email':e.email,'NS ACC Code':e.nsAccCode,'NS Account Name':e.nsAccName,'NS Subsidiary':e.nsSub,'NS Line of Business':e.nsLOB,'NS Cost Centre':e.nsCC,'Location2':e.location2}));
+  const ws=XLSX.utils.json_to_sheet(data,{header:headers});
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,state+' Charge Log');
+  const date=new Date(),stamp=`${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb,`charge-log-${state}-${stamp}.xlsx`); toast(`${state} Charge Log exported!`);
+}
+
+// ── HOME TAB ──────────────────────────────────────────────
+function renderHome() {
+  const STATES=['NSW','VIC','QLD','WA','SA'];
+  const today=new Date(); today.setHours(0,0,0,0);
+  const weekEnd=new Date(today); weekEnd.setDate(weekEnd.getDate()+7);
+  const weekItems=[];
+  STATES.forEach(s=>{
+    (bookings[s]||[]).forEach(b=>{
+      const ci=parseDate(b.checkIn), co=parseDate(b.checkOut);
+      if(!ci||!co) return;
+      const inWindow=(ci>=today&&ci<=weekEnd)||(co>=today&&co<=weekEnd)||(ci<today&&co>today);
+      if(inWindow) weekItems.push(Object.assign({},b,{state:s,_ci:ci}));
+    });
+  });
+  weekItems.sort((a,c)=>a._ci-c._ci);
+  const grid=document.getElementById('homeWeekGrid');
+  if(!weekItems.length){ grid.innerHTML='<div class="empty-msg">No travel scheduled this week.</div>'; }
+  else {
+    grid.innerHTML=weekItems.map(b=>`<div class="week-card">
+       <div class="week-card-state">${esc(b.state)}</div>
+       <div class="week-card-name">${esc(b.driverName)}</div>
+       <div class="week-card-meta">${esc(b.accomName)}</div>
+       <div class="week-card-dates">${esc(b.checkIn)} &rarr; ${esc(b.checkOut)}</div>
+    </div>`).join('');
+  }
+  const todoItems=[];
+  STATES.forEach(s=>{
+    (bookings[s]||[]).forEach(b=>{
+      const co=parseDate(b.checkOut);
+      if(co&&today>co&&!b.invoice) todoItems.push(Object.assign({},b,{state:s}));
+    });
+  });
+  const list=document.getElementById('homeTodoList');
+  if(!todoItems.length){ list.innerHTML='<div class="empty-msg">Nothing to chase — all invoices are in.</div>'; }
+  else {
+    list.innerHTML=todoItems.map(b=>`<div class="todo-item">
+       <button class="todo-check" onclick="chaseInvoiceFromHome('${b.state}','${b.id}')" title="Mark invoice received"></button>
+       <div class="todo-body"><strong>${esc(b.driverName)}</strong> &mdash; ${esc(b.accomName)} (${esc(b.state)}), checked out ${esc(b.checkOut)}</div>
+    </div>`).join('');
+  }
+}
+async function chaseInvoiceFromHome(state,id) { await toggle(state,id,'invoice',true); renderHome(); toast('Marked invoice as received.'); }
+
+// ── USERS TAB ─────────────────────────────────────────────
+let users = [];
+function seedUsers() {
+  users = [
+    {id:_newId(), username:'admin', created:_dispOffset(-120)},
+    {id:_newId(), username:'sam.lappan', created:_dispOffset(-40)},
+  ];
+}
+function renderUsers() {
+  const tb=document.getElementById('usersTbody');
+  if(!users.length){ tb.innerHTML='<tr><td colspan="3" class="empty-msg">No users yet.</td></tr>'; return; }
+  tb.innerHTML=users.map(u=>`<tr>
+    <td>${esc(u.username)}</td><td>${esc(u.created)}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-secondary btn-xs" onclick="openResetPassword('${u.id}')">Reset Password</button>
+      <button class="btn btn-danger btn-xs" style="margin-left:3px" onclick="deleteUser('${u.id}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+function addUser() {
+  const username=v('u-username'), password=v('u-password');
+  if(!username||!password){ toast('Username and password are required.', true); return; }
+  if(users.some(u=>u.username.toLowerCase()===username.toLowerCase())){ toast('That username is already taken.', true); return; }
+  users.push({id:_newId(), username, created:todayDisp()});
+  document.getElementById('u-username').value=''; document.getElementById('u-password').value='';
+  renderUsers(); toast('User added!');
+}
+let _resetUserId=null;
+function openResetPassword(id){ _resetUserId=id; document.getElementById('rp-password').value=''; document.getElementById('resetPwModal').classList.add('open'); }
+function saveResetPassword(){
+  const pw=v('rp-password'); if(!pw){toast('Enter a new password.',true);return;}
+  closeModal('resetPwModal'); toast('Password reset.');
+}
+function deleteUser(id){
+  if(users.length<=1){ toast('Cannot delete the last remaining user.', true); return; }
+  if(!confirm('Delete this user?')) return;
+  users=users.filter(u=>u.id!==id); renderUsers(); toast('User deleted.');
+}
+
+// ── DEMO SEED DATA ────────────────────────────────────────
+// Portfolio demo only: pre-fills the Travel Log, Charge Log and
+// Notifications so the tool looks "live" on load instead of empty.
+// Dates are relative to today so date-based notifications keep firing.
+// Delete this block (and the seedDemo() call in init) to start empty.
+function _dispOffset(days){
+  const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+days);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+function _findDriver(name){ return DRIVERS.find(d=>d.name===name)||{name,contact:''}; }
+function _findAccom(name){  return BUILTIN_ACCOMS.find(a=>a.name===name)||{}; }
+
+function _seedBooking(state, driverName, accomName, ciOff, coOff, flags){
+  const dr=_findDriver(driverName), ac=_findAccom(accomName);
+  const rec={
+    id:_newId(), state,
+    driverName, driverContact:dr.contact,
+    checkIn:_dispOffset(ciOff), checkOut:_dispOffset(coOff),
+    dest:ac.dest||'', accomName, accomAddress:ac.address||'',
+    accomPhone:ac.phone||'', accomEmail:ac.email||'',
+    sent:!!flags.sent, confirmed:!!flags.confirmed, invoice:!!flags.invoice
+  };
+  bookings[state].push(rec); _db.bookings.push(rec);
+  return rec;
+}
+function _seedCL(state, b, quotedCost, invoiceCost){
+  const e=makeCLEntry(state,{driverName:b.driverName,checkIn:b.checkIn,checkOut:b.checkOut,dest:b.dest,accomName:b.accomName,accomAddress:b.accomAddress,accomPhone:b.accomPhone,accomEmail:b.accomEmail});
+  if(quotedCost!=null)  e.quotedCost=String(quotedCost);
+  if(invoiceCost!=null) e.invoiceCost=String(invoiceCost);
+  e.reason=computeReason(e);
+  chargeLogs[state].push(e); _db.chargelogs.push(e);
+  return e;
+}
+function _seedConfirmedNotif(b){
+  const n={id:_newId(),state:b.state,bookingId:b.id,driverName:b.driverName,accomName:b.accomName,checkIn:b.checkIn,checkOut:b.checkOut};
+  confirmedNotifs.push(n); _db.confirmedNotifs.push(n);
+}
+function _seedInvoiceNotif(b){
+  const n={id:_newId(),state:b.state,bookingId:b.id,driverName:b.driverName,accomName:b.accomName,checkIn:b.checkIn,checkOut:b.checkOut};
+  invoiceNotifs.push(n); _db.invoiceNotifs.push(n);
+}
+
+function seedDemo(){
+  let b;
+  // NSW — richest tab (it's the default view)
+  b=_seedBooking('NSW','Alex Driver','Riverside Motor Inn',2,4,{sent:true,confirmed:true});
+  _seedConfirmedNotif(b);                 // confirmed, not yet logged → "add to Charge Log"
+  b=_seedBooking('NSW','Sam Carter','Highview Lodge Goulburn',0,2,{sent:true,confirmed:true});
+  _seedCL('NSW',b,180);                   // checks in today
+  b=_seedBooking('NSW','Jordan Lee','Parkside Motel Wagga',-5,-3,{sent:true,confirmed:true});
+  _seedCL('NSW',b,165);                   // past checkout, no invoice → "chase"
+  b=_seedBooking('NSW','Riley Morgan','Coastal Village Motel',-10,-8,{sent:true,confirmed:true,invoice:true});
+  _seedCL('NSW',b,210,210);               // fully complete → "Generate Coding" button
+
+  // VIC
+  b=_seedBooking('VIC','Casey Nguyen','Riverbank Motel Swan Hill',1,3,{sent:true,confirmed:true});
+  _seedCL('VIC',b,150);                   // upcoming (1 day away)
+  b=_seedBooking('VIC','Taylor Brooks','Bayview Hotel Warrnambool',-2,0,{sent:true,confirmed:true});
+  _seedCL('VIC',b,175);                   // checks out today
+
+  // QLD
+  _seedBooking('QLD','Jamie Patel','Sunset Motor Inn Rockhampton',3,5,{sent:true});  // upcoming, sent only
+  b=_seedBooking('QLD','Drew Wilson','Harbour Lodge Bundaberg',-12,-10,{sent:true,confirmed:true,invoice:true});
+  _seedCL('QLD',b,195,205);               // fully complete → "Generate Coding"
+
+  // WA
+  b=_seedBooking('WA','Alex Driver','Albany Heights Motel',6,8,{sent:true,confirmed:true});
+  _seedConfirmedNotif(b);                 // confirmed, far out → clean "add to Charge Log" example
+
+  // SA
+  b=_seedBooking('SA','Sam Carter','Whyalla Gateway Motel',-6,-4,{sent:true,confirmed:true,invoice:true});
+  _seedCL('SA',b,160);                    // in Charge Log but invoice cost still blank
+  _seedInvoiceNotif(b);                   // invoice received → "update Charge Log"
+}
+
+// ── INIT ──────────────────────────────────────────────────
+function init() {
+  const STATES=['NSW','VIC','QLD','WA','SA'];
+  seedDemo();
+  seedUsers();
+  STATES.forEach(s=>{ renderTable(s); renderChargeTable(s); });
+  refreshAllNotifications();
+  renderUsers();
+  buildRippleGrid();
+  mountDatePicker('checkIn','Check-in date');
+  mountDatePicker('checkOut','Check-out date');
+  positionLamp(document.querySelector('.lamp-item.active'));
+  renderHome();
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toy Safety Checker — Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif;background:#FAFAF9;color:#1C1917;font-size:14px;line-height:1.5}
+header{background:#DC2626;color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;z-index:10}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;background:#fff;color:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0}
+.logo{font-size:20px;font-weight:800;font-style:italic;letter-spacing:-.5px;color:#fff;line-height:1.1}
+.logo-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:2px}
+.demo-badge{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:6px;color:#fff;white-space:nowrap}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 28px;background:#fff;position:sticky;top:0;z-index:150;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lamp-nav-wrap{justify-self:center}
+.lamp-nav{position:relative;display:flex;gap:2px;background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.lamp-item{position:relative;z-index:2;border:none;background:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .2s;white-space:nowrap}
+.lamp-item.active{color:#fff}
+.lamp-item:hover:not(.active){color:#DC2626}
+.lamp-ico{font-size:14px;line-height:1}
+.lamp-highlight{position:absolute;top:5px;bottom:5px;border-radius:999px;background:#DC2626;transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);z-index:1}
+@media(max-width:820px){.lamp-label{display:none}.lamp-item{padding:9px 13px}.topbar{padding:10px 12px}}
+main{max-width:1180px;margin:24px auto 60px;padding:0 24px}
+.section{display:none}.section.active{display:block}
+.card{background:#fff;border:1px solid #E7E5E4;border-radius:12px;padding:22px;margin-bottom:20px}
+.card-title{font-size:13px;font-weight:700;color:#DC2626;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #F5F5F4;letter-spacing:.4px;text-transform:uppercase}
+.muted{color:#78716C}
+.faint{color:#A8A29E}
+.hero{background:linear-gradient(135deg,#FEF2F2,#FAFAF9);border:1px solid #FCA5A5}
+.hero h1{font-size:24px;font-weight:800;color:#1C1917;margin-bottom:6px}
+.hero p{font-size:14px;color:#57534E;max-width:640px}
+.hero-note{margin-top:14px;font-size:12px;color:#A8A29E;font-style:italic}
+.btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#DC2626;color:#fff}.btn-primary:hover{background:#B91C1C}
+.btn-primary:disabled{background:#E7E5E4;color:#A8A29E;cursor:not-allowed}
+.btn-secondary{background:#F5F5F4;color:#44403C}.btn-secondary:hover{background:#E7E5E4}
+.btn-excel{background:#1d6f42;color:#fff}.btn-excel:hover{background:#155534}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-outline{background:#fff;border:1.5px solid #DC2626;color:#DC2626}
+.btn-outline:hover{background:#FEF2F2}
+.steps-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.step-pill{flex:1;min-width:130px;padding:10px 14px;border-radius:8px;background:#F5F5F4;border:1.5px solid #E7E5E4;font-size:12px;font-weight:700;color:#A8A29E;text-align:center}
+.step-pill.done{background:#F0FDF4;border-color:#BBF7D0;color:#166534}
+.step-pill.active{background:#FEF2F2;border-color:#DC2626;color:#B91C1C}
+.wizard-step{display:none}.wizard-step.active{display:block}
+.pill-row{display:flex;gap:12px;flex-wrap:wrap}
+.market-pill{padding:16px 26px;border:1.5px solid #E7E5E4;border-radius:10px;background:#fff;font-size:14px;font-weight:700;color:#44403C;cursor:pointer;transition:all .15s;min-width:150px;text-align:center}
+.market-pill:hover{border-color:#DC2626}
+.market-pill.sel{background:#FEF2F2;border-color:#DC2626;color:#B91C1C}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;color:#78716C;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=number],select,textarea{padding:9px 12px;border:1.5px solid #E7E5E4;border-radius:6px;font-size:14px;color:#1C1917;background:#fff;width:100%;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#DC2626;box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.check-row{display:flex;align-items:flex-start;gap:9px;padding:8px 0;font-size:13px;color:#44403C}
+.check-row input{width:16px;height:16px;margin-top:2px;accent-color:#DC2626;flex-shrink:0}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-top:6px}
+.subhead{font-size:12px;font-weight:700;color:#78716C;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 6px;padding-top:14px;border-top:1px solid #F5F5F4}
+.skip-box{background:#FFFBEB;border:1.5px dashed #F59E0B;border-radius:8px;padding:14px 16px;margin-top:18px}
+.skip-box label{color:#92400E;text-transform:none;font-size:13px;font-weight:600}
+.upload-zone{border:2px dashed #E7E5E4;border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAF9}
+.upload-zone:hover,.upload-zone.drag{border-color:#DC2626;background:#FEF2F2}
+.upload-zone .ico{font-size:30px;margin-bottom:8px}
+.preset-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.preset-btn{padding:10px 16px;border:1.5px solid #E7E5E4;border-radius:8px;background:#fff;font-size:12.5px;font-weight:700;color:#44403C;cursor:pointer}
+.preset-btn:hover{border-color:#DC2626;color:#DC2626}
+.preset-btn.sel{background:#FEF2F2;border-color:#DC2626;color:#B91C1C}
+.ingredients-loaded{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:12px 14px;margin-top:14px;font-size:13px;color:#166534}
+.readiness{display:flex;gap:18px;margin:18px 0;flex-wrap:wrap}
+.readiness-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#78716C}
+.rdot{width:9px;height:9px;border-radius:50%;background:#E7E5E4;flex-shrink:0}
+.rdot.go{background:#22C55E}
+.spinner-overlay{display:none;text-align:center;padding:30px;font-size:14px;color:#78716C}
+.spinner-overlay.show{display:block}
+.verdict-banner{border-radius:10px;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;margin-bottom:20px}
+.verdict-action{background:#FEF2F2;border:1.5px solid #B91C1C}
+.verdict-caution{background:#FFF8F1;border:1.5px solid #B5621E}
+.verdict-low{background:#F0FDF4;border:1.5px solid #2D6A4F}
+.verdict-icon{font-size:30px;line-height:1}
+.verdict-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.verdict-action .verdict-title{color:#B91C1C}
+.verdict-caution .verdict-title{color:#B5621E}
+.verdict-low .verdict-title{color:#2D6A4F}
+.verdict-sub{font-size:13px;color:#57534E}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px}
+.stat-pill{border:1px solid #E7E5E4;border-radius:8px;padding:12px 14px;background:#fff}
+.stat-pill .num{font-size:22px;font-weight:800;color:#1C1917}
+.stat-pill.warn .num{color:#B91C1C}
+.stat-pill.amber .num{color:#B5621E}
+.stat-pill .lbl{font-size:10.5px;color:#78716C;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px}
+th{background:#F5F5F4;padding:8px 10px;text-align:left;font-weight:700;color:#57534E;border-bottom:2px solid #E7E5E4;white-space:nowrap;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:8px 10px;border-bottom:1px solid #F5F5F4;vertical-align:middle}
+tr.hh-row td:first-child{box-shadow:inset 4px 0 0 #B91C1C}
+tr.hh-row{background:#FEF2F2}
+.ok-mark{color:#16A34A;font-weight:800}
+.no-mark{color:#B91C1C;font-weight:800}
+.dash-mark{color:#D6D3D1}
+.callout{border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.6}
+.callout-danger{background:#FEF2F2;border:1.5px solid #FECACA;color:#7F1D1D}
+.callout-amber{background:#FFF8F1;border:1.5px solid #FDE7CC;color:#7C2D12}
+.callout-green{background:#F0FDF4;border:1.5px solid #BBF7D0;color:#14532D}
+.callout-blue{background:#EFF6FF;border:1.5px solid #BFDBFE;color:#1E3A5F}
+.callout h4{font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;font-weight:800}
+.ghs-badge{display:inline-flex;align-items:center;gap:6px;background:#F5F5F4;border:1px solid #E7E5E4;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#44403C;margin:0 6px 6px 0}
+.signal-word{font-weight:800;letter-spacing:.5px}
+.signal-danger{color:#B91C1C}.signal-warning{color:#B5621E}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.2px;white-space:nowrap}
+.badge-action{background:#FEE2E2;color:#B91C1C}
+.badge-caution{background:#FEF3E2;color:#B5621E}
+.badge-low{background:#DCFCE7;color:#166534}
+.plain-summary{font-size:13.5px;line-height:1.75;color:#44403C}
+.plain-summary p{margin-bottom:10px}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.hcis-note{font-size:11.5px;color:#A8A29E;font-style:italic;cursor:pointer;text-decoration:underline dotted}
+.searchbar{display:flex;gap:10px;margin-bottom:16px}
+.searchbar input{max-width:320px}
+.tests-list{display:flex;flex-direction:column;gap:8px}
+.test-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #F5F5F4;border-radius:7px;font-size:13px}
+.test-row .tname{font-weight:600;color:#292524}
+.test-row .tstd{font-size:11.5px;color:#A8A29E}
+.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;cursor:pointer;white-space:nowrap;border:none}
+.status-passed{background:#DCFCE7;color:#166534}
+.status-pending{background:#FEF3E2;color:#B5621E}
+.status-failed{background:#FEE2E2;color:#B91C1C}
+.status-required{background:#F3E8FF;color:#7C3AED}
+.status-notrequired{background:#F5F5F4;color:#A8A29E}
+.doc-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid #F5F5F4;border-radius:7px;font-size:13px;margin-bottom:8px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:10px;padding:26px;width:92%;max-width:640px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-wide{max-width:880px}
+.modal h3{font-size:15px;font-weight:800;color:#DC2626;margin-bottom:16px;text-transform:uppercase;letter-spacing:.3px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #F5F5F4}
+.stmt-item{border:1px solid #F5F5F4;border-radius:7px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+.stmt-meta{font-size:11px;color:#A8A29E;margin-top:4px}
+.hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.hiw-step{background:#FAFAF9;border:1px solid #F5F5F4;border-radius:8px;padding:14px}
+.hiw-num{width:24px;height:24px;border-radius:50%;background:#DC2626;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.hiw-step h4{font-size:12.5px;font-weight:700;margin-bottom:4px}
+.hiw-step p{font-size:11.5px;color:#78716C}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ref-tile{border:1px solid #F5F5F4;border-radius:8px;padding:14px;background:#FAFAF9}
+.ref-tile .ico{font-size:20px;margin-bottom:6px}
+.ref-tile .name{font-weight:700;font-size:12.5px;margin-bottom:4px}
+.ref-tile .status{font-size:11.5px;color:#16A34A;font-weight:600}
+.flag-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F5F4;font-size:13px}
+.flag-row:last-child{border-bottom:none}
+.flag-count{background:#FEE2E2;color:#B91C1C;font-weight:800;font-size:11px;padding:2px 9px;border-radius:10px}
+.back-link{display:inline-block;margin-bottom:16px;font-size:13px;font-weight:600;color:#DC2626;cursor:pointer}
+.back-link:hover{text-decoration:underline}
+.chat-wrap{max-width:760px;margin:0 auto}
+.chat-empty{text-align:center;padding:36px 20px}
+.chat-empty .ico{font-size:34px;margin-bottom:10px}
+.chat-empty h2{font-size:17px;font-weight:800;margin-bottom:6px}
+.chat-empty p{font-size:13px;color:#78716C;max-width:460px;margin:0 auto 18px}
+.suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:560px;margin:0 auto}
+.suggest-btn{padding:10px 14px;border:1.5px solid #E7E5E4;border-radius:8px;background:#fff;font-size:12.5px;color:#44403C;cursor:pointer;text-align:left}
+.suggest-btn:hover{border-color:#DC2626;color:#DC2626}
+.context-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F5F5F4;border:1px solid #E7E5E4;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px}
+.chat-log{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;min-height:120px}
+.chat-msg{max-width:88%;padding:12px 15px;border-radius:10px;font-size:13.5px;line-height:1.65}
+.chat-msg.user{align-self:flex-end;background:#DC2626;color:#fff}
+.chat-msg.bot{align-self:flex-start;background:#F5F5F4;color:#292524}
+.chat-msg.bot h4{font-size:12px;font-weight:800;color:#B91C1C;margin-bottom:6px}
+.chat-msg .src{font-size:10.5px;color:#A8A29E;margin-top:8px}
+.chat-input-row{display:flex;gap:10px;position:sticky;bottom:0;background:#FAFAF9;padding-top:8px}
+.followup-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;padding:11px 20px;border-radius:6px;font-size:13px;z-index:3000;opacity:0;transition:opacity .25s;pointer-events:none;max-width:340px}
+.toast.show{opacity:1}
+@media(max-width:700px){.form-grid,.check-grid,.suggest-grid{grid-template-columns:1fr}main{padding:0 12px}.steps-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-mark">S</div>
+    <div>
+      <div class="logo">Scholastic</div>
+      <div class="logo-tag">Toy Safety Checker</div>
+    </div>
+  </div>
+  <div class="demo-badge">Demo Project</div>
+</header>
+
+<div class="topbar">
+  <div></div>
+  <div class="lamp-nav-wrap">
+    <nav class="lamp-nav" id="lampNav">
+      <div class="lamp-highlight" id="lampHighlight"></div>
+      <button class="lamp-item active" data-tab="home" onclick="showSection('home',this)"><span class="lamp-ico">&#127968;</span><span class="lamp-label">Home</span></button>
+      <button class="lamp-item" data-tab="checker" onclick="showSection('checker',this)"><span class="lamp-ico">&#129514;</span><span class="lamp-label">Checker</span></button>
+      <button class="lamp-item" data-tab="products" onclick="showSection('products',this)" id="nav-products"><span class="lamp-ico">&#128230;</span><span class="lamp-label">Products</span></button>
+      <button class="lamp-item" data-tab="agent" onclick="showSection('agent',this)"><span class="lamp-ico">&#128172;</span><span class="lamp-label">Agent</span></button>
+    </nav>
+  </div>
+  <div></div>
+</div>
+
+<main>
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <div class="card hero">
+    <h1>Scholastic Toy Safety Checker</h1>
+    <p>A first-pass chemical safety screen for products before they're purchased — cross-referencing ingredient CAS numbers against Australian government reference lists, flagging hazardous substances, and stating whether a Safety Data Sheet is required.</p>
+    <div style="margin-top:16px"><button class="btn btn-primary" onclick="startNewProduct()">+ Enter a new Product</button></div>
+    <p class="hero-note">This is an interactive preview with placeholder data — no real product, supplier, or company data is used.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Purchasing Compliance — Step by Step</div>
+    <div class="hiw-grid">
+      <div class="hiw-step"><div class="hiw-num">1</div><h4>Choose Market</h4><p>Australia, New Zealand, or both.</p></div>
+      <div class="hiw-step"><div class="hiw-num">2</div><h4>Product Details</h4><p>Age range, product type, and a short compliance questionnaire.</p></div>
+      <div class="hiw-step"><div class="hiw-num">3</div><h4>Upload Ingredients</h4><p>A supplier's ingredient list with CAS numbers.</p></div>
+      <div class="hiw-step"><div class="hiw-num">4</div><h4>Get Verdict</h4><p>Action Required, Caution, or Low Risk — with an exportable report.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reference Sources</div>
+    <div class="ref-grid">
+      <div class="ref-tile"><div class="ico">&#127981;</div><div class="name">AICIS Chemical Inventory</div><div class="status">&#10003; Loaded (demo snapshot)</div></div>
+      <div class="ref-tile"><div class="ico">&#9888;&#65039;</div><div class="name">High Hazard Chemicals List</div><div class="status">&#10003; Loaded (demo snapshot)</div></div>
+      <div class="ref-tile"><div class="ico">&#127807;</div><div class="name">IChEMS Register</div><div class="status">&#10003; Loaded (demo snapshot)</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px" id="homeBottomGrid">
+    <div class="card">
+      <div class="card-title">All Products</div>
+      <div id="homeProductsTable"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Top Flagged High Hazard Chemicals</div>
+        <div id="topFlaggedList"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Team Statements</div>
+        <div id="statementsList"></div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <input type="text" id="newStatementInput" placeholder="Add a note for the team…">
+          <button class="btn btn-primary btn-sm" onclick="addStatement()">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKER -->
+<div id="checker" class="section">
+  <div class="card" id="checkerEmptyState" style="text-align:center;padding:50px 24px">
+    <div style="font-size:30px;margin-bottom:10px">&#129514;</div>
+    <h2 style="font-size:16px;font-weight:800;margin-bottom:8px">No product in progress</h2>
+    <p class="muted" style="font-size:13px;max-width:400px;margin:0 auto 18px">Start a new chemical safety check from the Home page.</p>
+    <button class="btn btn-primary" onclick="showSection('home')">Enter a Product via Home Page</button>
+  </div>
+
+  <div id="checkerWizardWrap" style="display:none">
+  <div class="steps-row" id="stepsRow"></div>
+
+  <!-- STEP 1: MARKET -->
+  <div class="wizard-step active" id="wstep-market">
+    <div class="card">
+      <div class="card-title">Choose Market</div>
+      <p class="muted" style="margin-bottom:16px;font-size:13px">Which market is this product being purchased for? This determines which concentration thresholds and requirements apply.</p>
+      <div class="pill-row">
+        <div class="market-pill" data-market="AU" onclick="selectMarket('AU',this)">&#127462;&#127482;<br>Australia</div>
+        <div class="market-pill" data-market="NZ" onclick="selectMarket('NZ',this)">&#127475;&#127487;<br>New Zealand</div>
+        <div class="market-pill" data-market="BOTH" onclick="selectMarket('BOTH',this)">&#127462;&#127482;+&#127475;&#127487;<br>Both</div>
+      </div>
+      <div class="result-actions" style="margin-top:22px">
+        <button class="btn btn-primary" id="marketContinueBtn" disabled onclick="goToStep('details')">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: PRODUCT DETAILS -->
+  <div class="wizard-step" id="wstep-details">
+    <div class="card">
+      <div class="card-title">Product Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Product Name *</label><input type="text" id="pd-name" placeholder="e.g. Neon Washable Markers 10pk"></div>
+        <div class="form-group"><label>ISBN / SKU</label><input type="text" id="pd-isbn" placeholder="e.g. WM-1010"></div>
+        <div class="form-group"><label>Age Range *</label>
+          <select id="pd-age">
+            <option value="">Select age range…</option>
+            <option>0–3 years</option><option>3–6 years</option><option>6–14 years</option><option>14+ years</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Product Type</label><input type="text" id="pd-type" placeholder="e.g. Art Supplies"></div>
+        <div class="form-group full"><label>Intended Use</label><input type="text" id="pd-use" placeholder="e.g. Colouring on paper and card"></div>
+        <div class="form-group"><label>Physical Form of Finished Product</label>
+          <select id="pd-form">
+            <option value="bound_solid">Bound solid</option>
+            <option value="loose_powder">Loose powder / dust-generating</option>
+            <option value="liquid_paste">Liquid / paste</option>
+            <option value="other">Other / unknown</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Packaging Notes</label><input type="text" id="pd-packaging" placeholder="e.g. Blister pack, shows volume"></div>
+      </div>
+
+      <div class="subhead">Product Flags</div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" id="pd-istoy" checked> Is a toy (AS/NZS 8124 applies)</label>
+        <label class="check-row"><input type="checkbox" id="pd-skin"> Skin contact likely</label>
+        <label class="check-row"><input type="checkbox" id="pd-mouth"> Mouth contact likely</label>
+        <label class="check-row"><input type="checkbox" id="pd-eye"> Eye area contact possible</label>
+        <label class="check-row"><input type="checkbox" id="pd-inhale"> Inhalation exposure possible</label>
+      </div>
+
+      <div class="skip-box">
+        <label class="check-row" style="padding:0"><input type="checkbox" id="pd-skip" onchange="toggleSkip()"> Skip chemical/ingredient review — this product has no chemical ingredients to assess (physical/mechanical only)</label>
+      </div>
+
+      <div class="result-actions" style="margin-top:22px">
+        <button class="btn btn-secondary" onclick="goToStep('market')">Back</button>
+        <button class="btn btn-primary" onclick="continueFromDetails()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2b: PHYSICAL-ONLY SUMMARY -->
+  <div class="wizard-step" id="wstep-physical">
+    <div class="card">
+      <div class="card-title">Physical / Mechanical Assessment Only</div>
+      <div class="callout callout-blue">
+        <h4>No Chemical Review Required</h4>
+        <p>This product was marked as having no chemical ingredients to assess. It will be tracked against the standard AS/NZS 8124 mechanical, physical, and labelling test checklist instead of a CAS/GHS chemical screen.</p>
+      </div>
+      <p class="muted" style="font-size:13px" id="physicalSummaryText"></p>
+      <div class="result-actions" style="margin-top:18px">
+        <button class="btn btn-secondary" onclick="goToStep('details')">Back</button>
+        <button class="btn btn-primary" onclick="savePhysicalOnly()">Save to Products</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: INGREDIENTS -->
+  <div class="wizard-step" id="wstep-ingredients">
+    <div class="card">
+      <div class="card-title">Ingredient List</div>
+      <p class="muted" style="font-size:13px;margin-bottom:6px">Upload a supplier ingredient list (.xlsx / .xls) with a column containing "CAS" in the header, or load a sample list below.</p>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="ico">&#128193;</div>
+        <div><strong>Drop file here or click to browse</strong></div>
+        <div class="faint" style="font-size:12px;margin-top:4px">Must contain a column with "CAS" in the header</div>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileUpload(this.files[0])">
+
+      <p class="muted" style="font-size:12.5px;margin-top:18px">Or load a sample ingredient list:</p>
+      <div class="preset-row" id="presetRow"></div>
+
+      <div class="ingredients-loaded" id="ingredientsLoadedMsg" style="display:none"></div>
+
+      <div class="readiness">
+        <div class="readiness-item"><span class="rdot go"></span> Reference lists loaded</div>
+        <div class="readiness-item"><span class="rdot" id="rdot-name"></span> Product name entered</div>
+        <div class="readiness-item"><span class="rdot" id="rdot-ingredients"></span> Ingredient list loaded</div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-secondary" onclick="goToStep('details')">Back</button>
+        <button class="btn btn-primary" id="runCheckBtn" disabled onclick="runCasCheck()">&#9881;&#65039; Run CAS Check</button>
+      </div>
+
+      <div class="spinner-overlay" id="spinnerOverlay">&#9881;&#65039; Matching CAS numbers against reference lists…</div>
+    </div>
+
+    <div id="resultsContainer"></div>
+  </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="section">
+  <div class="searchbar">
+    <input type="text" id="productSearch" placeholder="Search products by name or ISBN…" oninput="renderProductsTable()">
+  </div>
+  <div class="card">
+    <div class="card-title">All Products</div>
+    <div id="productsTableFull"></div>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<div id="product-detail" class="section">
+  <span class="back-link" onclick="showSection('products')">&larr; Back to all products</span>
+  <div id="productDetailBody"></div>
+</div>
+
+<!-- AGENT -->
+<div id="agent" class="section">
+  <div class="chat-wrap">
+    <div id="agentContextBanner"></div>
+    <div id="chatEmptyState"></div>
+    <div class="chat-log" id="chatLog"></div>
+    <div id="followupRow" class="followup-row"></div>
+    <div class="chat-input-row" id="chatInputRow">
+      <input type="text" id="chatInput" placeholder="Ask about GHS codes, AICIS, IChEMS, SDS requirements…" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn btn-primary" onclick="sendChat()">Send</button>
+    </div>
+    <p class="faint" style="font-size:11px;text-align:center;margin-top:10px">Responses are generated from built-in reference data for this demo. Always verify against official Australian/NZ government sources.</p>
+  </div>
+</div>
+
+</main>
+
+<!-- REPORT MODAL -->
+<div class="overlay" id="reportModal" onclick="overlayClick(event,'reportModal')">
+  <div class="modal modal-wide">
+    <h3>Check Report</h3>
+    <div id="reportModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('reportModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- ADD DOCUMENT MODAL -->
+<div class="overlay" id="docModal" onclick="overlayClick(event,'docModal')">
+  <div class="modal">
+    <h3>Add Safety Document</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Document Type</label>
+        <select id="doc-type"><option>Safety Data Sheet (SDS)</option><option>Assessment Certificate</option><option>Test Report</option><option>Supplier Declaration</option><option>Other</option></select>
+      </div>
+      <div class="form-group full"><label>File Name</label><input type="text" id="doc-filename" placeholder="e.g. sds-neon-markers.pdf"></div>
+      <div class="form-group full"><label>Notes</label><input type="text" id="doc-notes" placeholder="Optional"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('docModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDocument()">Save Document</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── REFERENCE DATA (placeholder / sample only) ───────────────────────────
+const CAS_DB = {
+  '14807-96-6': {name:'Talc', hCodes:[], inInventory:true, inHighHazard:false, inIChEMS:false, ichemsSchedule:null},
+  '13463-67-7': {name:'Titanium Dioxide', hCodes:[], inInventory:true, inHighHazard:false, inIChEMS:false, ichemsSchedule:null},
+  '2682-20-4':  {name:'Methylisothiazolinone (MIT)', hCodes:['H317'], inInventory:true, inHighHazard:false, inIChEMS:false, ichemsSchedule:null},
+  '64-17-5':    {name:'Ethanol', hCodes:['H225'], inInventory:true, inHighHazard:false, inIChEMS:false, ichemsSchedule:null},
+  '67-63-0':    {name:'Isopropanol', hCodes:['H225','H319'], inInventory:true, inHighHazard:false, inIChEMS:false, ichemsSchedule:null},
+  '1333-86-4':  {name:'Carbon Black', hCodes:['H351','H373'], inInventory:true, inHighHazard:true, inIChEMS:false, ichemsSchedule:null},
+  '1303-96-4':  {name:'Borax (Sodium Borate)', hCodes:['H360','H373'], inInventory:true, inHighHazard:true, inIChEMS:true, ichemsSchedule:6},
+};
+const H_TEXT = {
+  H225:'Highly flammable liquid and vapour', H317:'May cause an allergic skin reaction',
+  H319:'Causes serious eye irritation', H351:'Suspected of causing cancer',
+  H373:'May cause damage to organs through prolonged or repeated exposure',
+  H360:'May damage fertility or the unborn child', H400:'Very toxic to aquatic life', H410:'Very toxic to aquatic life with long lasting effects'
+};
+const H_TO_GHS = {H225:'GHS02',H317:'GHS07',H319:'GHS07',H351:'GHS08',H373:'GHS08',H360:'GHS08',H400:'GHS09',H410:'GHS09'};
+const GHS_META = {
+  GHS01:{symbol:'&#128165;',category:'Explosive',signal:'DANGER'},
+  GHS02:{symbol:'&#128293;',category:'Flammable',signal:'DANGER'},
+  GHS03:{symbol:'&#128293;&#11093;',category:'Oxidising',signal:'DANGER'},
+  GHS04:{symbol:'&#128309;',category:'Gas Under Pressure',signal:'WARNING'},
+  GHS05:{symbol:'&#9963;&#65039;',category:'Corrosive',signal:'DANGER'},
+  GHS06:{symbol:'&#9760;&#65039;',category:'Acute Toxicity',signal:'DANGER'},
+  GHS07:{symbol:'&#10071;',category:'Irritant',signal:'WARNING'},
+  GHS08:{symbol:'&#9877;&#65039;',category:'Serious Health Hazard',signal:'DANGER'},
+  GHS09:{symbol:'&#127807;',category:'Environmental Hazard',signal:'DANGER'},
+};
+const H_CUTOFFS_AU = {H225:1,H317:0.001,H319:10,H351:0.1,H360:0.1,H373:1,H400:2.5,H410:0.1};
+const INGREDIENT_PRESETS = {
+  'air-dry-clay':      {label:'Air Dry Clay',         rows:[{cas:'14807-96-6',concentration:45},{cas:'13463-67-7',concentration:1}]},
+  'washable-paint':    {label:'Washable Paint Set',    rows:[{cas:'13463-67-7',concentration:4},{cas:'2682-20-4',concentration:0.015},{cas:'64-17-5',concentration:0.5}]},
+  'permanent-markers': {label:'Permanent Markers',     rows:[{cas:'1333-86-4',concentration:3},{cas:'67-63-0',concentration:40},{cas:'64-17-5',concentration:30}]},
+  'slime-kit':         {label:'Novelty Slime Kit',     rows:[{cas:'1303-96-4',concentration:2},{cas:'9999-00-1',concentration:0.3}]},
+};
+const TEST_TEMPLATE = ['AS/NZS 8124.1 — Mechanical & Physical Properties','AS/NZS 8124.3 — Migration of Certain Elements','Choking Hazard / Small Parts Check','Supplier SDS on File','Battery Compartment Security Check'];
+const SNAP_STORE = {};
+
+function lookupCas(cas){
+  const db = CAS_DB[cas];
+  if (db) return db;
+  return {name:'Unlisted substance — not found in AICIS Chemical Inventory', hCodes:[], inInventory:false, inHighHazard:false, inIChEMS:false, ichemsSchedule:null};
+}
+
+function analyse(product, rows){
+  const chemicals = rows.map(r=>{
+    const db = lookupCas(r.cas);
+    return {cas:r.cas, concentration:r.concentration, name:db.name, hCodes:db.hCodes||[], inInventory:!!db.inInventory, inHighHazard:!!db.inHighHazard, inIChEMS:!!db.inIChEMS, ichemsSchedule:db.ichemsSchedule||null};
+  });
+  const totalCas = chemicals.length;
+  const inInventoryCount = chemicals.filter(c=>c.inInventory).length;
+  const highHazard = chemicals.filter(c=>c.inHighHazard);
+  const aicisMisses = chemicals.filter(c=>!c.inInventory);
+
+  const triggered = new Set(), belowThreshold = new Set();
+  chemicals.forEach(c=>c.hCodes.forEach(h=>{
+    const cutoff = H_CUTOFFS_AU[h] ?? 0;
+    if (c.concentration >= cutoff) triggered.add(h); else belowThreshold.add(h);
+  }));
+
+  let ghsIds = new Set([...triggered].map(h=>H_TO_GHS[h]).filter(Boolean));
+  if (ghsIds.has('GHS07') && (ghsIds.has('GHS05') || ghsIds.has('GHS06'))) ghsIds.delete('GHS07');
+  const ghsCategories = [...ghsIds].map(id=>({id, ...GHS_META[id], hCodesFound:[...triggered].filter(h=>H_TO_GHS[h]===id)}));
+  const signalWord = ghsCategories.some(g=>g.signal==='DANGER') ? 'DANGER' : (ghsCategories.length ? 'WARNING' : null);
+
+  let actionStatus;
+  if (highHazard.length || aicisMisses.length) actionStatus = 'ACTION_REQUIRED';
+  else if (ghsCategories.length) actionStatus = 'CAUTION';
+  else actionStatus = 'LOW_RISK';
+
+  const sdsRequired = actionStatus !== 'LOW_RISK';
+  const emergencyContactRequired = ghsCategories.length > 0;
+  const anyIChEMS = chemicals.some(c=>c.inIChEMS);
+  const popTestRequired = chemicals.some(c=>c.inIChEMS && c.ichemsSchedule>=6) ? 'May be required' : (anyIChEMS ? 'Likely not required' : 'IChEMS not checked');
+
+  let summary = '';
+  if (actionStatus === 'ACTION_REQUIRED') {
+    const reasons = [];
+    if (highHazard.length) reasons.push(`${highHazard.length} ingredient(s) on the Safe Work Australia High Hazard Chemicals List (${highHazard.map(c=>c.name).join(', ')})`);
+    if (aicisMisses.length) reasons.push(`${aicisMisses.length} ingredient(s) not found in the AICIS Chemical Inventory (${aicisMisses.map(c=>c.cas).join(', ')})`);
+    summary = `<p><strong>Do not purchase until an SDS and Assessment Certificate are obtained from the manufacturer.</strong> This product was flagged because of ${reasons.join(' and ')}.</p><p>Some of these chemicals may require industrial chemical registration before import or manufacture in Australia. Request a Safety Data Sheet and written confirmation of AICIS registration status from the supplier before finalising the purchase order.</p>`;
+  } else if (actionStatus === 'CAUTION') {
+    summary = `<p><strong>Proceed with caution — an SDS is recommended.</strong> No ingredients matched the High Hazard list or missed the AICIS Inventory, but ${ghsCategories.length} GHS hazard categor${ghsCategories.length===1?'y':'ies'} (${ghsCategories.map(g=>g.category).join(', ')}) were triggered by concentration levels in this formulation.</p><p>Request a Safety Data Sheet from the manufacturer before finalising the purchase order, and confirm label wording matches the GHS elements below.</p>`;
+  } else {
+    summary = `<p><strong>Standard purchasing process can proceed.</strong> No High Hazard matches, no AICIS Inventory misses, and no GHS hazard categories were triggered at the concentrations supplied.</p><p>Always verify against the manufacturer's SDS for confirmation before finalising.</p>`;
+  }
+
+  return {checkId:'chk_'+Math.abs(hashStr(product.name+totalCas)), product, chemicals, hCodes:[...triggered], belowThresholdHCodes:[...belowThreshold], ghsCategories, ghsSignalWord:signalWord, actionStatus, sdsRequired, emergencyContactRequired, popTestRequired, aicisMisses:aicisMisses.map(c=>c.cas), plainEnglishSummary:summary, createdAt:'2026-07-02'};
+}
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return h;}
+
+// ── SEED PRODUCTS (placeholder / sample only) ────────────────────────────
+let PRODUCTS = [
+  mkProduct('p1','Air Dry Clay 500g','AC-5001','AU','6–14 years','Art Supplies',false,'air-dry-clay',[ 'Passed','Passed','Passed','Passed','NotRequired' ]),
+  mkProduct('p2','Washable Paint Set 6pk','WP-6006','AU','3–6 years','Art Supplies',false,'washable-paint',[ 'Passed','Passed','Passed','Pending','NotRequired' ]),
+  mkProduct('p3','Neon Permanent Markers 10pk','PM-1010','AU','6–14 years','Art Supplies',false,'permanent-markers',[ 'Pending','Pending','Passed','Required','NotRequired' ]),
+  mkProduct('p4','Rainbow Slime Kit','SK-3003','BOTH','6–14 years','Craft Kit',false,'slime-kit',[ 'Required','Required','Required','Required','NotRequired' ]),
+];
+PRODUCTS.push({id:'p5',name:'Wooden Building Blocks 50pc',isbn:'BB-5050',market:'AU',ageRange:'3–6 years',productType:'Toy',physicalOnly:true,tests:zipTests(['Passed','Passed','Passed','NotRequired','NotRequired']),documents:[{type:'Assessment Certificate',filename:'as8124-blocks-cert.pdf',notes:'Supplier-provided'}],checks:[{physical:true,createdAt:'2026-06-10',notes:'No chemical ingredients — mechanical/physical assessment only.'}]});
+PRODUCTS.push({id:'p6',name:'Bounce Ball Set (Light-Up)',isbn:'BB-2020',market:'AU',ageRange:'6–14 years',productType:'Toy',physicalOnly:true,tests:zipTests(['Passed','Passed','Passed','NotRequired','Pending']),documents:[],checks:[{physical:true,createdAt:'2026-07-05',notes:'Battery/LED product — physical & electrical checklist only.'}]});
+
+function mkProduct(id,name,isbn,market,ageRange,productType,physicalOnly,presetKey,testStatuses){
+  const preset = INGREDIENT_PRESETS[presetKey];
+  const snapshot = analyse({name,isbn,market,ageRange,productType}, preset.rows);
+  return {id,name,isbn,market,ageRange,productType,physicalOnly,tests:zipTests(testStatuses),documents:[],checks:[snapshot]};
+}
+function zipTests(statuses){ return TEST_TEMPLATE.map((name,i)=>({id:'t'+i,name,status:statuses[i]||'Required'})); }
+
+// ── NAV / SECTION SWITCHING ───────────────────────────────────────────────
+function showSection(tab, btnEl){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  const navBtns = document.querySelectorAll('.lamp-item');
+  navBtns.forEach(b=>b.classList.remove('active'));
+  let activeBtn = btnEl;
+  if (!activeBtn) {
+    if (tab==='product-detail') activeBtn = document.getElementById('nav-products');
+    else activeBtn = document.querySelector(`.lamp-item[data-tab="${tab}"]`);
+  }
+  if (activeBtn) { activeBtn.classList.add('active'); positionLamp(activeBtn); }
+  if (tab==='home') renderHome();
+  if (tab==='products') renderProductsTable();
+  if (tab==='checker') refreshCheckerView();
+}
+let wizardStarted = false;
+function refreshCheckerView(){
+  document.getElementById('checkerEmptyState').style.display = wizardStarted ? 'none' : 'block';
+  document.getElementById('checkerWizardWrap').style.display = wizardStarted ? 'block' : 'none';
+}
+function positionLamp(el){
+  const nav = document.getElementById('lampNav');
+  const hl = document.getElementById('lampHighlight');
+  const navRect = nav.getBoundingClientRect(), r = el.getBoundingClientRect();
+  hl.style.left = (r.left-navRect.left)+'px'; hl.style.width = r.width+'px';
+}
+window.addEventListener('load', ()=>{ positionLamp(document.querySelector('.lamp-item.active')); renderHome(); renderStepsRow('market'); renderPresetRow(); });
+
+function toast(msg, err){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show'+(err?' err':'');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function overlayClick(e,id){ if(e.target.id===id) closeModal(id); }
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+let STATEMENTS = [
+  {body:'Supplier confirmed Rainbow Slime Kit base is being reformulated to remove borax — awaiting updated SDS before re-check.', by:'Compliance Team', when:'2 days ago'},
+  {body:'Neon Permanent Markers: requested SDS from supplier on Tuesday, no response yet. Holding PO.', by:'A. Buyer', when:'4 days ago'},
+];
+function renderHome(){
+  document.getElementById('homeProductsTable').innerHTML = productsTableHtml(PRODUCTS.slice(0,4), false);
+  const flagCounts = {};
+  PRODUCTS.forEach(p=> (p.checks||[]).forEach(c=>{ if(c.chemicals){ c.chemicals.filter(ch=>ch.inHighHazard).forEach(ch=>{ flagCounts[ch.name]=(flagCounts[ch.name]||0)+1; }); } }));
+  const entries = Object.entries(flagCounts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('topFlaggedList').innerHTML = entries.length ? entries.map(([name,count])=>`<div class="flag-row"><span>${name}</span><span class="flag-count">${count}</span></div>`).join('') : '<p class="faint" style="font-size:12.5px">No high hazard chemicals flagged yet.</p>';
+  document.getElementById('statementsList').innerHTML = STATEMENTS.map(s=>`<div class="stmt-item">${escapeHtml(s.body)}<div class="stmt-meta">${escapeHtml(s.by)} · ${escapeHtml(s.when)}</div></div>`).join('');
+}
+function addStatement(){
+  const inp = document.getElementById('newStatementInput');
+  if (!inp.value.trim()) return;
+  STATEMENTS.unshift({body:inp.value.trim(), by:'You', when:'just now'});
+  inp.value=''; renderHome(); toast('Note posted to the team.');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function statusBadge(status){
+  if (status==='ACTION_REQUIRED') return '<span class="badge badge-action">Action Required</span>';
+  if (status==='CAUTION') return '<span class="badge badge-caution">Caution</span>';
+  return '<span class="badge badge-low">Low Risk</span>';
+}
+function productLatestCheck(p){ return (p.checks && p.checks.length) ? p.checks[p.checks.length-1] : null; }
+function productsTableHtml(list, full){
+  const rows = list.map(p=>{
+    const latest = productLatestCheck(p);
+    const status = latest && latest.actionStatus ? statusBadge(latest.actionStatus) : '<span class="badge" style="background:#F5F5F4;color:#78716C">Physical Only</span>';
+    const hh = latest && latest.chemicals ? latest.chemicals.filter(c=>c.inHighHazard).length : 0;
+    const sds = latest && latest.chemicals ? (latest.sdsRequired ? 'Yes' : 'No') : 'N/A';
+    const applicable = p.tests.filter(t=>t.status!=='NotRequired');
+    const passed = applicable.filter(t=>t.status==='Passed').length;
+    return `<tr><td><strong>${escapeHtml(p.name)}</strong></td><td>${escapeHtml(p.isbn)}</td><td>${escapeHtml(p.market)}</td><td>${status}</td><td>${hh}</td><td>${sds}</td><td>${passed}/${applicable.length}</td><td><button class="btn btn-secondary btn-sm" onclick="openProductDetail('${p.id}')">View</button></td></tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>ISBN</th><th>Market</th><th>Status</th><th>HH</th><th>SDS Req.</th><th>Tests</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="8" class="faint">No products yet.</td></tr>'}</tbody></table></div>`;
+}
+function renderProductsTable(){
+  const q = (document.getElementById('productSearch')?.value || '').toLowerCase();
+  const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.isbn.toLowerCase().includes(q));
+  document.getElementById('productsTableFull').innerHTML = productsTableHtml(filtered, true);
+}
+
+// ── PRODUCT DETAIL ─────────────────────────────────────────────────────────
+let currentDetailId = null;
+function openProductDetail(id){
+  currentDetailId = id;
+  showSection('product-detail');
+  renderProductDetail();
+}
+function renderProductDetail(){
+  const p = PRODUCTS.find(x=>x.id===currentDetailId);
+  if (!p) return;
+  const latest = productLatestCheck(p);
+  const applicable = p.tests.filter(t=>t.status!=='NotRequired');
+  const passed = applicable.filter(t=>t.status==='Passed').length;
+  const statusCls = {Passed:'status-passed',Pending:'status-pending',Failed:'status-failed',Required:'status-required',NotRequired:'status-notrequired'};
+  const cycleOrder = ['Required','Pending','Passed','Failed','NotRequired'];
+
+  const html = `
+    <div class="card">
+      <div class="card-title">${escapeHtml(p.name)}</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:#57534E">
+        <div><strong>ISBN:</strong> ${escapeHtml(p.isbn)}</div>
+        <div><strong>Market:</strong> ${escapeHtml(p.market)}</div>
+        <div><strong>Status:</strong> ${latest && latest.actionStatus ? statusBadge(latest.actionStatus) : 'Physical Only'}</div>
+        ${latest && latest.chemicals ? `<div><button class="btn btn-outline btn-sm" onclick="goToAgentWithProduct('${p.id}')">&#128172; Ask about this product</button></div>` : ''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Safety Documents</div>
+      <div id="docsListWrap">${p.documents.length ? p.documents.map(d=>`<div class="doc-row"><div><strong>${escapeHtml(d.type)}</strong> — ${escapeHtml(d.filename)}${d.notes?` <span class="faint">(${escapeHtml(d.notes)})</span>`:''}</div></div>`).join('') : '<p class="faint" style="font-size:12.5px">No documents uploaded yet.</p>'}</div>
+      <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="openDocModal()">+ Add Document</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Required Tests (${passed}/${applicable.length} passed)</div>
+      <div class="tests-list">
+        ${p.tests.map(t=>`<div class="test-row"><div><div class="tname">${escapeHtml(t.name)}</div></div><button class="status-pill ${statusCls[t.status]}" onclick="cycleTestStatus('${t.id}')">${humanStatus(t.status)}</button></div>`).join('')}
+      </div>
+      <p class="faint" style="font-size:11px;margin-top:8px">Click a status pill to update it.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Check History</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Verdict</th><th></th></tr></thead><tbody>
+        ${p.checks.map((c,i)=> c.physical
+          ? `<tr><td>${c.createdAt}</td><td>Physical/Mechanical</td><td><span class="badge" style="background:#F5F5F4;color:#78716C">No chemical review</span></td><td class="faint">${escapeHtml(c.notes||'')}</td></tr>`
+          : `<tr><td>${c.createdAt}</td><td>Chemical (CAS/GHS)</td><td>${statusBadge(c.actionStatus)}</td><td><button class="btn btn-secondary btn-sm" onclick="viewReportModal('${p.id}',${i})">View Report</button></td></tr>`
+        ).join('')}
+      </tbody></table></div>
+    </div>`;
+  document.getElementById('productDetailBody').innerHTML = html;
+}
+function humanStatus(s){ return {Passed:'Passed',Pending:'Pending',Failed:'Failed',Required:'Required',NotRequired:'Not Required'}[s]||s; }
+function cycleTestStatus(testId){
+  const p = PRODUCTS.find(x=>x.id===currentDetailId);
+  const t = p.tests.find(x=>x.id===testId);
+  const order = ['Required','Pending','Passed','Failed','NotRequired'];
+  t.status = order[(order.indexOf(t.status)+1)%order.length];
+  renderProductDetail();
+}
+function openDocModal(){ document.getElementById('doc-filename').value=''; document.getElementById('doc-notes').value=''; document.getElementById('docModal').classList.add('open'); }
+function saveDocument(){
+  const p = PRODUCTS.find(x=>x.id===currentDetailId);
+  const filename = document.getElementById('doc-filename').value.trim();
+  if (!filename) { toast('Enter a file name first.', true); return; }
+  p.documents.push({type:document.getElementById('doc-type').value, filename, notes:document.getElementById('doc-notes').value.trim()});
+  closeModal('docModal'); renderProductDetail(); toast('Document added.');
+}
+function viewReportModal(productId, idx){
+  const p = PRODUCTS.find(x=>x.id===productId);
+  const snapshot = p.checks[idx];
+  document.getElementById('reportModalBody').innerHTML = renderResultsHtml(snapshot, true);
+  document.getElementById('reportModal').classList.add('open');
+}
+
+// ── CHECKER WIZARD ─────────────────────────────────────────────────────────
+const STEP_ORDER = ['market','details','ingredients'];
+const STEP_LABELS = {market:'1. Market', details:'2. Product Details', ingredients:'3–4. Ingredients & Verdict'};
+let wizardState = { market:null, details:null, skip:false, ingredientRows:null, presetKey:null };
+
+function startNewProduct(){
+  wizardState = { market:null, details:null, skip:false, ingredientRows:null, presetKey:null };
+  document.querySelectorAll('.market-pill').forEach(p=>p.classList.remove('sel'));
+  document.getElementById('marketContinueBtn').disabled = true;
+  ['pd-name','pd-isbn','pd-type','pd-use','pd-packaging'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pd-age').value=''; document.getElementById('pd-form').value='bound_solid';
+  document.getElementById('pd-skip').checked = false;
+  document.getElementById('pd-istoy').checked = true;
+  ['pd-skin','pd-mouth','pd-eye','pd-inhale'].forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('resultsContainer').innerHTML='';
+  document.getElementById('ingredientsLoadedMsg').style.display='none';
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('runCheckBtn').disabled = true;
+  document.getElementById('rdot-name').classList.remove('go');
+  document.getElementById('rdot-ingredients').classList.remove('go');
+  renderPresetRow();
+  wizardStarted = true;
+  showSection('checker');
+  goToStep('market');
+}
+function renderStepsRow(activeStep){
+  document.getElementById('stepsRow').innerHTML = STEP_ORDER.map(s=>{
+    const activeIdx = STEP_ORDER.indexOf(activeStep), thisIdx = STEP_ORDER.indexOf(s);
+    const cls = thisIdx < activeIdx ? 'done' : (thisIdx===activeIdx ? 'active' : '');
+    return `<div class="step-pill ${cls}">${STEP_LABELS[s]}</div>`;
+  }).join('');
+}
+function goToStep(step){
+  document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('wstep-'+step).classList.add('active');
+  renderStepsRow(step==='physical' ? 'details' : step);
+}
+function selectMarket(m, el){
+  wizardState.market = m;
+  document.querySelectorAll('.market-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('marketContinueBtn').disabled = false;
+}
+function toggleSkip(){ wizardState.skip = document.getElementById('pd-skip').checked; }
+function readDetailsForm(){
+  return {
+    name: document.getElementById('pd-name').value.trim(),
+    isbn: document.getElementById('pd-isbn').value.trim() || '—',
+    ageRange: document.getElementById('pd-age').value,
+    productType: document.getElementById('pd-type').value.trim() || 'General',
+    intendedUse: document.getElementById('pd-use').value.trim(),
+    physicalForm: document.getElementById('pd-form').value,
+    packagingNotes: document.getElementById('pd-packaging').value.trim(),
+    isToy: document.getElementById('pd-istoy').checked,
+    skinContact: document.getElementById('pd-skin').checked,
+    mouthContact: document.getElementById('pd-mouth').checked,
+    eyeContact: document.getElementById('pd-eye').checked,
+    inhalationExposure: document.getElementById('pd-inhale').checked,
+    market: wizardState.market,
+  };
+}
+function continueFromDetails(){
+  const d = readDetailsForm();
+  if (!d.name) { toast('Enter a product name first.', true); return; }
+  if (!d.ageRange) { toast('Select an age range first.', true); return; }
+  wizardState.details = d;
+  if (wizardState.skip) {
+    document.getElementById('physicalSummaryText').textContent = `${d.name} (${d.productType}, ${d.ageRange}) will be tracked with the standard mechanical/physical/labelling test checklist. No CAS/GHS chemical screen will be recorded.`;
+    goToStep('physical');
+  } else {
+    document.getElementById('rdot-name').classList.add('go');
+    updateRunButtonState();
+    goToStep('ingredients');
+  }
+}
+function savePhysicalOnly(){
+  const d = wizardState.details;
+  const id = 'p'+(PRODUCTS.length+1)+'_'+Date.now();
+  const battery = false;
+  PRODUCTS.push({id, name:d.name, isbn:d.isbn, market:d.market, ageRange:d.ageRange, productType:d.productType, physicalOnly:true,
+    tests: zipTests(['Required','Required','Required','NotRequired', battery?'Required':'NotRequired']),
+    documents: [], checks:[{physical:true, createdAt:'2026-08-13', notes:'Saved from Checker — no chemical ingredients declared.'}]});
+  toast('Saved to Products.');
+  wizardStarted = false;
+  openProductDetail(id);
+}
+function renderPresetRow(){
+  document.getElementById('presetRow').innerHTML = Object.entries(INGREDIENT_PRESETS).map(([key,p])=>`<button class="preset-btn" data-key="${key}" onclick="loadPreset('${key}')">${escapeHtml(p.label)}</button>`).join('');
+}
+function loadPreset(key){
+  wizardState.presetKey = key; wizardState.ingredientRows = INGREDIENT_PRESETS[key].rows;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('sel', b.dataset.key===key));
+  const msg = document.getElementById('ingredientsLoadedMsg');
+  msg.style.display='block';
+  msg.textContent = `✓ Loaded "${INGREDIENT_PRESETS[key].label}" — ${wizardState.ingredientRows.length} CAS numbers found.`;
+  document.getElementById('rdot-ingredients').classList.add('go');
+  updateRunButtonState();
+}
+function handleFileUpload(file){
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const grid = XLSX.utils.sheet_to_json(sheet, {header:1});
+      const header = (grid[0]||[]).map(h=>String(h||'').toLowerCase());
+      const casIdx = header.findIndex(h=>h.includes('cas'));
+      const concIdx = header.findIndex(h=>/%|conc|percent|w\/w|proportion|composition/.test(h));
+      if (casIdx === -1) { toast('No column with "CAS" in the header was found.', true); return; }
+      const rows = [];
+      for (let i=1;i<grid.length;i++){
+        const row = grid[i]; if (!row || row[casIdx]==null || row[casIdx]==='') continue;
+        let conc = concIdx!==-1 ? parseFloat(String(row[concIdx]).replace('%','')) : NaN;
+        rows.push({cas:String(row[casIdx]).trim(), concentration: isNaN(conc) ? 1 : conc});
+      }
+      if (!rows.length) { toast('No CAS numbers were found in that file.', true); return; }
+      wizardState.presetKey = null; wizardState.ingredientRows = rows;
+      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+      const msg = document.getElementById('ingredientsLoadedMsg');
+      msg.style.display='block';
+      msg.textContent = `✓ ${rows.length} CAS numbers extracted from ${file.name}${concIdx!==-1 ? ` · Concentration data found for ${rows.filter(r=>!isNaN(r.concentration)).length} of ${rows.length} ingredients` : ' · No concentration column found — defaulting to 1%'}.`;
+      document.getElementById('rdot-ingredients').classList.add('go');
+      updateRunButtonState();
+    } catch (err) { toast('Could not read that file — try a sample list instead.', true); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+['dragover','dragleave','drop'].forEach(evt=>{
+  document.addEventListener('DOMContentLoaded', ()=>{});
+});
+window.addEventListener('load', ()=>{
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('drag'));
+  zone.addEventListener('drop', e=>{ e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) handleFileUpload(e.dataTransfer.files[0]); });
+});
+function updateRunButtonState(){
+  const ready = wizardState.details && wizardState.details.name && wizardState.ingredientRows && wizardState.ingredientRows.length;
+  document.getElementById('runCheckBtn').disabled = !ready;
+}
+function runCasCheck(){
+  const overlay = document.getElementById('spinnerOverlay');
+  overlay.classList.add('show');
+  document.getElementById('resultsContainer').innerHTML = '';
+  setTimeout(()=>{
+    overlay.classList.remove('show');
+    const snapshot = analyse(wizardState.details, wizardState.ingredientRows);
+    document.getElementById('resultsContainer').innerHTML = renderResultsHtml(snapshot, false);
+    window.__lastSnapshot = snapshot;
+  }, 700);
+}
+function saveCurrentRun(){
+  const s = window.__lastSnapshot; if (!s) return;
+  const battery = false;
+  const id = 'p'+(PRODUCTS.length+1)+'_'+Date.now();
+  PRODUCTS.push({id, name:s.product.name, isbn:s.product.isbn, market:s.product.market, ageRange:s.product.ageRange, productType:s.product.productType, physicalOnly:false,
+    tests: zipTests(['Required','Required','Required','Required', battery?'Required':'NotRequired']),
+    documents: [], checks:[s]});
+  toast('Saved to Products.');
+  wizardStarted = false;
+  openProductDetail(id);
+}
+
+// ── RESULTS RENDERING ──────────────────────────────────────────────────────
+function renderResultsHtml(s, isReadOnly){
+  const bannerCls = s.actionStatus==='ACTION_REQUIRED' ? 'verdict-action' : (s.actionStatus==='CAUTION' ? 'verdict-caution' : 'verdict-low');
+  const bannerIcon = s.actionStatus==='ACTION_REQUIRED' ? '&#9940;' : (s.actionStatus==='CAUTION' ? '&#9888;&#65039;' : '&#9989;');
+  const bannerTitle = s.actionStatus==='ACTION_REQUIRED' ? 'Action Required — Do Not Purchase Yet' : (s.actionStatus==='CAUTION' ? 'Proceed with Caution — SDS Recommended' : 'Low Risk — No Major Hazards Detected');
+  const hh = s.chemicals.filter(c=>c.inHighHazard).length;
+  const misses = s.aicisMisses.length;
+
+  const chemRows = s.chemicals.map(c=>`<tr class="${c.inHighHazard?'hh-row':''}"><td>${escapeHtml(c.cas)}</td><td>${c.concentration}%</td><td>${c.inInventory?'<span class="ok-mark">&#10003;</span>':'<span class="no-mark">&#10007;</span>'}</td><td>${c.inHighHazard?'<span class="no-mark">&#10003;</span>':'<span class="dash-mark">—</span>'}</td><td>${c.inIChEMS?'<span class="ok-mark">&#10003;</span>':'<span class="dash-mark">—</span>'}</td><td>${c.ichemsSchedule||'<span class="dash-mark">—</span>'}</td><td>${escapeHtml(c.name)}</td><td><span class="hcis-note" onclick="toast('This is a demo — in the live tool this links to the Safe Work Australia HCIS database.')">Manual check</span></td></tr>`).join('');
+
+  const belowThreshHtml = s.belowThresholdHCodes.length ? `<div class="callout callout-green"><h4>Below Threshold</h4><p>${s.belowThresholdHCodes.map(h=>`<strong>${h}</strong> (${escapeHtml(H_TEXT[h]||'')})`).join(', ')} — present, but below the WHS Schedule 6 concentration cutoff that would trigger GHS labelling.</p></div>` : '';
+  const hhHtml = hh ? `<div class="callout callout-danger"><h4>High Hazard Chemicals Detected</h4><p>${s.chemicals.filter(c=>c.inHighHazard).map(c=>escapeHtml(c.name)+' ('+c.cas+')').join(', ')} appear on the Safe Work Australia High Hazard Chemicals List.</p></div>` : '';
+  const missHtml = misses ? `<div class="callout callout-danger"><h4>AICIS Inventory Misses</h4><p>${escapeHtml(s.aicisMisses.join(', '))} could not be matched in the AICIS Chemical Inventory — this may indicate an unregistered industrial chemical.</p></div>` : '';
+
+  const ghsTableRows = s.ghsCategories.map(g=>`<tr><td>${g.symbol}</td><td>${escapeHtml(g.category)}</td><td class="signal-word signal-${g.signal.toLowerCase()}">${g.signal}</td><td>${g.hCodesFound.join(', ')}</td></tr>`).join('');
+  const ghsTable = s.ghsCategories.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pictogram</th><th>Category</th><th>Signal Word</th><th>H-Codes Found</th></tr></thead><tbody>${ghsTableRows}</tbody></table></div>` : '<p class="faint" style="font-size:12.5px">No GHS hazard categories triggered.</p>';
+
+  const uid = 'r'+Math.random().toString(36).slice(2,8);
+  SNAP_STORE[uid] = s;
+  return `
+    <div class="verdict-banner ${bannerCls}"><div class="verdict-icon">${bannerIcon}</div><div><div class="verdict-title">${bannerTitle}</div><div class="verdict-sub">Check ID ${s.checkId} · ${s.createdAt}</div></div></div>
+
+    <div class="stat-row">
+      <div class="stat-pill"><div class="num">${s.chemicals.length}</div><div class="lbl">Total CAS</div></div>
+      <div class="stat-pill"><div class="num">${s.chemicals.filter(c=>c.inInventory).length}</div><div class="lbl">In AICIS Inventory</div></div>
+      <div class="stat-pill ${hh?'warn':''}"><div class="num">${hh}</div><div class="lbl">High Hazard</div></div>
+      <div class="stat-pill ${misses?'amber':''}"><div class="num">${misses}</div><div class="lbl">Not in AICIS</div></div>
+    </div>
+
+    ${s.ghsSignalWord ? `<p style="margin-bottom:14px;font-size:13px">GHS Signal Word: <span class="signal-word signal-${s.ghsSignalWord.toLowerCase()}">${s.ghsSignalWord}</span> · ${s.ghsCategories.length} categor${s.ghsCategories.length===1?'y':'ies'} triggered</p>` : ''}
+
+    <div class="card">
+      <div class="card-title">Chemicals</div>
+      <div class="tbl-wrap"><table><thead><tr><th>CAS Number</th><th>Conc.</th><th>AICIS</th><th>High Hazard</th><th>IChEMS</th><th>Schedule</th><th>Chemical Name</th><th>HCIS</th></tr></thead><tbody>${chemRows}</tbody></table></div>
+      ${missHtml}${hhHtml}${belowThreshHtml}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Labelling &amp; Documentation</div>
+      <p style="font-size:12.5px;font-weight:700;color:#78716C;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">GHS Label Requirements</p>
+      ${ghsTable}
+      <div class="callout callout-blue" style="margin-top:14px"><h4>Emergency Contact Requirements</h4><p>${s.emergencyContactRequired ? 'A Poisons Information Centre contact statement is required on the label.' : 'Not required based on the hazards detected.'} Poisons Information Centre: 13 11 26.</p></div>
+      <div class="callout callout-amber"><h4>POP Test Determination</h4><p>${s.popTestRequired}${s.popTestRequired==='May be required' ? ' — one or more ingredients matched an IChEMS Schedule 6+ substance.' : '.'}</p></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Summary &amp; Export</div>
+      <div class="plain-summary">${s.plainEnglishSummary}</div>
+      <div class="result-actions">
+        <button class="btn btn-excel" onclick="exportReport('${uid}')">&#8595; Export to Excel (.xlsx)</button>
+        <button class="btn btn-outline" onclick="goToAgentWithSnapshotUid('${uid}')">&#128172; Ask about this product</button>
+        ${isReadOnly ? '' : '<button class="btn btn-primary" onclick="saveCurrentRun()">Save to Products</button>'}
+      </div>
+    </div>
+  `;
+}
+function exportReport(uid){
+  const s = SNAP_STORE[uid];
+  if (!s || typeof XLSX === 'undefined') { toast('Export unavailable in this demo environment.', true); return; }
+  const rows = s.chemicals.map((c,i)=>({
+    'Product Name': s.product.name, 'ISBN': s.product.isbn, 'Market': s.product.market, 'Age Range': s.product.ageRange,
+    'CAS Number': c.cas, 'Chemical Name': c.name, 'Concentration (%)': c.concentration,
+    'In AICIS Inventory': c.inInventory ? 'Yes' : 'No', 'In High Hazard List': c.inHighHazard ? 'Yes' : 'No',
+    'H-Codes Detected': c.hCodes.join(', '), 'IChEMS Match': c.inIChEMS ? 'Yes' : 'No', 'IChEMS Schedule': c.ichemsSchedule || '',
+    'Action Status': s.actionStatus, 'SDS Required': s.sdsRequired ? 'Yes' : 'No',
+    'Plain English Summary': i===0 ? s.plainEnglishSummary.replace(/<[^>]+>/g,' ').trim() : '',
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Check Report');
+  XLSX.writeFile(wb, `toy-safety-check-${(s.product.name||'product').replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.xlsx`);
+}
+
+// ── COMPLIANCE ASSISTANT ────────────────────────────────────────────────────
+const SUGGESTED = [
+  'What chemicals should I look for in permanent markers?',
+  'What are the main concerns with air dry clay?',
+  'What should I check in a slime kit?',
+  'What are the chemical concerns with washable paint sets?',
+  'When is a Safety Data Sheet required?',
+  'What is AS/NZS 8124 and when does it apply?',
+];
+const KNOWLEDGE_BASE = [
+  {keywords:['permanent marker'], title:'Permanent Markers', answer:'Permanent markers are typically solvent-based. Common ingredients to screen for include <strong>carbon black</strong> (CAS 1333-86-4 — on the High Hazard list, H351/H373) used as a pigment, and solvents like <strong>isopropanol</strong> or <strong>ethanol</strong> (both H225, flammable). Because these are solvent-based rather than water-based, expect a GHS Flammable category and possibly a Serious Health Hazard category — request an SDS as standard practice.', source:'GHS reference data · Safe Work Australia High Hazard Chemicals List'},
+  {keywords:['air dry clay','clay'], title:'Air Dry Clay', answer:'Air dry clay is usually mineral-based (kaolin, talc) with low chemical risk in its bound, non-powder form. Watch for <strong>crystalline silica dust exposure</strong> if the product generates dust during sanding — this only becomes a concern in loose powder form, not the finished bound product. Titanium dioxide pigments (CAS 13463-67-7) are only flagged when present as an inhalable powder.', source:'GHS reference data · AICIS Chemical Inventory'},
+  {keywords:['slime'], title:'Slime Kits', answer:'Slime kits commonly use <strong>borax</strong> (sodium borate, CAS 1303-96-4) as an activator — this is on the High Hazard Chemicals List (H360/H373, reproductive toxicity and organ damage on repeated exposure) and will trigger an Action Required verdict on its own. Also check fragrance/colour components against the AICIS Inventory, as proprietary fragrance blends are a common source of "not found in AICIS" misses.', source:'Safe Work Australia High Hazard Chemicals List'},
+  {keywords:['washable paint','paint'], title:'Washable Paint Sets', answer:'Washable paints are water-based, so solvent risk is low. The main things to screen for are <strong>preservatives</strong> like methylisothiazolinone (MIT, CAS 2682-20-4) — a common skin sensitiser (H317) even at very low concentrations — and pigment loading of titanium dioxide. MIT alone is usually enough to trigger a Caution verdict via the GHS Irritant category.', source:'GHS reference data'},
+  {keywords:['when is','sds required','safety data sheet'], title:'When is an SDS Required?', answer:'In this tool, an SDS is flagged as required whenever the verdict is anything other than <strong>Low Risk</strong> — i.e. whenever a High Hazard chemical is matched, an ingredient is missing from the AICIS Inventory, or any GHS hazard category is triggered by concentration. Even at Low Risk, it\'s good practice to hold an SDS on file for any product with declared chemical ingredients.', source:'Internal policy · WHS Regulation Schedule 6'},
+  {keywords:['as/nzs 8124','8124'], title:'AS/NZS 8124', answer:'AS/NZS 8124 is the joint Australian/New Zealand toy safety standard, covering mechanical &amp; physical properties (Part 1), flammability (Part 2), and migration of certain elements (Part 3). It applies whenever a product is marketed or intended for use as a toy by children — flagging "Is a toy" on the Product Details step routes the required-tests checklist to include the relevant AS/NZS 8124 parts.', source:'AS/NZS 8124 (referenced)'},
+  {keywords:['ghs'], title:'What is GHS?', answer:'The Globally Harmonized System (GHS) is the international framework for classifying and labelling hazardous chemicals — hazard pictograms, signal words (DANGER/WARNING), hazard statements (H-codes) and precautionary statements (P-codes). This tool checks each ingredient\'s H-codes against WHS Regulation Schedule 6 concentration cutoffs to decide which GHS categories actually need to appear on the label.', source:'GHS reference data'},
+  {keywords:['aicis'], title:'What is AICIS?', answer:'AICIS (the Australian Industrial Chemicals Introduction Scheme) maintains the register of industrial chemicals that are lawfully introduced into Australia. If an ingredient\'s CAS number can\'t be matched in the AICIS Inventory, that\'s treated as a red flag — it may mean the chemical needs to be registered before import or manufacture, which is why it forces an Action Required verdict.', source:'AICIS Chemical Inventory'},
+  {keywords:['ichems'], title:'What is IChEMS?', answer:'The IChEMS Register lists industrial chemicals subject to international agreements on persistent organic pollutants (POPs) and similar controls, organised into schedules. A match against IChEMS Schedule 6 or higher triggers a "POP Test may be required" flag on the report.', source:'IChEMS Register'},
+  {keywords:['high hazard'], title:'What does "High Hazard" mean?', answer:'"High Hazard" means the chemical appears on Safe Work Australia\'s High Hazard Chemicals List — substances considered a priority for workplace exposure control. Any match on this list forces an Action Required verdict regardless of concentration, because these substances carry the most serious long-term health risks (carcinogenicity, reproductive toxicity, organ damage).', source:'Safe Work Australia High Hazard Chemicals List'},
+  {keywords:['borax'], title:'Borax (Sodium Borate)', answer:'Borax (CAS 1303-96-4) is a common slime-kit activator. It carries H360 (may damage fertility or the unborn child) and H373 (organ damage on repeated exposure), and is on the High Hazard Chemicals List — any detected concentration triggers Action Required.', source:'Safe Work Australia High Hazard Chemicals List'},
+  {keywords:['carbon black'], title:'Carbon Black', answer:'Carbon black (CAS 1333-86-4), used as a pigment in inks and markers, carries H351 (suspected of causing cancer) and H373 (organ damage on repeated exposure) and is on the High Hazard Chemicals List.', source:'Safe Work Australia High Hazard Chemicals List'},
+  {keywords:['mit','methylisothiazolinone'], title:'Methylisothiazolinone (MIT)', answer:'MIT (CAS 2682-20-4) is a widely used preservative in water-based paints and craft glues. It carries H317 (may cause an allergic skin reaction) and triggers at very low concentrations, so it commonly pushes a Low Risk product into Caution.', source:'GHS reference data'},
+];
+let agentContext = null; // { snapshot, productName } or null
+let chatHistory = [];
+
+function renderAgentEmptyState(){
+  document.getElementById('chatEmptyState').innerHTML = agentContext ? '' : `
+    <div class="chat-empty">
+      <div class="ico">&#129514;</div>
+      <h2>Compliance Assistant</h2>
+      <p>Ask about GHS hazard codes, AICIS registration, IChEMS schedules, or anything else from the Australian/NZ chemical compliance framework.</p>
+      <div class="suggest-grid">${SUGGESTED.map(q=>`<button class="suggest-btn" onclick="askSuggested('${q.replace(/'/g,"\\'")}')">${escapeHtml(q)}</button>`).join('')}</div>
+    </div>`;
+}
+function renderAgentContextBanner(){
+  const el = document.getElementById('agentContextBanner');
+  if (!agentContext) { el.innerHTML=''; return; }
+  const badge = agentContext.snapshot ? statusBadge(agentContext.snapshot.actionStatus) : '<span class="badge" style="background:#F5F5F4;color:#78716C">Physical Only</span>';
+  el.innerHTML = `<div class="context-banner"><div><strong>${escapeHtml(agentContext.productName)}</strong> ${badge}</div><span class="back-link" onclick="clearAgentContext()">Clear context</span></div>`;
+}
+function clearAgentContext(){ agentContext=null; document.getElementById('followupRow').innerHTML=''; renderAgentContextBanner(); renderAgentEmptyState(); }
+function goToAgentWithProduct(productId){
+  const p = PRODUCTS.find(x=>x.id===productId);
+  const latest = productLatestCheck(p);
+  agentContext = { snapshot: latest && latest.chemicals ? latest : null, productName: p.name };
+  chatHistory=[]; showSection('agent'); renderAgentContextBanner(); renderChatLog(); renderFollowups();
+}
+function goToAgentWithSnapshotUid(uid){
+  const s = SNAP_STORE[uid];
+  if (!s) return;
+  agentContext = { snapshot: s, productName: s.product.name };
+  chatHistory=[]; showSection('agent'); renderAgentContextBanner(); renderChatLog(); renderFollowups();
+}
+function renderFollowups(){
+  const row = document.getElementById('followupRow');
+  if (!agentContext) { row.innerHTML=''; return; }
+  const s = agentContext.snapshot;
+  const qs = [];
+  if (s) {
+    qs.push(`Why is this flagged ${humanActionLabel(s.actionStatus)}?`);
+    if (s.chemicals.some(c=>c.inHighHazard)) qs.push(`What does High Hazard mean for ${s.chemicals.find(c=>c.inHighHazard).name}?`);
+    qs.push('What should I request from the supplier?');
+  } else {
+    qs.push('What tests apply to this product?');
+  }
+  row.innerHTML = qs.map(q=>`<button class="suggest-btn" onclick="askSuggested('${q.replace(/'/g,"\\'")}')">${escapeHtml(q)}</button>`).join('');
+}
+function humanActionLabel(s){ return s==='ACTION_REQUIRED'?'Action Required':(s==='CAUTION'?'Caution':'Low Risk'); }
+function askSuggested(q){ document.getElementById('chatInput').value=q; sendChat(); }
+function sendChat(){
+  const inp = document.getElementById('chatInput');
+  const q = inp.value.trim(); if (!q) return;
+  chatHistory.push({role:'user', text:q});
+  inp.value='';
+  renderChatLog();
+  setTimeout(()=>{ chatHistory.push({role:'bot', answer:findAnswer(q)}); renderChatLog(); }, 400);
+}
+function findAnswer(query){
+  const q = query.toLowerCase();
+  if (agentContext && agentContext.snapshot && /flagged|why|status/.test(q)) {
+    const s = agentContext.snapshot;
+    return {title:'This Product\'s Verdict', answer:s.plainEnglishSummary, source:`Check ${s.checkId}`};
+  }
+  if (agentContext && agentContext.snapshot && /supplier|request/.test(q)) {
+    const s = agentContext.snapshot;
+    return {title:'What to Request from the Supplier', answer: s.sdsRequired ? 'Request a current Safety Data Sheet (SDS) and, if any High Hazard or AICIS-miss ingredient is present, written confirmation of AICIS registration status for that substance.' : 'No SDS is strictly required at Low Risk, but it\'s good practice to request one and hold it on file.', source:'Internal policy'};
+  }
+  for (const entry of KNOWLEDGE_BASE) {
+    if (entry.keywords.some(k=>q.includes(k))) return entry;
+  }
+  return {title:'No exact match', answer:'I don\'t have specific guidance on that in this demo — try asking about GHS hazard codes, AICIS registration, IChEMS schedules, or SDS requirements.', source:null};
+}
+function renderChatLog(){
+  renderAgentEmptyState();
+  document.getElementById('chatLog').innerHTML = chatHistory.map(m=>{
+    if (m.role==='user') return `<div class="chat-msg user">${escapeHtml(m.text)}</div>`;
+    return `<div class="chat-msg bot"><h4>${escapeHtml(m.answer.title)}</h4><div>${m.answer.answer}</div>${m.answer.source?`<div class="src">&#128203; ${escapeHtml(m.answer.source)}</div>`:''}</div>`;
+  }).join('');
+  const log = document.getElementById('chatLog'); log.scrollTop = log.scrollHeight;
+}
+renderAgentEmptyState();
+</script>
+</body>
+</html>

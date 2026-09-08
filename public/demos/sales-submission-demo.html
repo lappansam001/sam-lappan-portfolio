@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scholastic Submissions — Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif;background:#FAF8F4;color:#1C1917;font-size:14px;line-height:1.5}
+header{background:#DC2626;color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;z-index:10}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;background:#fff;color:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0}
+.logo{font-size:20px;font-weight:800;font-style:italic;letter-spacing:-.5px;color:#fff;line-height:1.1}
+.logo-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:2px}
+.demo-badge{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:6px;color:#fff;white-space:nowrap}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 28px;background:#fff;position:sticky;top:0;z-index:150;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lamp-nav-wrap{justify-self:center}
+.lamp-nav{position:relative;display:flex;gap:2px;background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.lamp-item{position:relative;z-index:2;border:none;background:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .2s;white-space:nowrap}
+.lamp-item.active{color:#fff}
+.lamp-item:hover:not(.active){color:#DC2626}
+.lamp-ico{font-size:14px;line-height:1}
+.lamp-highlight{position:absolute;top:5px;bottom:5px;border-radius:999px;background:#DC2626;transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);z-index:1}
+@media(max-width:860px){.lamp-label{display:none}.lamp-item{padding:9px 13px}.topbar{padding:10px 12px}}
+main{max-width:1180px;margin:24px auto 60px;padding:0 24px}
+.section{display:none}.section.active{display:block}
+.card{background:#fff;border:1px solid #E7E5E4;border-radius:12px;padding:22px;margin-bottom:20px}
+.card-title{font-size:13px;font-weight:700;color:#DC2626;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #F5F5F4;letter-spacing:.4px;text-transform:uppercase}
+.kicker{font-size:12px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.muted{color:#78716C}
+.faint{color:#A8A29E}
+.hero{background:linear-gradient(135deg,#FEF2F2,#FAF8F4);border:1px solid #FCA5A5}
+.hero h1{font-size:24px;font-weight:800;color:#1C1917;margin-bottom:6px}
+.hero p{font-size:14px;color:#57534E;max-width:640px}
+.hero-note{margin-top:14px;font-size:12px;color:#A8A29E;font-style:italic}
+.btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#DC2626;color:#fff}.btn-primary:hover{background:#B91C1C}
+.btn-primary:disabled{background:#E7E5E4;color:#A8A29E;cursor:not-allowed}
+.btn-secondary{background:#F5F5F4;color:#44403C}.btn-secondary:hover{background:#E7E5E4}
+.btn-excel{background:#1d6f42;color:#fff}.btn-excel:hover{background:#155534}
+.btn-danger{background:#dc3545;color:#fff}.btn-danger:hover{background:#b02a37}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-outline{background:#fff;border:1.5px solid #DC2626;color:#DC2626}
+.btn-outline:hover{background:#FEF2F2}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat-pill{border:1px solid #E7E5E4;border-radius:8px;padding:12px 14px;background:#fff}
+.stat-pill .num{font-size:22px;font-weight:800;color:#1C1917}
+.stat-pill .lbl{font-size:10.5px;color:#78716C;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.hiw-step{background:#FAF8F4;border:1px solid #F5F5F4;border-radius:8px;padding:14px}
+.hiw-num{width:24px;height:24px;border-radius:50%;background:#DC2626;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.hiw-step h4{font-size:12.5px;font-weight:700;margin-bottom:4px}
+.hiw-step p{font-size:11.5px;color:#78716C}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.2px;white-space:nowrap}
+.pill-frontlist{background:#DBEAFE;color:#1E40AF}
+.pill-all{background:#F5F5F4;color:#57534E}
+.pill-airport{background:#FEF3E2;color:#B5621E}
+.upload-zone{border:2px dashed #E7E5E4;border-radius:10px;padding:26px;text-align:center;cursor:pointer;transition:all .15s;background:#FAF8F4}
+.upload-zone:hover,.upload-zone.drag{border-color:#DC2626;background:#FEF2F2}
+.upload-zone .ico{font-size:28px;margin-bottom:6px}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.file-loaded{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;color:#166534}
+.file-slot-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.file-slot{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border:1px solid #F5F5F4;border-radius:6px;font-size:12.5px}
+.file-slot .rm{color:#B91C1C;cursor:pointer;font-weight:700}
+.preset-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.preset-btn{padding:9px 15px;border:1.5px solid #E7E5E4;border-radius:8px;background:#fff;font-size:12.5px;font-weight:700;color:#44403C;cursor:pointer}
+.preset-btn:hover{border-color:#DC2626;color:#DC2626}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px}
+th{background:#F5F5F4;padding:8px 10px;text-align:left;font-weight:700;color:#57534E;border-bottom:2px solid #E7E5E4;white-space:nowrap;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:8px 10px;border-bottom:1px solid #F5F5F4;vertical-align:middle;white-space:nowrap}
+tr.lead-row td{font-weight:700;text-decoration:underline;border-bottom:2px solid #E7E5E4}
+tr.comp-row td{color:#B91C1C;font-size:12px}
+tr.comp-row td:first-child{padding-left:24px;color:#78716C;font-weight:400;text-decoration:none}
+.sellthru-bar-track{height:5px;background:#F0EDE7;border-radius:3px;overflow:hidden;width:80px;display:inline-block;vertical-align:middle;margin-right:6px}
+.sellthru-bar-fill{display:block;height:100%;background:#DC2626}
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.store-tile{border:1px solid #F5F5F4;border-radius:8px;padding:12px 14px}
+.store-tile .sname{font-weight:700;font-size:13px;margin-bottom:4px}
+.store-tile .scount{font-size:11.5px;color:#78716C;margin-top:4px}
+.callout{border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.6}
+.callout-blue{background:#EFF6FF;border:1.5px solid #BFDBFE;color:#1E3A5F}
+.callout-green{background:#F0FDF4;border:1.5px solid #BBF7D0;color:#14532D}
+.pending-run-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #F5F5F4;border-radius:8px;margin-bottom:8px;cursor:pointer}
+.pending-run-row:hover{border-color:#DC2626}
+.pending-run-row.sel{background:#FEF2F2;border-color:#DC2626}
+.tab-pills{display:flex;gap:8px;margin-bottom:16px}
+.tab-pill-btn{padding:7px 16px;border:1.5px solid #E7E5E4;border-radius:20px;background:#f7f7f7;font-size:12.5px;font-weight:700;color:#666;cursor:pointer;transition:all .15s}
+.tab-pill-btn.active{background:#DC2626;border-color:#DC2626;color:#fff}
+.run-card{border:1px solid #E7E5E4;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.run-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:#fff}
+.run-card-hdr:hover{background:#FAFAF9}
+.run-card-title{font-weight:700;font-size:14px}
+.run-card-sub{font-size:11.5px;color:#A8A29E;margin-top:2px}
+.run-card-body{display:none;padding:0 16px 16px;border-top:1px solid #F5F5F4}
+.run-card-body.open{display:block}
+.export-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F5F5F4;font-size:13px}
+.export-row:last-child{border-bottom:none}
+.chevron{transition:transform .2s;font-size:11px;color:#A8A29E}
+.chevron.open{transform:rotate(90deg)}
+.del-icon{color:#A8A29E;cursor:pointer;font-size:13px}
+.del-icon:hover{color:#B91C1C}
+.del-confirm{background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:12.5px;color:#7F1D1D;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.empty-state{text-align:center;padding:40px 20px}
+.empty-state .ico{font-size:30px;margin-bottom:10px}
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;padding:11px 20px;border-radius:6px;font-size:13px;z-index:3000;opacity:0;transition:opacity .25s;pointer-events:none;max-width:340px}
+.toast.show{opacity:1}
+@media(max-width:700px){.upload-grid{grid-template-columns:1fr}main{padding:0 12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-mark">S</div>
+    <div>
+      <div class="logo">Scholastic</div>
+      <div class="logo-tag">Submissions</div>
+    </div>
+  </div>
+  <div class="demo-badge">Demo Project</div>
+</header>
+
+<div class="topbar">
+  <div></div>
+  <div class="lamp-nav-wrap">
+    <nav class="lamp-nav" id="lampNav">
+      <div class="lamp-highlight" id="lampHighlight"></div>
+      <button class="lamp-item active" data-tab="home" onclick="showSection('home',this)"><span class="lamp-ico">&#127968;</span><span class="lamp-label">Home</span></button>
+      <button class="lamp-item" data-tab="submissions" onclick="showSection('submissions',this)"><span class="lamp-ico">&#128196;</span><span class="lamp-label">Submissions</span></button>
+      <button class="lamp-item" data-tab="sellthru" onclick="showSection('sellthru',this)"><span class="lamp-ico">&#128202;</span><span class="lamp-label">Sell-Thru</span></button>
+      <button class="lamp-item" data-tab="history" onclick="showSection('history',this)"><span class="lamp-ico">&#128337;</span><span class="lamp-label">History</span></button>
+    </nav>
+  </div>
+  <div></div>
+</div>
+
+<main>
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <div class="card hero">
+    <p class="kicker">Retail Submission &amp; Sell-Thru Generator</p>
+    <h1>One masterlist. Thirteen stores.</h1>
+    <p>Upload a monthly masterlist once and generate submission spreadsheets for all 13 retail accounts in one click. Then feed in trade sales data and Bookscan figures to generate automated Sell-Thru comparison reports — no more column-by-column VLOOKUPs or CSV copy-paste.</p>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showSection('submissions')">Go to Submissions</button>
+      <button class="btn btn-outline" onclick="showSection('sellthru')">Go to Sell-Thru</button>
+    </div>
+    <p class="hero-note">This is an interactive preview with placeholder data — no real titles, sales figures, or retailer trade terms are used.</p>
+  </div>
+
+  <div class="stat-row" id="homeStatRow"></div>
+
+  <div class="card">
+    <div class="card-title">How It Works</div>
+    <div class="hiw-grid">
+      <div class="hiw-step"><div class="hiw-num">1</div><h4>Upload Masterlist</h4><p>This month's frontlist titles, in one spreadsheet.</p></div>
+      <div class="hiw-step"><div class="hiw-num">2</div><h4>Generate Submissions</h4><p>13 retailer-formatted spreadsheets, one click.</p></div>
+      <div class="hiw-step"><div class="hiw-num">3</div><h4>Upload Trade Data</h4><p>Trade Majors sales/returns + Bookscan figures.</p></div>
+      <div class="hiw-step"><div class="hiw-num">4</div><h4>Generate Sell-Thru</h4><p>Sell-thru % and market share, per store.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent Runs</div>
+    <div id="homeRecentRuns"></div>
+  </div>
+</div>
+
+<!-- SUBMISSIONS -->
+<div id="submissions" class="section">
+  <div class="card">
+    <div class="card-title">Masterlist</div>
+    <p class="muted" style="font-size:13px;margin-bottom:10px">Upload this month's masterlist (.xlsx), or load a sample to try the flow.</p>
+    <div class="upload-grid">
+      <div>
+        <div class="upload-zone" id="masterlistZone" onclick="document.getElementById('masterlistInput').click()">
+          <div class="ico">&#128196;</div>
+          <div><strong>Masterlist</strong></div>
+          <div class="faint" style="font-size:12px;margin-top:4px">ISBN, Title, Author, RRP columns</div>
+        </div>
+        <input type="file" id="masterlistInput" accept=".xlsx,.xls" style="display:none" onchange="handleMasterlistUpload(this.files[0])">
+      </div>
+      <div>
+        <div class="upload-zone" id="airportZone" onclick="document.getElementById('airportInput').click()">
+          <div class="ico">&#9992;&#65039;</div>
+          <div><strong>Airport Allocation List</strong> <span class="faint">(optional)</span></div>
+          <div class="faint" style="font-size:12px;margin-top:4px">Gates WH Smith inclusion + a few discount tiers</div>
+        </div>
+        <input type="file" id="airportInput" accept=".xlsx,.xls" style="display:none" onchange="handleAirportUpload(this.files[0])">
+      </div>
+    </div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="loadMasterlistPreset()">Load Sample Masterlist</button>
+      <button class="preset-btn" onclick="loadAirportPreset()">Load Sample Airport Allocation List</button>
+    </div>
+    <div class="file-loaded" id="masterlistLoadedMsg" style="display:none"></div>
+    <div class="file-loaded" id="airportLoadedMsg" style="display:none"></div>
+  </div>
+
+  <div class="card" id="titlePreviewCard" style="display:none">
+    <div class="card-title">Titles Loaded</div>
+    <div class="tbl-wrap"><table><thead><tr><th>ISBN</th><th>Title</th><th>Author</th><th>RRP</th><th>Trade Release</th><th>Frontlist?</th></tr></thead><tbody id="titlePreviewBody"></tbody></table></div>
+  </div>
+
+  <div class="card" id="storePreviewCard" style="display:none">
+    <div class="card-title">Store Breakdown (before generating)</div>
+    <div class="store-grid" id="storePreviewGrid"></div>
+    <div class="result-actions" style="margin-top:18px">
+      <button class="btn btn-primary" id="generateSubmissionsBtn" onclick="generateSubmissions()">Generate Submissions</button>
+    </div>
+  </div>
+
+  <div id="submissionResultsContainer"></div>
+</div>
+
+<!-- SELL-THRU -->
+<div id="sellthru" class="section">
+  <div class="card">
+    <div class="card-title">Pending Runs</div>
+    <p class="muted" style="font-size:13px;margin-bottom:10px">Pick a submission run that doesn't have a Sell-Thru report yet.</p>
+    <div id="pendingRunsList"></div>
+  </div>
+
+  <div id="sellthruUploadCard" class="card" style="display:none">
+    <div class="card-title">Trade Majors &amp; Bookscan</div>
+    <div class="callout callout-blue" id="sellthruContextBanner"></div>
+    <div class="upload-grid">
+      <div>
+        <div class="upload-zone" id="tradeMajorsZone" onclick="document.getElementById('tradeMajorsInput').click()">
+          <div class="ico">&#128200;</div>
+          <div><strong>Trade Majors</strong></div>
+          <div class="faint" style="font-size:12px;margin-top:4px">Drop up to 7 files — Sales A–D, Returns A–C</div>
+        </div>
+        <input type="file" id="tradeMajorsInput" accept=".xlsx,.xls,.csv" multiple style="display:none" onchange="handleTradeMajorsUpload(this.files)">
+        <div class="file-slot-list" id="tradeMajorsSlotList"></div>
+      </div>
+      <div>
+        <div class="upload-zone" id="bookscanZone" onclick="document.getElementById('bookscanInput').click()">
+          <div class="ico">&#128213;</div>
+          <div><strong>Bookscan</strong></div>
+          <div class="faint" style="font-size:12px;margin-top:4px">ISBN + Lifetime Volume columns</div>
+        </div>
+        <input type="file" id="bookscanInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleBookscanUpload(this.files[0])">
+        <div class="file-loaded" id="bookscanLoadedMsg" style="display:none"></div>
+      </div>
+    </div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="loadTradeMajorsPreset()">Load Sample Trade Majors Data</button>
+      <button class="preset-btn" onclick="loadBookscanPreset()">Load Sample Bookscan Data</button>
+    </div>
+    <div class="result-actions" style="margin-top:18px">
+      <button class="btn btn-primary" id="generateSellThruBtn" disabled onclick="generateSellThru()">Generate Sell-Thru Reports</button>
+    </div>
+  </div>
+
+  <div id="sellthruResultsContainer"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="section">
+  <div class="tab-pills" id="historyTypeTabs">
+    <button class="tab-pill-btn active" data-type="submission" onclick="setHistoryType('submission',this)">Submissions</button>
+    <button class="tab-pill-btn" data-type="sellthru" onclick="setHistoryType('sellthru',this)">Sell-Thru</button>
+  </div>
+  <div class="stat-row" id="historyStatRow"></div>
+  <div id="historyRunsList"></div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── REFERENCE DATA (placeholder / sample only) ────────────────────────────
+const DEMO_MONTH = 'March', DEMO_YEAR = 2026;
+
+const STORES = [
+  {id:'amazon',      name:'Amazon',                        filterType:'frontlist', pricing:{type:'discount', pct:60}, cols:['ISBN','Title','Author','RRP (Inc GST)','Discount %','Cost (Ex GST)','Trade Release','Firm Sale']},
+  {id:'davidjones',  name:'David Jones',                   filterType:'frontlist', pricing:{type:'margin',   pct:40}, cols:['ISBN','Title','Author','RRP','Cost (Ex GST)','Margin %','Category']},
+  {id:'booktopia',   name:'Booktopia',                     filterType:'frontlist', pricing:{type:'discount', pct:50}, cols:['ISBN','Distributor','Title','Author','RRP','Trade Release','Discount %']},
+  {id:'sanity',      name:'Sanity',                        filterType:'frontlist', pricing:{type:'formula'},          cols:['ISBN','Title','Author','RRP AUS','Sanity Buy (Ex GST)']},
+  {id:'myer',        name:'Myer',                          filterType:'frontlist', pricing:{type:'none'},             cols:['ISBN','Title','Contributor','RRP','Format']},
+  {id:'toymate',     name:'Toymate',                       filterType:'all',       pricing:{type:'discount', pct:35}, cols:['Item Number','ISBN','Description','Cost Price (Ex GST)','Discount %','RRP']},
+  {id:'leadingedge', name:'Leading Edge',                  filterType:'all',       pricing:{type:'airportlist'},      cols:['ISBN','Title','Author','Format','RRP','Terms (SOR)']},
+  {id:'bbf',         name:'BBF (Berkelouw Balgowlah)',     filterType:'all',       pricing:{type:'airportlist'},      cols:['ISBN','Title','Author','RRP','Terms','Min Qty']},
+  {id:'bhh',         name:'BHH (Berkelouw Paddington)',    filterType:'all',       pricing:{type:'airportlist'},      cols:['ISBN','Title','Author','RRP','Terms','Min Qty']},
+  {id:'bookpeople',  name:'Book People',                   filterType:'all',       pricing:{type:'discount', pct:45}, cols:['Publisher','ISBN','Title','Author','RRP','Discount %','Terms','EDI']},
+  {id:'collins',     name:'Collins',                       filterType:'all',       pricing:{type:'airportlist'},      cols:['Title','Format','RRP','ISBN','Author','Terms']},
+  {id:'dymocks',     name:'Dymocks',                       filterType:'all',       pricing:{type:'airportlist'},      cols:['Item Code','Title','Format','RRP','Author','Discount %']},
+  {id:'whsmith',     name:'WH Smith',                      filterType:'airportlist', pricing:{type:'margin-variant'}, cols:['ISBN','Title','Author','RRP','Margin %','Suggested Order Qty']},
+];
+const SELLTHRU_STORES = [
+  {id:'amazon',      name:'Amazon',            keyAccount:'Amazon Commercial Services'},
+  {id:'collins',     name:'Collins',           keyAccount:'Collins Booksellers'},
+  {id:'qbd',         name:'QBD The Bookshop',  keyAccount:'QBD The Bookshop'},
+  {id:'davidjones',  name:'David Jones',       keyAccount:'David Jones'},
+];
+
+const MASTERLIST_PRESET = [
+  {isbn:'9780000000001', title:'The Whispering Treehouse',      author:'Maya Sinclair',  rrp:16.99, tradeRelease:'March 2026', itemType:'Picture Book', comparisonOf:null},
+  {isbn:'9780000000002', title:"Bramble & the Lost Compass",    author:'Oliver Finch',   rrp:18.99, tradeRelease:'March 2026', itemType:'Fiction',      comparisonOf:null},
+  {isbn:'9780000000003', title:'Starlight Detectives: Case One',author:'Priya Anand',    rrp:15.99, tradeRelease:'March 2026', itemType:'Fiction',      comparisonOf:null},
+  {isbn:'9780000000004', title:'The Marvellous Muddle',         author:'Casey Thorn',    rrp:14.99, tradeRelease:'March 2026', itemType:'Picture Book', comparisonOf:null},
+  {isbn:'9780000000005', title:"Dragons Don't Do Homework",     author:'Leo Marsh',      rrp:17.99, tradeRelease:'March 2026', itemType:'Fiction',      comparisonOf:null},
+  {isbn:'9780000000006', title:'The Whispering Treehouse: Book 1', author:'Maya Sinclair', rrp:15.99, tradeRelease:'November 2024', itemType:'Picture Book', comparisonOf:'9780000000001'},
+  {isbn:'9780000000007', title:"Bramble's First Adventure",     author:'Oliver Finch',   rrp:16.99, tradeRelease:'February 2025', itemType:'Fiction', comparisonOf:'9780000000002'},
+  {isbn:'9780000000008', title:'Starlight Detectives: Origins', author:'Priya Anand',    rrp:14.99, tradeRelease:'August 2025', itemType:'Fiction', comparisonOf:'9780000000003'},
+];
+const AIRPORT_PRESET = {
+  '9780000000001': {tier:'spinner'},
+  '9780000000003': {tier:'standard'},
+  '9780000000005': {tier:'spinner'},
+};
+const TRADE_MAJORS_PRESET = {
+  '9780000000001': {'Amazon Commercial Services':{sales:420,returns:35}, 'Collins Booksellers':{sales:210,returns:12}, 'QBD The Bookshop':{sales:150,returns:8},  'David Jones':{sales:60,returns:2}},
+  '9780000000002': {'Amazon Commercial Services':{sales:380,returns:60}, 'Collins Booksellers':{sales:190,returns:20}, 'QBD The Bookshop':{sales:110,returns:15}, 'David Jones':{sales:40,returns:5}},
+  '9780000000003': {'Amazon Commercial Services':{sales:510,returns:20}, 'Collins Booksellers':{sales:260,returns:10}, 'QBD The Bookshop':{sales:190,returns:6},  'David Jones':{sales:75,returns:1}},
+  '9780000000004': {'Amazon Commercial Services':{sales:290,returns:45}, 'Collins Booksellers':{sales:140,returns:18}, 'QBD The Bookshop':{sales:95,returns:12},  'David Jones':{sales:35,returns:4}},
+  '9780000000005': {'Amazon Commercial Services':{sales:610,returns:25}, 'Collins Booksellers':{sales:300,returns:9},  'QBD The Bookshop':{sales:220,returns:5},  'David Jones':{sales:90,returns:2}},
+  '9780000000006': {'Amazon Commercial Services':{sales:80,returns:10},  'Collins Booksellers':{sales:40,returns:4},   'QBD The Bookshop':{sales:25,returns:2},   'David Jones':{sales:10,returns:1}},
+  '9780000000007': {'Amazon Commercial Services':{sales:65,returns:12},  'Collins Booksellers':{sales:30,returns:5},   'QBD The Bookshop':{sales:18,returns:2},   'David Jones':{sales:8,returns:1}},
+  '9780000000008': {'Amazon Commercial Services':{sales:95,returns:8},   'Collins Booksellers':{sales:50,returns:3},   'QBD The Bookshop':{sales:30,returns:1},   'David Jones':{sales:12,returns:0}},
+};
+const BOOKSCAN_PRESET = {
+  '9780000000001':2400, '9780000000002':2100, '9780000000003':3100, '9780000000004':1700, '9780000000005':3600,
+  '9780000000006':1200, '9780000000007':900, '9780000000008':1100,
+};
+
+let masterlistTitles = null;
+let airportList = null;
+let tradeMajorsData = null;
+let bookscanData = null;
+let RUNS = [];
+let SNAP_ID = 1;
+
+// ── NAV / SECTION SWITCHING ────────────────────────────────────────────────
+function showSection(tab, btnEl){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.querySelectorAll('.lamp-item').forEach(b=>b.classList.remove('active'));
+  const activeBtn = btnEl || document.querySelector(`.lamp-item[data-tab="${tab}"]`);
+  if (activeBtn) { activeBtn.classList.add('active'); positionLamp(activeBtn); }
+  if (tab==='home') renderHome();
+  if (tab==='sellthru') renderPendingRuns();
+  if (tab==='history') renderHistory();
+}
+function positionLamp(el){
+  const nav = document.getElementById('lampNav');
+  const hl = document.getElementById('lampHighlight');
+  const navRect = nav.getBoundingClientRect(), r = el.getBoundingClientRect();
+  hl.style.left = (r.left-navRect.left)+'px'; hl.style.width = r.width+'px';
+}
+window.addEventListener('load', ()=>{ positionLamp(document.querySelector('.lamp-item.active')); renderHome(); });
+
+function toast(msg, err){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show'+(err?' err':'');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtMoney(n){ return '$'+Number(n).toFixed(2); }
+function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
+
+// ── HOME ────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const subRuns = RUNS.filter(r=>r.type==='submission');
+  const sellRuns = RUNS.filter(r=>r.type==='sellthru');
+  const last = RUNS.length ? RUNS[RUNS.length-1] : null;
+  document.getElementById('homeStatRow').innerHTML = `
+    <div class="stat-pill"><div class="num">${RUNS.length}</div><div class="lbl">Total Runs</div></div>
+    <div class="stat-pill"><div class="num">${last ? last.month+' '+last.year : '—'}</div><div class="lbl">Last Generated</div></div>
+    <div class="stat-pill"><div class="num">${subRuns.length ? 13 : 0}</div><div class="lbl">Stores Active</div></div>
+  `;
+  document.getElementById('homeRecentRuns').innerHTML = RUNS.length ? RUNS.slice().reverse().slice(0,5).map(r=>`
+    <div class="export-row"><span>${r.type==='submission'?'&#128196;':'&#128202;'} ${r.month} ${r.year} — ${r.type==='submission'?'Submissions':'Sell-Thru'} (${r.exports.length} files)</span><button class="btn btn-secondary btn-sm" onclick="showSection('history')">View</button></div>
+  `).join('') : '<p class="faint" style="font-size:12.5px">No runs yet — head to Submissions to generate your first one.</p>';
+}
+
+// ── MASTERLIST / AIRPORT LIST LOADING ───────────────────────────────────────
+function loadMasterlistPreset(){
+  masterlistTitles = MASTERLIST_PRESET.map(t=>({...t}));
+  const msg = document.getElementById('masterlistLoadedMsg');
+  msg.style.display='block';
+  msg.textContent = `✓ Loaded sample masterlist — ${masterlistTitles.length} titles found.`;
+  renderTitlePreview();
+}
+function loadAirportPreset(){
+  airportList = {...AIRPORT_PRESET};
+  const msg = document.getElementById('airportLoadedMsg');
+  msg.style.display='block';
+  msg.textContent = `✓ Loaded sample Airport Allocation List — ${Object.keys(airportList).length} titles included.`;
+  renderTitlePreview();
+}
+function handleMasterlistUpload(file){
+  if (!file) return;
+  parseSpreadsheet(file, (grid)=>{
+    const header = (grid[0]||[]).map(h=>String(h||'').toLowerCase());
+    const find = (re)=> header.findIndex(h=>re.test(h));
+    const isbnIdx = find(/isbn/), titleIdx = find(/title/), authorIdx = find(/author/), rrpIdx = find(/rrp|price/), typeIdx = find(/item type|format|type/);
+    if (isbnIdx===-1 || titleIdx===-1) { toast('Could not find ISBN/Title columns in that file.', true); return; }
+    const rows = [];
+    for (let i=1;i<grid.length;i++){
+      const row = grid[i]; if (!row || !row[isbnIdx]) continue;
+      rows.push({
+        isbn: String(row[isbnIdx]).trim(), title: String(row[titleIdx]||'Untitled').trim(),
+        author: authorIdx!==-1 ? String(row[authorIdx]||'Unknown').trim() : 'Unknown',
+        rrp: rrpIdx!==-1 ? (parseFloat(String(row[rrpIdx]).replace('$','')) || 0) : 0,
+        tradeRelease: `${DEMO_MONTH} ${DEMO_YEAR}`, itemType: typeIdx!==-1 ? String(row[typeIdx]||'') : '', comparisonOf:null,
+      });
+    }
+    if (!rows.length) { toast('No title rows found in that file.', true); return; }
+    masterlistTitles = rows;
+    const msg = document.getElementById('masterlistLoadedMsg');
+    msg.style.display='block';
+    msg.textContent = `✓ ${rows.length} titles extracted from ${file.name}. All treated as this month's frontlist (comparison-title links are only available with the sample masterlist in this demo).`;
+    renderTitlePreview();
+  });
+}
+function handleAirportUpload(file){
+  if (!file) return;
+  parseSpreadsheet(file, (grid)=>{
+    const header = (grid[0]||[]).map(h=>String(h||'').toLowerCase());
+    const isbnIdx = header.findIndex(h=>/isbn/.test(h));
+    if (isbnIdx===-1) { toast('Could not find an ISBN column in that file.', true); return; }
+    const list = {};
+    for (let i=1;i<grid.length;i++){ const row = grid[i]; if (row && row[isbnIdx]) list[String(row[isbnIdx]).trim()] = {tier:'standard'}; }
+    airportList = list;
+    const msg = document.getElementById('airportLoadedMsg');
+    msg.style.display='block';
+    msg.textContent = `✓ ${Object.keys(list).length} titles loaded from ${file.name}.`;
+    renderTitlePreview();
+  });
+}
+function parseSpreadsheet(file, cb){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const grid = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
+      cb(grid);
+    } catch (err) { toast('Could not read that file.', true); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+window.addEventListener('load', ()=>{
+  const dz = (zoneId, handler, inputId) => {
+    const zone = document.getElementById(zoneId);
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('drag'));
+    zone.addEventListener('drop', e=>{ e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) handler(e.dataTransfer.files[0]); });
+  };
+  dz('masterlistZone', handleMasterlistUpload);
+  dz('airportZone', handleAirportUpload);
+  dz('bookscanZone', handleBookscanUpload);
+  const tmZone = document.getElementById('tradeMajorsZone');
+  tmZone.addEventListener('dragover', e=>{ e.preventDefault(); tmZone.classList.add('drag'); });
+  tmZone.addEventListener('dragleave', ()=> tmZone.classList.remove('drag'));
+  tmZone.addEventListener('drop', e=>{ e.preventDefault(); tmZone.classList.remove('drag'); if (e.dataTransfer.files.length) handleTradeMajorsUpload(e.dataTransfer.files); });
+});
+
+function isFrontlist(title){ return title.tradeRelease === `${DEMO_MONTH} ${DEMO_YEAR}`; }
+function renderTitlePreview(){
+  if (!masterlistTitles) return;
+  document.getElementById('titlePreviewCard').style.display='block';
+  document.getElementById('titlePreviewBody').innerHTML = masterlistTitles.map(t=>`
+    <tr><td>${escapeHtml(t.isbn)}</td><td>${escapeHtml(t.title)}</td><td>${escapeHtml(t.author)}</td><td>${fmtMoney(t.rrp)}</td><td>${escapeHtml(t.tradeRelease)}</td><td>${isFrontlist(t) ? '<span class="pill pill-frontlist">Frontlist</span>' : '<span class="pill pill-all">Backlist</span>'}</td></tr>
+  `).join('');
+  renderStorePreview();
+}
+function renderStorePreview(){
+  document.getElementById('storePreviewCard').style.display='block';
+  document.getElementById('storePreviewGrid').innerHTML = STORES.map(store=>{
+    const included = titlesForStore(store);
+    const pillCls = store.filterType==='frontlist' ? 'pill-frontlist' : (store.filterType==='all' ? 'pill-all' : 'pill-airport');
+    const pillLabel = store.filterType==='frontlist' ? 'Frontlist' : (store.filterType==='all' ? 'All Titles' : 'Airport List');
+    return `<div class="store-tile"><div class="sname">${escapeHtml(store.name)}</div><span class="pill ${pillCls}">${pillLabel}</span><div class="scount">${included.length} title${included.length===1?'':'s'} included</div></div>`;
+  }).join('');
+}
+function titlesForStore(store){
+  if (!masterlistTitles) return [];
+  const frontlist = masterlistTitles.filter(isFrontlist);
+  if (store.filterType==='frontlist') return frontlist;
+  if (store.filterType==='all') return masterlistTitles;
+  if (store.filterType==='airportlist') return masterlistTitles.filter(t => airportList && airportList[t.isbn]);
+  return frontlist;
+}
+
+// ── SUBMISSIONS: BUILD + DOWNLOAD ───────────────────────────────────────────
+function buildStoreRow(store, title){
+  const row = {};
+  const exGst = title.rrp / 1.1;
+  store.cols.forEach(col=>{
+    if (col==='ISBN') row['ISBN']=title.isbn;
+    else if (col==='Item Number') row['Item Number']='IT-'+title.isbn.slice(-6);
+    else if (col==='Item Code') row['Item Code']='DYM-'+title.isbn.slice(-6);
+    else if (col==='Title' || col==='Description') row[col]=title.title;
+    else if (col==='Author' || col==='Contributor') row[col]=title.author;
+    else if (col==='Distributor' || col==='Publisher') row[col]='Scholastic Australia';
+    else if (col==='RRP' || col==='RRP (Inc GST)' || col==='RRP AUS') row[col]=title.rrp;
+    else if (col==='Trade Release') row['Trade Release']=title.tradeRelease;
+    else if (col==='Format') row['Format']=title.itemType || 'Paperback';
+    else if (col==='Category') row['Category']=title.itemType || 'General';
+    else if (col==='Firm Sale') row['Firm Sale']='Y';
+    else if (col==='EDI') row['EDI']='YES';
+    else if (col==='Min Qty') row['Min Qty']=1;
+    else if (col==='Terms' || col==='Terms (SOR)') row[col]=airportTerms(title.isbn);
+    else if (col==='Discount %') row['Discount %']=store.pricing.type==='discount' ? store.pricing.pct+'%' : airportTerms(title.isbn);
+    else if (col==='Cost (Ex GST)' || col==='Cost Price (Ex GST)') row[col]=Number((exGst*(1-(store.pricing.pct||0)/100)).toFixed(2));
+    else if (col==='Margin %') row['Margin %']=store.pricing.type==='margin-variant' ? whMargin(title.isbn) : store.pricing.pct+'%';
+    else if (col==='Sanity Buy (Ex GST)') row[col]=Number((title.rrp*0.5/1.1).toFixed(2));
+    else if (col==='Suggested Order Qty') row[col]=whSuggestedQty(title.isbn);
+    else row[col]='';
+  });
+  return row;
+}
+function airportTerms(isbn){
+  const entry = airportList && airportList[isbn];
+  if (!entry) return 'SOR';
+  return entry.tier==='spinner' ? '60% spinner terms' : '47.5% standard terms';
+}
+function whMargin(isbn){
+  const entry = airportList && airportList[isbn];
+  if (!entry) return 'N/A';
+  return entry.tier==='spinner' ? '60%' : '47.5%';
+}
+function whSuggestedQty(isbn){
+  const entry = airportList && airportList[isbn];
+  if (!entry) return 0;
+  return entry.tier==='spinner' ? '100 @ 60% spinner terms' : 100;
+}
+function buildStoreExport(store, titles){
+  const included = titlesForStore(store).filter(t=>titles.includes(t));
+  return { storeId: store.id, storeName: store.name, filename: `${store.name.replace(/[^a-z0-9]+/gi,'')}_${DEMO_MONTH}_${DEMO_YEAR}.xlsx`, rows: included.map(t=>buildStoreRow(store, t)) };
+}
+function generateSubmissions(){
+  if (!masterlistTitles) { toast('Load a masterlist first.', true); return; }
+  const run = { id: 'run'+(SNAP_ID++), type:'submission', month:DEMO_MONTH, year:DEMO_YEAR, createdAt:'2026-08-13', exports: STORES.filter(s => s.filterType!=='airportlist' || airportList).map(store=>buildStoreExport(store, masterlistTitles)), hasSellThru:false, titles: masterlistTitles };
+  RUNS.push(run);
+  document.getElementById('submissionResultsContainer').innerHTML = `
+    <div class="card">
+      <div class="callout callout-green" style="margin-bottom:16px"><strong>✓ Generated ${run.exports.length} submission files for ${run.month} ${run.year}.</strong> ${airportList ? '' : 'WH Smith was skipped — no Airport Allocation List was loaded.'}</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Store</th><th>Titles</th><th>File</th><th></th></tr></thead><tbody>
+        ${run.exports.map((ex,i)=>`<tr><td>${escapeHtml(ex.storeName)}</td><td>${ex.rows.length}</td><td>${escapeHtml(ex.filename)}</td><td><button class="btn btn-excel btn-sm" onclick="downloadExport('${run.id}',${i})">&#8595; Download</button></td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="result-actions" style="margin-top:16px">
+        <button class="btn btn-excel" onclick="downloadAllZip('${run.id}')">&#8595; Download All (ZIP)</button>
+        <button class="btn btn-outline" onclick="showSection('history')">View in History</button>
+      </div>
+    </div>`;
+  toast('Submissions generated.');
+}
+function downloadExport(runId, idx){
+  const run = RUNS.find(r=>r.id===runId); if (!run) return;
+  const ex = run.exports[idx];
+  const ws = XLSX.utils.json_to_sheet(ex.rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, ex.storeName.slice(0,28));
+  XLSX.writeFile(wb, ex.filename);
+}
+function downloadAllZip(runId){
+  const run = RUNS.find(r=>r.id===runId); if (!run) return;
+  if (typeof JSZip === 'undefined') { toast('ZIP export unavailable in this demo environment.', true); return; }
+  const zip = new JSZip();
+  run.exports.forEach(ex=>{
+    const ws = XLSX.utils.json_to_sheet(ex.rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, ex.storeName.slice(0,28));
+    const out = XLSX.write(wb, {type:'array', bookType:'xlsx'});
+    zip.file(ex.filename, out);
+  });
+  zip.generateAsync({type:'blob'}).then(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${run.type==='submission'?'Submissions':'SellThru'}_${run.month}_${run.year}.zip`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+}
+
+// ── SELL-THRU ───────────────────────────────────────────────────────────────
+let selectedRunId = null;
+function renderPendingRuns(){
+  const pending = RUNS.filter(r=>r.type==='submission' && !r.hasSellThru);
+  const list = document.getElementById('pendingRunsList');
+  if (!pending.length) { list.innerHTML = '<p class="faint" style="font-size:12.5px">No pending runs — generate a Submission first, or all runs already have Sell-Thru reports.</p>'; return; }
+  list.innerHTML = pending.map(r=>`<div class="pending-run-row ${r.id===selectedRunId?'sel':''}" onclick="selectPendingRun('${r.id}')"><span>${r.month} ${r.year} — ${r.exports.length} submission files</span><span class="faint">Select →</span></div>`).join('');
+}
+function selectPendingRun(runId){
+  selectedRunId = runId;
+  const run = RUNS.find(r=>r.id===runId);
+  renderPendingRuns();
+  document.getElementById('sellthruUploadCard').style.display='block';
+  document.getElementById('sellthruContextBanner').textContent = `Masterlist loaded from ${run.month} ${run.year} submission — no re-upload needed.`;
+  updateSellThruBtnState();
+}
+function handleTradeMajorsUpload(files){
+  tradeMajorsData = tradeMajorsData || {};
+  Array.from(files).forEach(file=>{
+    const key = detectTradeKey(file.name);
+    if (!key) { toast(`Could not detect a Sales/Returns slot from "${file.name}" — rename it e.g. "Sales A.csv".`, true); return; }
+    parseSpreadsheet(file, (grid)=>{
+      const header = (grid[0]||[]).map(h=>String(h||'').toLowerCase());
+      const isbnIdx = header.findIndex(h=>/isbn|ean/.test(h));
+      const qtyIdx = header.findIndex(h=>/qty|quantity|units/.test(h));
+      const acctIdx = header.findIndex(h=>/key account|account|customer|retailer/.test(h));
+      if (isbnIdx===-1) { toast(`No ISBN column found in ${file.name}.`, true); return; }
+      const rows = [];
+      for (let i=1;i<grid.length;i++){ const row = grid[i]; if (row && row[isbnIdx]) rows.push({isbn:String(row[isbnIdx]).trim(), qty: qtyIdx!==-1?Number(row[qtyIdx])||0:0, account: acctIdx!==-1?String(row[acctIdx]):''}); }
+      tradeMajorsData[key] = rows;
+      renderTradeMajorsSlots();
+      updateSellThruBtnState();
+    });
+  });
+}
+function detectTradeKey(filename){
+  const f = filename.toLowerCase();
+  const m = f.match(/(sale|return)s?[^a-d]*([a-d])/);
+  if (!m) return null;
+  return (m[1]==='sale'?'sales_':'returns_')+m[2];
+}
+function renderTradeMajorsSlots(){
+  const slots = ['sales_a','sales_b','sales_c','sales_d','returns_a','returns_b','returns_c'];
+  document.getElementById('tradeMajorsSlotList').innerHTML = slots.map(s=>{
+    const loaded = tradeMajorsData && tradeMajorsData[s];
+    return `<div class="file-slot"><span>${s.replace('_',' ').replace(/^(\w)/,c=>c.toUpperCase())}</span><span>${loaded ? '✓ loaded ('+loaded.length+' rows)' : '<span class="faint">not loaded</span>'}</span></div>`;
+  }).join('');
+}
+function loadTradeMajorsPreset(){
+  tradeMajorsData = { preset: true };
+  document.getElementById('tradeMajorsSlotList').innerHTML = `<div class="file-slot"><span>Sample Trade Majors dataset</span><span>✓ loaded (Sales A–D, Returns A–C)</span></div>`;
+  updateSellThruBtnState();
+}
+function handleBookscanUpload(file){
+  if (!file) return;
+  parseSpreadsheet(file, (grid)=>{
+    const header = (grid[0]||[]).map(h=>String(h||'').toLowerCase());
+    let isbnIdx = header.findIndex(h=>/isbn/.test(h));
+    let volIdx = header.findIndex(h=>/lifetime|volume/.test(h));
+    if (isbnIdx===-1) isbnIdx=0;
+    if (volIdx===-1) volIdx=6;
+    const data = {};
+    for (let i=1;i<grid.length;i++){ const row = grid[i]; if (row && row[isbnIdx]) data[String(row[isbnIdx]).trim()] = Number(row[volIdx])||0; }
+    bookscanData = data;
+    const msg = document.getElementById('bookscanLoadedMsg');
+    msg.style.display='block';
+    msg.textContent = `✓ ${Object.keys(data).length} ISBNs loaded from ${file.name}.`;
+    updateSellThruBtnState();
+  });
+}
+function loadBookscanPreset(){
+  bookscanData = {...BOOKSCAN_PRESET};
+  const msg = document.getElementById('bookscanLoadedMsg');
+  msg.style.display='block';
+  msg.textContent = `✓ Loaded sample Bookscan data — ${Object.keys(bookscanData).length} ISBNs.`;
+  updateSellThruBtnState();
+}
+function updateSellThruBtnState(){
+  document.getElementById('generateSellThruBtn').disabled = !(selectedRunId && tradeMajorsData && bookscanData);
+}
+function salesReturnsFor(isbn, keyAccount){
+  if (tradeMajorsData && tradeMajorsData.preset) {
+    const rec = TRADE_MAJORS_PRESET[isbn] && TRADE_MAJORS_PRESET[isbn][keyAccount];
+    return rec ? {sales:rec.sales, returns:rec.returns} : {sales:0, returns:0};
+  }
+  let sales=0, returns=0;
+  ['sales_a','sales_b','sales_c','sales_d'].forEach(k=>{ (tradeMajorsData[k]||[]).forEach(r=>{ if (r.isbn===isbn && (!r.account || r.account.toLowerCase().includes(keyAccount.split(' ')[0].toLowerCase()))) sales+=r.qty; }); });
+  ['returns_a','returns_b','returns_c'].forEach(k=>{ (tradeMajorsData[k]||[]).forEach(r=>{ if (r.isbn===isbn && (!r.account || r.account.toLowerCase().includes(keyAccount.split(' ')[0].toLowerCase()))) returns+=r.qty; }); });
+  return {sales, returns};
+}
+function bookscanFor(isbn){
+  if (!bookscanData) return 0;
+  return bookscanData[isbn] ?? BOOKSCAN_PRESET[isbn] ?? 0;
+}
+function generateSellThru(){
+  const run = RUNS.find(r=>r.id===selectedRunId); if (!run) return;
+  const frontlist = run.titles.filter(isFrontlist);
+  const exports = SELLTHRU_STORES.map(store=>{
+    const rows = [];
+    frontlist.forEach(lead=>{
+      rows.push(buildSellThruRow(lead, store, true));
+      run.titles.filter(t=>t.comparisonOf===lead.isbn).forEach(comp=> rows.push(buildSellThruRow(comp, store, false)));
+    });
+    return { storeId: store.id, storeName: store.name, filename: `${store.name.replace(/[^a-z0-9]+/gi,'')}_SellThru_${run.month}_${run.year}.xlsx`, rows, displayRows: rows };
+  });
+  const sellRun = { id:'run'+(SNAP_ID++), type:'sellthru', month:run.month, year:run.year, createdAt:'2026-08-13', exports };
+  RUNS.push(sellRun);
+  run.hasSellThru = true;
+  renderSellThruResults(sellRun, frontlist, run);
+  selectedRunId = null;
+  tradeMajorsData = null;
+  bookscanData = null;
+  document.getElementById('tradeMajorsSlotList').innerHTML = '';
+  document.getElementById('bookscanLoadedMsg').style.display = 'none';
+  document.getElementById('sellthruUploadCard').style.display='none';
+  renderPendingRuns();
+  toast('Sell-thru reports generated.');
+}
+function buildSellThruRow(title, store, isLead){
+  const {sales, returns} = salesReturnsFor(title.isbn, store.keyAccount);
+  const netUnits = sales - returns;
+  const netRevenue = Number((netUnits * title.rrp).toFixed(2));
+  const sellThruPct = sales > 0 ? netUnits/sales : 0;
+  const bookscan = bookscanFor(title.isbn);
+  const marketSharePct = bookscan > 0 ? netUnits/bookscan : 0;
+  return { isbn:title.isbn, title:title.title, author:title.author, rrp:title.rrp, bookscan, netUnits, netRevenue, sellThruPct, marketSharePct, isLead };
+}
+function renderSellThruResults(sellRun, frontlist, subRun){
+  const html = sellRun.exports.map((ex,i)=>`
+    <div class="card">
+      <div class="card-title">${escapeHtml(ex.storeName)} Sell-Thru — ${sellRun.month} ${sellRun.year}</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Title</th><th>Author</th><th>RRP</th><th>Bookscan</th><th>Net Units</th><th>Net Revenue</th><th>Sell-Thru %</th><th>Market Share %</th></tr></thead><tbody>
+        ${ex.rows.map(r=>`<tr class="${r.isLead?'lead-row':'comp-row'}"><td>${escapeHtml(r.title)}</td><td>${escapeHtml(r.author)}</td><td>${fmtMoney(r.rrp)}</td><td>${r.bookscan}</td><td>${r.netUnits}</td><td>${fmtMoney(r.netRevenue)}</td><td><span class="sellthru-bar-track"><span class="sellthru-bar-fill" style="width:${Math.min(100,r.sellThruPct*100)}%"></span></span>${fmtPct(r.sellThruPct)}</td><td>${fmtPct(r.marketSharePct)}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="result-actions" style="margin-top:14px"><button class="btn btn-excel btn-sm" onclick="downloadExport('${sellRun.id}',${i})">&#8595; Download</button></div>
+    </div>`).join('');
+  document.getElementById('sellthruResultsContainer').innerHTML = `
+    <div class="callout callout-green"><strong>✓ Sell-Thru reports generated for ${sellRun.month} ${sellRun.year}.</strong> View them anytime from History.</div>
+    ${html}
+    <div class="result-actions"><button class="btn btn-excel" onclick="downloadAllZip('${sellRun.id}')">&#8595; Download All (ZIP)</button></div>
+  `;
+}
+
+// ── HISTORY ─────────────────────────────────────────────────────────────────
+let historyType = 'submission';
+let openRunIds = new Set();
+let pendingDeleteId = null;
+function setHistoryType(type, el){
+  historyType = type;
+  document.querySelectorAll('#historyTypeTabs .tab-pill-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderHistory();
+}
+function renderHistory(){
+  const runs = RUNS.filter(r=>r.type===historyType);
+  const last = runs.length ? runs[runs.length-1] : null;
+  document.getElementById('historyStatRow').innerHTML = `
+    <div class="stat-pill"><div class="num">${runs.length}</div><div class="lbl">Total Runs</div></div>
+    <div class="stat-pill"><div class="num">${last ? last.month+' '+last.year : '—'}</div><div class="lbl">Last Generated</div></div>
+    <div class="stat-pill"><div class="num">${runs.length ? (historyType==='submission'?13:4) : 0}</div><div class="lbl">Stores Active</div></div>
+  `;
+  const list = document.getElementById('historyRunsList');
+  if (!runs.length) {
+    list.innerHTML = `<div class="card"><div class="empty-state"><div class="ico">&#128193;</div><h3 style="font-size:14px;font-weight:700;margin-bottom:6px">No ${historyType==='submission'?'submission':'sell-thru'} runs yet</h3><p class="muted" style="font-size:12.5px">Head to ${historyType==='submission'?'Submissions':'Sell-Thru'} to generate your first one.</p></div></div>`;
+    return;
+  }
+  list.innerHTML = runs.slice().reverse().map(r=>{
+    const open = openRunIds.has(r.id);
+    return `<div class="run-card">
+      <div class="run-card-hdr" onclick="toggleRunCard('${r.id}')">
+        <div><div class="run-card-title">${r.month} ${r.year}</div><div class="run-card-sub">Generated ${r.createdAt}</div></div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="del-icon" onclick="event.stopPropagation();confirmDelete('${r.id}')">&#128465;&#65039;</span>
+          <span class="chevron ${open?'open':''}">&#9656;</span>
+        </div>
+      </div>
+      <div class="run-card-body ${open?'open':''}" id="body-${r.id}">
+        ${pendingDeleteId===r.id ? `<div class="del-confirm"><span>Delete this run? This cannot be undone.</span><span style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();pendingDeleteId=null;renderHistory()">Cancel</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteRun('${r.id}')">Yes, Delete</button></span></div>` : ''}
+        ${r.exports.map((ex,i)=>`<div class="export-row"><span>${escapeHtml(ex.storeName)} — ${ex.rows.length} titles</span><button class="btn btn-secondary btn-sm" onclick="downloadExport('${r.id}',${i})">Download</button></div>`).join('')}
+        ${r.exports.length>1 ? `<div style="margin-top:10px"><button class="btn btn-excel btn-sm" onclick="downloadAllZip('${r.id}')">&#8595; Download All (ZIP)</button></div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleRunCard(id){ openRunIds.has(id) ? openRunIds.delete(id) : openRunIds.add(id); renderHistory(); }
+function confirmDelete(id){ pendingDeleteId = id; openRunIds.add(id); renderHistory(); }
+function deleteRun(id){ RUNS = RUNS.filter(r=>r.id!==id); pendingDeleteId=null; renderHistory(); toast('Run deleted.'); }
+</script>
+</body>
+</html>
