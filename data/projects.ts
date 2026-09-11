@@ -11,7 +11,6 @@ export type Project = {
   demoUrl?: string      // live embed URL (optional — may use screenshots instead)
   screenshots?: string[] // fallback images if no live demo
   video?: string
-  sampleFiles?: { label: string; url: string }[] // downloadable sample input files for the demo
 }
 
 export const projects: Project []=[
@@ -22,9 +21,9 @@ export const projects: Project []=[
     problem:
       "Scholastic's marketing team relied on a commercial CMS to build and publish campaign pages. It meant ongoing vendor costs, being locked into whatever features that vendor chose to support, and form data and content living on a third-party platform. Every non-standard page idea needed a developer — and running the same setup for both the Australian and New Zealand businesses meant paying for it twice.",
     solution:
-      "A full-stack CMS and visual page builder built from scratch on a 20-model Prisma/PostgreSQL schema, architected as one codebase serving two databases so the same app runs both markets without duplicating code. Marketing staff compose pages on a no-code drag-and-drop canvas from a library of 22 content block types — hero banners, card grids, forms, product carousels — all pre-styled in Scholastic's brand identity. An AI layer (Claude) generates entire pages or single sections from a plain-English prompt, with brand rules enforced server-side so generated output can't drift off-brand. A built-in AI support chatbot walks staff through a decision-tree triage flow for common questions, and a live product-catalogue integration keeps book data in sync automatically.",
+      "A full-stack CMS and visual page builder built from scratch on a 20-model Prisma/PostgreSQL schema, architected as one codebase serving two databases so the same app runs both markets without duplicating code. It gives marketing staff a no-code, drag-and-drop builder with a library of 22 content block types — hero banners, card grids, forms, product carousels — all pre-styled in Scholastic's brand identity. AI-assisted page generation (Claude) drafts entire pages or single sections from a plain-English prompt, with brand rules enforced server-side so generated output can't drift off-brand. A built-in AI support chatbot walks staff through a decision-tree triage flow for common questions, and a live product-catalogue integration keeps book data in sync automatically.",
     impact:
-      "Replaced the commercial CMS entirely and now runs both the Australian and New Zealand businesses on one platform. Non-technical staff build, preview, and publish on-brand pages themselves — no vendor, no developer in the loop — and because it's owned in-house, all content and form data lives on Scholastic's own servers. I built it, and I'm the one who keeps it running in production.",
+      "Replaced the commercial platform entirely and now runs both the Australian and New Zealand businesses on one deployment. Marketing staff build, preview, and publish on-brand campaign pages themselves, letting the team ship pages without a developer — and because it's owned in-house, all content and form data lives on Scholastic's own servers. I built it, and I'm the one who keeps it running in production.",
     highlights: [
       "One codebase, two databases — architected for multi-market reuse across AU & NZ",
       "20-model Prisma/PostgreSQL schema",
@@ -34,10 +33,10 @@ export const projects: Project []=[
       "Live product-catalogue integration",
     ],
     howItWorks: [
-      { title: "Compose", description: "Drag section blocks onto the canvas from a 22-block library, all pre-styled to brand." },
-      { title: "Generate (optional)", description: "Describe a page in plain English and let Claude draft it, with brand rules enforced server-side." },
-      { title: "Preview", description: "Check desktop and mobile rendering before anything goes live." },
-      { title: "Publish", description: "Push live across AU or NZ — no developer, no vendor ticket." },
+      { title: "Compose", description: "Click a section from the 22-block library to add it to the canvas, then drag its handle to reorder." },
+      { title: "Edit", description: "Select any section to edit its content, colours, fonts and spacing live on the canvas." },
+      { title: "Preview", description: "Switch between Desktop and Mobile to check the page before anything goes live." },
+      { title: "Publish", description: "Flip the status and save — the same flow staff use day to day. (AI generation and live multi-market publishing are part of the real product, not this demo.)" },
     ],
     techStack: [
       "Next.js 16",
@@ -90,10 +89,6 @@ export const projects: Project []=[
     ],
     demoUrl: "/demos/toy-safety-demo.html",
     screenshots: ["/screenshots/toy-safety-checker.png", "/screenshots/toy-safety-results.png"],
-    sampleFiles: [
-      { label: "Air Dry Clay (Low Risk)", url: "/downloads/toy-safety/air-dry-clay-ingredients.xlsx" },
-      { label: "Novelty Slime Kit (Action Required)", url: "/downloads/toy-safety/slime-kit-ingredients.xlsx" },
-    ],
   },
 
   {

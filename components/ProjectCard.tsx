@@ -10,17 +10,6 @@ export default function ProjectCard({ project }: { project: Project }) {
         {project.niche}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {project.techStack.map((tech) => (
-          <span
-            key={tech}
-            className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
         View project
         <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>

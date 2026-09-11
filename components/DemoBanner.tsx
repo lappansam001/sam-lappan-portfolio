@@ -9,7 +9,7 @@ export default function DemoBanner() {
             key={i}
             className="flex items-center gap-4 whitespace-nowrap px-4 text-base font-bold uppercase tracking-widest text-blue-700"
           >
-            Interactive demo below
+            Interactive demo has limited features
             <span className="text-blue-300" aria-hidden="true">
               ✦
             </span>

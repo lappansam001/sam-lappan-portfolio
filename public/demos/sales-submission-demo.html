@@ -28,13 +28,8 @@ main{max-width:1180px;margin:24px auto 60px;padding:0 24px}
 .section{display:none}.section.active{display:block}
 .card{background:#fff;border:1px solid #E7E5E4;border-radius:12px;padding:22px;margin-bottom:20px}
 .card-title{font-size:13px;font-weight:700;color:#DC2626;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #F5F5F4;letter-spacing:.4px;text-transform:uppercase}
-.kicker{font-size:12px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .muted{color:#78716C}
 .faint{color:#A8A29E}
-.hero{background:linear-gradient(135deg,#FEF2F2,#FAF8F4);border:1px solid #FCA5A5}
-.hero h1{font-size:24px;font-weight:800;color:#1C1917;margin-bottom:6px}
-.hero p{font-size:14px;color:#57534E;max-width:640px}
-.hero-note{margin-top:14px;font-size:12px;color:#A8A29E;font-style:italic}
 .btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:#DC2626;color:#fff}.btn-primary:hover{background:#B91C1C}
 .btn-primary:disabled{background:#E7E5E4;color:#A8A29E;cursor:not-allowed}
@@ -142,17 +137,6 @@ tr.comp-row td:first-child{padding-left:24px;color:#78716C;font-weight:400;text-
 
 <!-- HOME -->
 <div id="home" class="section active">
-  <div class="card hero">
-    <p class="kicker">Retail Submission &amp; Sell-Thru Generator</p>
-    <h1>One masterlist. Thirteen stores.</h1>
-    <p>Upload a monthly masterlist once and generate submission spreadsheets for all 13 retail accounts in one click. Then feed in trade sales data and Bookscan figures to generate automated Sell-Thru comparison reports — no more column-by-column VLOOKUPs or CSV copy-paste.</p>
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="showSection('submissions')">Go to Submissions</button>
-      <button class="btn btn-outline" onclick="showSection('sellthru')">Go to Sell-Thru</button>
-    </div>
-    <p class="hero-note">This is an interactive preview with placeholder data — no real titles, sales figures, or retailer trade terms are used.</p>
-  </div>
-
   <div class="stat-row" id="homeStatRow"></div>
 
   <div class="card">

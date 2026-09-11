@@ -8,12 +8,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif;background:#FAFAF9;color:#1C1917;font-size:14px;line-height:1.5}
-header{background:#DC2626;color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;z-index:10}
-.logo-row{display:flex;align-items:center;gap:10px}
-.logo-mark{width:34px;height:34px;background:#fff;color:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0}
-.logo{font-size:20px;font-weight:800;font-style:italic;letter-spacing:-.5px;color:#fff;line-height:1.1}
-.logo-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:2px}
-.demo-badge{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:6px;color:#fff;white-space:nowrap}
 .topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 28px;background:#fff;position:sticky;top:0;z-index:150;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .lamp-nav-wrap{justify-self:center}
 .lamp-nav{position:relative;display:flex;gap:2px;background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
@@ -29,11 +23,7 @@ main{max-width:1180px;margin:24px auto 60px;padding:0 24px}
 .card-title{font-size:13px;font-weight:700;color:#DC2626;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #F5F5F4;letter-spacing:.4px;text-transform:uppercase}
 .muted{color:#78716C}
 .faint{color:#A8A29E}
-.hero{background:linear-gradient(135deg,#FEF2F2,#FAFAF9);border:1px solid #FCA5A5}
-.hero h1{font-size:24px;font-weight:800;color:#1C1917;margin-bottom:6px}
-.hero p{font-size:14px;color:#57534E;max-width:640px}
-.hero-note{margin-top:14px;font-size:12px;color:#A8A29E;font-style:italic}
-.btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px}
+.btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .btn-primary{background:#DC2626;color:#fff}.btn-primary:hover{background:#B91C1C}
 .btn-primary:disabled{background:#E7E5E4;color:#A8A29E;cursor:not-allowed}
 .btn-secondary{background:#F5F5F4;color:#44403C}.btn-secondary:hover{background:#E7E5E4}
@@ -60,8 +50,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#DC2626;box-sh
 .check-row input{width:16px;height:16px;margin-top:2px;accent-color:#DC2626;flex-shrink:0}
 .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-top:6px}
 .subhead{font-size:12px;font-weight:700;color:#78716C;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 6px;padding-top:14px;border-top:1px solid #F5F5F4}
-.skip-box{background:#FFFBEB;border:1.5px dashed #F59E0B;border-radius:8px;padding:14px 16px;margin-top:18px}
-.skip-box label{color:#92400E;text-transform:none;font-size:13px;font-weight:600}
 .upload-zone{border:2px dashed #E7E5E4;border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAF9}
 .upload-zone:hover,.upload-zone.drag{border-color:#DC2626;background:#FEF2F2}
 .upload-zone .ico{font-size:30px;margin-bottom:8px}
@@ -139,11 +127,6 @@ tr.hh-row{background:#FEF2F2}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #F5F5F4}
 .stmt-item{border:1px solid #F5F5F4;border-radius:7px;padding:10px 12px;margin-bottom:8px;font-size:13px}
 .stmt-meta{font-size:11px;color:#A8A29E;margin-top:4px}
-.hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.hiw-step{background:#FAFAF9;border:1px solid #F5F5F4;border-radius:8px;padding:14px}
-.hiw-num{width:24px;height:24px;border-radius:50%;background:#DC2626;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-.hiw-step h4{font-size:12.5px;font-weight:700;margin-bottom:4px}
-.hiw-step p{font-size:11.5px;color:#78716C}
 .ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .ref-tile{border:1px solid #F5F5F4;border-radius:8px;padding:14px;background:#FAFAF9}
 .ref-tile .ico{font-size:20px;margin-bottom:6px}
@@ -178,17 +161,6 @@ tr.hh-row{background:#FEF2F2}
 </head>
 <body>
 
-<header>
-  <div class="logo-row">
-    <div class="logo-mark">S</div>
-    <div>
-      <div class="logo">Scholastic</div>
-      <div class="logo-tag">Toy Safety Checker</div>
-    </div>
-  </div>
-  <div class="demo-badge">Demo Project</div>
-</header>
-
 <div class="topbar">
   <div></div>
   <div class="lamp-nav-wrap">
@@ -207,23 +179,6 @@ tr.hh-row{background:#FEF2F2}
 
 <!-- HOME -->
 <div id="home" class="section active">
-  <div class="card hero">
-    <h1>Scholastic Toy Safety Checker</h1>
-    <p>A first-pass chemical safety screen for products before they're purchased — cross-referencing ingredient CAS numbers against Australian government reference lists, flagging hazardous substances, and stating whether a Safety Data Sheet is required.</p>
-    <div style="margin-top:16px"><button class="btn btn-primary" onclick="startNewProduct()">+ Enter a new Product</button></div>
-    <p class="hero-note">This is an interactive preview with placeholder data — no real product, supplier, or company data is used.</p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Purchasing Compliance — Step by Step</div>
-    <div class="hiw-grid">
-      <div class="hiw-step"><div class="hiw-num">1</div><h4>Choose Market</h4><p>Australia, New Zealand, or both.</p></div>
-      <div class="hiw-step"><div class="hiw-num">2</div><h4>Product Details</h4><p>Age range, product type, and a short compliance questionnaire.</p></div>
-      <div class="hiw-step"><div class="hiw-num">3</div><h4>Upload Ingredients</h4><p>A supplier's ingredient list with CAS numbers.</p></div>
-      <div class="hiw-step"><div class="hiw-num">4</div><h4>Get Verdict</h4><p>Action Required, Caution, or Low Risk — with an exportable report.</p></div>
-    </div>
-  </div>
-
   <div class="card">
     <div class="card-title">Reference Sources</div>
     <div class="ref-grid">
@@ -260,8 +215,8 @@ tr.hh-row{background:#FEF2F2}
   <div class="card" id="checkerEmptyState" style="text-align:center;padding:50px 24px">
     <div style="font-size:30px;margin-bottom:10px">&#129514;</div>
     <h2 style="font-size:16px;font-weight:800;margin-bottom:8px">No product in progress</h2>
-    <p class="muted" style="font-size:13px;max-width:400px;margin:0 auto 18px">Start a new chemical safety check from the Home page.</p>
-    <button class="btn btn-primary" onclick="showSection('home')">Enter a Product via Home Page</button>
+    <p class="muted" style="font-size:13px;max-width:400px;margin:0 auto 18px">Start a new chemical safety check to get going.</p>
+    <button class="btn btn-primary" onclick="startNewProduct()">+ Enter a new Product</button>
   </div>
 
   <div id="checkerWizardWrap" style="display:none">
@@ -318,29 +273,9 @@ tr.hh-row{background:#FEF2F2}
         <label class="check-row"><input type="checkbox" id="pd-inhale"> Inhalation exposure possible</label>
       </div>
 
-      <div class="skip-box">
-        <label class="check-row" style="padding:0"><input type="checkbox" id="pd-skip" onchange="toggleSkip()"> Skip chemical/ingredient review — this product has no chemical ingredients to assess (physical/mechanical only)</label>
-      </div>
-
       <div class="result-actions" style="margin-top:22px">
         <button class="btn btn-secondary" onclick="goToStep('market')">Back</button>
         <button class="btn btn-primary" onclick="continueFromDetails()">Continue</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2b: PHYSICAL-ONLY SUMMARY -->
-  <div class="wizard-step" id="wstep-physical">
-    <div class="card">
-      <div class="card-title">Physical / Mechanical Assessment Only</div>
-      <div class="callout callout-blue">
-        <h4>No Chemical Review Required</h4>
-        <p>This product was marked as having no chemical ingredients to assess. It will be tracked against the standard AS/NZS 8124 mechanical, physical, and labelling test checklist instead of a CAS/GHS chemical screen.</p>
-      </div>
-      <p class="muted" style="font-size:13px" id="physicalSummaryText"></p>
-      <div class="result-actions" style="margin-top:18px">
-        <button class="btn btn-secondary" onclick="goToStep('details')">Back</button>
-        <button class="btn btn-primary" onclick="savePhysicalOnly()">Save to Products</button>
       </div>
     </div>
   </div>
@@ -712,15 +647,14 @@ function viewReportModal(productId, idx){
 // ── CHECKER WIZARD ─────────────────────────────────────────────────────────
 const STEP_ORDER = ['market','details','ingredients'];
 const STEP_LABELS = {market:'1. Market', details:'2. Product Details', ingredients:'3–4. Ingredients & Verdict'};
-let wizardState = { market:null, details:null, skip:false, ingredientRows:null, presetKey:null };
+let wizardState = { market:null, details:null, ingredientRows:null, presetKey:null };
 
 function startNewProduct(){
-  wizardState = { market:null, details:null, skip:false, ingredientRows:null, presetKey:null };
+  wizardState = { market:null, details:null, ingredientRows:null, presetKey:null };
   document.querySelectorAll('.market-pill').forEach(p=>p.classList.remove('sel'));
   document.getElementById('marketContinueBtn').disabled = true;
   ['pd-name','pd-isbn','pd-type','pd-use','pd-packaging'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pd-age').value=''; document.getElementById('pd-form').value='bound_solid';
-  document.getElementById('pd-skip').checked = false;
   document.getElementById('pd-istoy').checked = true;
   ['pd-skin','pd-mouth','pd-eye','pd-inhale'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('resultsContainer').innerHTML='';
@@ -744,7 +678,7 @@ function renderStepsRow(activeStep){
 function goToStep(step){
   document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
   document.getElementById('wstep-'+step).classList.add('active');
-  renderStepsRow(step==='physical' ? 'details' : step);
+  renderStepsRow(step);
 }
 function selectMarket(m, el){
   wizardState.market = m;
@@ -752,7 +686,6 @@ function selectMarket(m, el){
   el.classList.add('sel');
   document.getElementById('marketContinueBtn').disabled = false;
 }
-function toggleSkip(){ wizardState.skip = document.getElementById('pd-skip').checked; }
 function readDetailsForm(){
   return {
     name: document.getElementById('pd-name').value.trim(),
@@ -775,25 +708,9 @@ function continueFromDetails(){
   if (!d.name) { toast('Enter a product name first.', true); return; }
   if (!d.ageRange) { toast('Select an age range first.', true); return; }
   wizardState.details = d;
-  if (wizardState.skip) {
-    document.getElementById('physicalSummaryText').textContent = `${d.name} (${d.productType}, ${d.ageRange}) will be tracked with the standard mechanical/physical/labelling test checklist. No CAS/GHS chemical screen will be recorded.`;
-    goToStep('physical');
-  } else {
-    document.getElementById('rdot-name').classList.add('go');
-    updateRunButtonState();
-    goToStep('ingredients');
-  }
-}
-function savePhysicalOnly(){
-  const d = wizardState.details;
-  const id = 'p'+(PRODUCTS.length+1)+'_'+Date.now();
-  const battery = false;
-  PRODUCTS.push({id, name:d.name, isbn:d.isbn, market:d.market, ageRange:d.ageRange, productType:d.productType, physicalOnly:true,
-    tests: zipTests(['Required','Required','Required','NotRequired', battery?'Required':'NotRequired']),
-    documents: [], checks:[{physical:true, createdAt:'2026-08-13', notes:'Saved from Checker — no chemical ingredients declared.'}]});
-  toast('Saved to Products.');
-  wizardStarted = false;
-  openProductDetail(id);
+  document.getElementById('rdot-name').classList.add('go');
+  updateRunButtonState();
+  goToStep('ingredients');
 }
 function renderPresetRow(){
   document.getElementById('presetRow').innerHTML = Object.entries(INGREDIENT_PRESETS).map(([key,p])=>`<button class="preset-btn" data-key="${key}" onclick="loadPreset('${key}')">${escapeHtml(p.label)}</button>`).join('');

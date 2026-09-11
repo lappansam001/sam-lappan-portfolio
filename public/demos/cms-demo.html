@@ -412,7 +412,7 @@ const LIB = {
   rich:      {label:'Rich Text',      comp:'sections.sections-rich-text',    icon:'&#128221;'},
   callout:   {label:'Callout',        comp:'sections.callout',               icon:'&#128161;'},
   testi:     {label:'Testimonials',   comp:'sections.testimonials',          icon:'&#128172;'},
-  books:     {label:'Book Gallery',   comp:'sections.book-gallery',          icon:'&#128218;'},
+  books:     {label:'Product Gallery',comp:'sections.product-gallery',       icon:'&#129513;'},
   cta:       {label:'CTA Banner',     comp:'sections.banner-strip',          icon:'&#128227;'},
   form:      {label:'Sign-up Form',   comp:'sections.form',                  icon:'&#129534;'},
   image:     {label:'Image',          comp:'sections.image',                 icon:'&#128444;'},
@@ -421,11 +421,11 @@ const LIB = {
 function defaultContent(type){
   switch(type){
     case 'hero': return {heading:'New Hero Banner', subheading:'Add a short supporting line here.', button:'Learn More'};
-    case 'cards': return {heading:'Feature Cards', cards:[{icon:'&#128218;',title:'Feature One',text:'Short description.'},{icon:'&#127775;',title:'Feature Two',text:'Short description.'},{icon:'&#127942;',title:'Feature Three',text:'Short description.'}]};
+    case 'cards': return {heading:'Feature Cards', cards:[{icon:'&#128640;',title:'Feature One',text:'Short description.'},{icon:'&#127775;',title:'Feature Two',text:'Short description.'},{icon:'&#127942;',title:'Feature Three',text:'Short description.'}]};
     case 'rich': return {heading:'Section Heading', body:'Write a paragraph of supporting copy here. This block is fully rich-text editable in the real builder.'};
     case 'callout': return {heading:'Good to know', body:'Add an important note or FAQ answer here.'};
-    case 'testi': return {quote:'This made such a difference for our classroom.', who:'A Teacher, Some Primary School'};
-    case 'books': return {heading:'Featured Titles', items:[{t:'Title One',a:'Author A'},{t:'Title Two',a:'Author B'},{t:'Title Three',a:'Author C'},{t:'Title Four',a:'Author D'}]};
+    case 'testi': return {quote:'This made such a difference for our team.', who:'A Customer, Some Company'};
+    case 'books': return {heading:'Featured Products', items:[{t:'Product One',a:'Category A'},{t:'Product Two',a:'Category B'},{t:'Product Three',a:'Category C'},{t:'Product Four',a:'Category D'}]};
     case 'cta': return {heading:'Ready to get involved?', button:'Get Started'};
     case 'form': return {heading:'Sign Up', button:'Submit'};
     case 'image': return {src:'', alt:'', caption:''};
@@ -648,37 +648,41 @@ function newSection(type){ return {id:'s'+(secCounter++), type, visible:true, co
 
 // ── SEED PAGES (placeholder / fictional copy only) ───────────────────────
 let PAGES = [
-  {id:'p1', title:'Winter Reading Challenge 2026', slug:'winter-reading-challenge', status:'published', createdAt:'2026-06-02', updatedAt:'2026-08-25', sections:[
-    {...newSection('hero'), content:{heading:'Winter Reading Challenge 2026', subheading:'Six weeks, six books, one big classroom celebration.', button:'Join the Challenge'}},
-    {...newSection('cards'), content:{heading:'How It Works', cards:[{icon:'&#128218;',title:'Read Weekly',text:'Log a book every week of the challenge.'},{icon:'&#127942;',title:'Earn Badges',text:'Unlock digital badges as you progress.'},{icon:'&#127881;',title:'Class Prizes',text:'Top classes win a book pack for the library.'}]}},
-    {...newSection('testi'), content:{quote:'My students race in every morning to log their reading streak.', who:'Yr 4 Teacher, Riverside Primary'}},
-    {...newSection('cta'), content:{heading:'Registrations close 12 September', button:'Register Your Class'}},
+  {id:'p1', title:'Tech for Everyday Life', slug:'tech-everyday-life', status:'published', createdAt:'2026-06-02', updatedAt:'2026-08-25', sections:[
+    {...newSection('hero'), content:{heading:'Tech for Everyday Life', subheading:'Discover gadgets and accessories to keep you connected, productive and entertained.', button:'See What’s New'}, style:{...defaultStyle('hero'), bgImage:'/demos/assets/hero-tech.png', align:'left'}},
+    {...newSection('cards'), content:{heading:'Product Categories', cards:[
+      {icon:'&#127911;', title:'Audio Products', text:'Short description', img:'/demos/assets/audio-products.png'},
+      {icon:'&#128187;', title:'Computers and Accessories', text:'Short description', img:'/demos/assets/computers-accessories.png'},
+      {icon:'&#8986;', title:'Wearable Tech', text:'', img:'/demos/assets/wearable-tech.png'},
+    ]}, style:{...defaultStyle('cards'), variant:'hover'}},
+    {...newSection('image'), content:{src:'/demos/assets/smarter-banner.png', alt:'Make every day a little smarter — tech for work, play and everything in between.', caption:''}, style:{...defaultStyle('image'), imgHeight:320, imgFit:'cover'}},
+    newSection('cta'),
   ]},
-  {id:'p2', title:'Book Fair — Term 3', slug:'book-fair-term-3', status:'published', createdAt:'2026-05-14', updatedAt:'2026-08-22', sections:[
+  {id:'p2', title:'Product Expo — Q3', slug:'product-expo-q3', status:'published', createdAt:'2026-05-14', updatedAt:'2026-08-22', sections:[
     newSection('hero'), newSection('rich'), newSection('books'), newSection('form'),
   ]},
-  {id:'p3', title:'Author Visit: Term 4 Roadshow', slug:'author-visit-roadshow', status:'draft', createdAt:'2026-08-20', updatedAt:'2026-08-26', sections:[
+  {id:'p3', title:'Founder Talk: Q4 Roadshow', slug:'founder-talk-roadshow', status:'draft', createdAt:'2026-08-20', updatedAt:'2026-08-26', sections:[
     newSection('hero'), newSection('rich'),
   ]},
-  {id:'p4', title:'Scholastic Rewards Club', slug:'rewards-club', status:'published', createdAt:'2026-03-11', updatedAt:'2026-08-13', sections:[
+  {id:'p4', title:'Partner Rewards Program', slug:'partner-rewards', status:'published', createdAt:'2026-03-11', updatedAt:'2026-08-13', sections:[
     newSection('hero'), newSection('cards'), newSection('callout'), newSection('cta'),
   ]},
-  {id:'p5', title:'Teacher Resource Hub', slug:'teacher-resources', status:'draft', createdAt:'2026-07-30', updatedAt:'2026-08-24', sections:[
+  {id:'p5', title:'Developer Resource Hub', slug:'developer-resources', status:'draft', createdAt:'2026-07-30', updatedAt:'2026-08-24', sections:[
     newSection('hero'), newSection('rich'), newSection('form'),
   ]},
-  {id:'p6', title:'Classroom Library Bundles', slug:'classroom-bundles', status:'published', createdAt:'2026-04-02', updatedAt:'2026-08-20', sections:[
+  {id:'p6', title:'Starter Bundle Promo', slug:'starter-bundle-promo', status:'published', createdAt:'2026-04-02', updatedAt:'2026-08-20', sections:[
     newSection('hero'), newSection('books'), newSection('testi'),
   ]},
-  {id:'p7', title:'Holiday Reading List', slug:'holiday-reading-list', status:'draft', createdAt:'2026-08-27', updatedAt:'2026-08-27', sections:[
+  {id:'p7', title:'Holiday Feature Drop', slug:'holiday-feature-drop', status:'draft', createdAt:'2026-08-27', updatedAt:'2026-08-27', sections:[
     newSection('hero'),
   ]},
-  {id:'p8', title:'School Book Club Signup', slug:'book-club-signup', status:'published', createdAt:'2026-06-18', updatedAt:'2026-08-21', sections:[
+  {id:'p8', title:'Beta Program Signup', slug:'beta-signup', status:'published', createdAt:'2026-06-18', updatedAt:'2026-08-21', sections:[
     newSection('hero'), newSection('form'), newSection('callout'),
   ]},
-  {id:'p9', title:'NZ Reading Ambassadors', slug:'nz-reading-ambassadors', status:'published', createdAt:'2026-05-29', updatedAt:'2026-08-23', sections:[
+  {id:'p9', title:'Regional Ambassador Program', slug:'regional-ambassadors', status:'published', createdAt:'2026-05-29', updatedAt:'2026-08-23', sections:[
     newSection('hero'), newSection('cards'), newSection('testi'), newSection('form'),
   ]},
-  {id:'p10', title:'Parent Info Night RSVP', slug:'parent-info-night', status:'draft', createdAt:'2026-08-19', updatedAt:'2026-08-25', sections:[
+  {id:'p10', title:'Webinar RSVP', slug:'webinar-rsvp', status:'draft', createdAt:'2026-08-19', updatedAt:'2026-08-25', sections:[
     newSection('hero'), newSection('form'),
   ]},
 ];
@@ -1034,7 +1038,7 @@ function renderContentTab(s){
     case 'testi':
       return fieldHtml('quote','Quote',c.quote,'textarea') + fieldHtml('who','Attribution',c.who);
     case 'books':
-      return fieldHtml('heading','Section Heading',c.heading) + `<p class="style-note">Book covers are pulled from the Media Library in the real builder.</p>`;
+      return fieldHtml('heading','Section Heading',c.heading) + `<p class="style-note">Product images are pulled from the Media Library in the real builder.</p>`;
     case 'cta':
       return fieldHtml('heading','Heading',c.heading) + fieldHtml('button','Button Text',c.button);
     case 'form':

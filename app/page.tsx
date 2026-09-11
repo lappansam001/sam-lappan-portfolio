@@ -77,9 +77,9 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Beyond the four tools */}
+      {/* Beyond the tools */}
       <section className="mt-16 max-w-5xl">
-        <h2 className="text-2xl font-bold text-gray-900">Beyond the four tools</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Beyond the tools</h2>
         <p className="mt-2 text-gray-600">
           Shipping the tools is one thing — keeping them secure, deployed, and running in
           production is the other job I do.
@@ -88,57 +88,14 @@ export default function Home() {
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div className="rounded-xl border border-gray-200 bg-white p-6">
             <h3 className="text-base font-semibold text-gray-900">Security &amp; Remediation</h3>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-gray-600">
-              <li>
-                Closed a high-severity auth bypass that allowed unauthenticated retrieval of
-                internal sales and revenue data from an analytics API.
-              </li>
-              <li>
-                Resolved ~9 CodeQL alerts across two apps and cleared every Dependabot
-                vulnerability on one — <code className="text-gray-800">npm audit</code>: 0 remaining.
-              </li>
-              <li>
-                Shipped a regression-tested Next.js upgrade closing 9 CVEs, including an
-                unauthenticated upload endpoint feeding a vulnerable spreadsheet parser.
-              </li>
-            </ul>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-6">
             <h3 className="text-base font-semibold text-gray-900">Deployment &amp; Operations</h3>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-gray-600">
-              <li>
-                Migrated 3 production Next.js apps from ad-hoc file-copy deploys to a
-                git-based model on a Windows server (PM2 + IIS), across ~15 co-hosted apps.
-              </li>
-              <li>
-                Designed a CI/CD pipeline (GitHub Actions + self-hosted runners) with a
-                branch → staging → live release workflow.
-              </li>
-              <li>
-                Failure-safe by design: a failed build can never restart the app on broken
-                code — the previous good version stays live.
-              </li>
-            </ul>
           </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-6">
             <h3 className="text-base font-semibold text-gray-900">Database &amp; Data Operations</h3>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-gray-600">
-              <li>
-                Migrated PostgreSQL databases between server and local with{" "}
-                <code className="text-gray-800">pg_dump</code>/<code className="text-gray-800">pg_restore</code>,
-                verified with row-count comparisons before promoting.
-              </li>
-              <li>
-                Repointed Next.js/Prisma apps to restored or alternate databases with zero
-                downtime and zero data loss.
-              </li>
-              <li>
-                Built a multi-source ISBN enrichment pipeline feeding two external
-                databases into one unified frontend view.
-              </li>
-            </ul>
           </div>
         </div>
       </section>
