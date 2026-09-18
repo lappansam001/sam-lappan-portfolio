@@ -248,33 +248,35 @@ tr.comp-row td:first-child{padding-left:24px;color:#78716C;font-weight:400;text-
 
 <!-- SUBMISSIONS -->
 <div id="submissions" class="section">
-  <div class="card">
-    <div class="card-title">Masterlist</div>
-    <p class="muted" style="font-size:13px;margin-bottom:10px">Upload this month's masterlist (.xlsx), or load a sample to try the flow.</p>
-    <div class="upload-zone" id="masterlistZone" onclick="document.getElementById('masterlistInput').click()">
-      <div class="ico">&#128196;</div>
-      <div><strong>Masterlist</strong></div>
-      <div class="faint" style="font-size:12px;margin-top:4px">ISBN, Title, Author, RRP columns</div>
+  <div id="submissionsInputView">
+    <div class="card">
+      <div class="card-title">Masterlist</div>
+      <p class="muted" style="font-size:13px;margin-bottom:10px">Upload this month's masterlist (.xlsx), or load a sample to try the flow.</p>
+      <div class="upload-zone" id="masterlistZone" onclick="document.getElementById('masterlistInput').click()">
+        <div class="ico">&#128196;</div>
+        <div><strong>Masterlist</strong></div>
+        <div class="faint" style="font-size:12px;margin-top:4px">ISBN, Title, Author, RRP columns</div>
+      </div>
+      <input type="file" id="masterlistInput" accept=".xlsx,.xls" style="display:none" onchange="handleMasterlistUpload(this.files[0])">
+      <div class="preset-row">
+        <button class="preset-btn" onclick="loadMasterlistPreset()">Load Sample Masterlist</button>
+      </div>
+      <div class="file-loaded" id="masterlistLoadedMsg" style="display:none"></div>
     </div>
-    <input type="file" id="masterlistInput" accept=".xlsx,.xls" style="display:none" onchange="handleMasterlistUpload(this.files[0])">
-    <div class="preset-row">
-      <button class="preset-btn" onclick="loadMasterlistPreset()">Load Sample Masterlist</button>
+
+    <div class="card" id="titlePreviewCard" style="display:none">
+      <div class="card-title">Titles Loaded</div>
+      <div class="tbl-wrap"><table><thead><tr><th>ISBN</th><th>Title</th><th>Author</th><th>RRP</th><th>Trade Release</th><th>Frontlist?</th></tr></thead><tbody id="titlePreviewBody"></tbody></table></div>
     </div>
-    <div class="file-loaded" id="masterlistLoadedMsg" style="display:none"></div>
+
+    <div class="card" id="storePreviewCard" style="display:none">
+      <div class="result-actions">
+        <button class="btn btn-primary" id="generateSubmissionsBtn" onclick="generateSubmissions()">Generate Submissions</button>
+      </div>
+    </div>
   </div>
 
-  <div class="card" id="titlePreviewCard" style="display:none">
-    <div class="card-title">Titles Loaded</div>
-    <div class="tbl-wrap"><table><thead><tr><th>ISBN</th><th>Title</th><th>Author</th><th>RRP</th><th>Trade Release</th><th>Frontlist?</th></tr></thead><tbody id="titlePreviewBody"></tbody></table></div>
-  </div>
-
-  <div class="card" id="storePreviewCard" style="display:none">
-    <div class="result-actions">
-      <button class="btn btn-primary" id="generateSubmissionsBtn" onclick="generateSubmissions()">Generate Submissions</button>
-    </div>
-  </div>
-
-  <div id="submissionResultsContainer"></div>
+  <div id="submissionResultsContainer" style="display:none"></div>
 </div>
 
 <!-- SELL-THRU -->
@@ -631,7 +633,11 @@ function generateSubmissions(){
   if (!masterlistTitles) { toast('Load a masterlist first.', true); return; }
   const run = { id: 'run'+(SNAP_ID++), type:'submission', month:DEMO_MONTH, year:DEMO_YEAR, createdAt:'2026-08-13', exports: STORES.map(store=>buildStoreExport(store, masterlistTitles)), hasSellThru:false, titles: masterlistTitles };
   RUNS.push(run);
-  document.getElementById('submissionResultsContainer').innerHTML = `
+  document.getElementById('submissionsInputView').style.display = 'none';
+  const resultsEl = document.getElementById('submissionResultsContainer');
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = `
+    <button class="an-back-link" onclick="backToSubmissionsInput()">&larr; Back to Masterlist</button>
     <div class="card">
       <div class="callout callout-green" style="margin-bottom:16px"><strong>✓ Generated ${run.exports.length} submission files for ${run.month} ${run.year}.</strong></div>
       <div class="tbl-wrap"><table><thead><tr><th>Store</th><th>Titles</th><th>File</th><th></th></tr></thead><tbody>
@@ -643,6 +649,11 @@ function generateSubmissions(){
       </div>
     </div>`;
   toast('Submissions generated.');
+}
+function backToSubmissionsInput(){
+  document.getElementById('submissionResultsContainer').style.display = 'none';
+  document.getElementById('submissionResultsContainer').innerHTML = '';
+  document.getElementById('submissionsInputView').style.display = 'block';
 }
 function downloadExport(runId, idx){
   const run = RUNS.find(r=>r.id===runId); if (!run) return;
