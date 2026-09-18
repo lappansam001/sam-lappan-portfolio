@@ -11,7 +11,7 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col gap-2 text-sm sm:items-end">
-            <a href="mailto:lappansam@gmail.com" className="text-gray-700 transition-colors hover:text-blue-600">lappansam@gmail.com</a>
+            <a href="mailto:lappansam001@gmail.com" className="text-gray-700 transition-colors hover:text-blue-600">lappansam001@gmail.com</a>
             <a href="tel:+61401443188" className="text-gray-700 transition-colors hover:text-blue-600">0401 443 188</a>
             <div className="mt-2 flex gap-4">
               <a href="https://www.linkedin.com/in/sam-lappan-325023242/" target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 transition-opacity hover:opacity-70">LinkedIn</a>
