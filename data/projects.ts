@@ -17,26 +17,26 @@ export const projects: Project []=[
 {
     slug: "cms-au-nz",
     title: "Custom CMS & AI Page Builder",
-    niche: "Built and now solely maintain Scholastic's in-house CMS — a full-stack replacement for their commercial platform across Australia & New Zealand",
+    niche: "Replaced Scholastic's commercial CMS with one built from scratch, now running both Australia and New Zealand",
     problem:
-      "Scholastic's marketing team relied on a commercial CMS to build and publish campaign pages. It meant ongoing vendor costs, being locked into whatever features that vendor chose to support, and form data and content living on a third-party platform. Every non-standard page idea needed a developer — and running the same setup for both the Australian and New Zealand businesses meant paying for it twice.",
+      "Scholastic paid for a commercial CMS to build campaign pages. Every unusual page idea needed a developer, and running the same setup for both Australia and New Zealand meant paying for it twice.",
     solution:
-      "A full-stack CMS and visual page builder built from scratch on a 20-model Prisma/PostgreSQL schema, architected as one codebase serving two databases so the same app runs both markets without duplicating code. It gives marketing staff a no-code, drag-and-drop builder with a library of 22 content block types — hero banners, card grids, forms, product carousels — all pre-styled in Scholastic's brand identity. AI-assisted page generation (Claude) drafts entire pages or single sections from a plain-English prompt, with brand rules enforced server-side so generated output can't drift off-brand. A built-in AI support chatbot walks staff through a decision-tree triage flow for common questions, and a live product-catalogue integration keeps book data in sync automatically.",
+      "I built a CMS and page builder from scratch, sharing one codebase across both countries. Marketing staff get a drag and drop builder with ready made blocks like banners, forms, and product carousels, all styled to match the brand. They can also type a plain English prompt and have AI generate a whole page or section, with brand rules built in so it can't go off brand. A built in AI chatbot answers common staff questions, and the product catalogue stays connected to the Product Intelligence database.",
     impact:
-      "Replaced the commercial platform entirely and now runs both the Australian and New Zealand businesses on one deployment. Marketing staff build, preview, and publish on-brand campaign pages themselves, letting the team ship pages without a developer — and because it's owned in-house, all content and form data lives on Scholastic's own servers. I built it, and I'm the one who keeps it running in production.",
+      "The commercial CMS is gone. Marketing can build, preview, and publish pages themselves without waiting on a developer, and every piece of content now lives on Scholastic's own servers instead of a third party's.",
     highlights: [
-      "One codebase, two databases — architected for multi-market reuse across AU & NZ",
-      "20-model Prisma/PostgreSQL schema",
-      "22 pre-styled content block types",
-      "AI page generation with brand rules enforced server-side",
-      "AI support chatbot with decision-tree triage",
-      "Live product-catalogue integration",
+      "One system runs both Australia and New Zealand",
+      "20 database models",
+      "22 ready made content blocks",
+      "AI can generate whole pages from a prompt",
+      "Built in AI chatbot for support questions",
+      "Product catalogue stays connected to the Product Intelligence database",
     ],
     howItWorks: [
-      { title: "Compose", description: "Click a section from the 22-block library to add it to the canvas, then drag its handle to reorder." },
-      { title: "Edit", description: "Select any section to edit its content, colours, fonts and spacing live on the canvas." },
-      { title: "Preview", description: "Switch between Desktop and Mobile to check the page before anything goes live." },
-      { title: "Publish", description: "Flip the status and save — the same flow staff use day to day. (AI generation and live multi-market publishing are part of the real product, not this demo.)" },
+      { title: "Compose", description: "Add a section from the block library, then drag it to reorder the page." },
+      { title: "Edit", description: "Select any section to edit its text, colours, fonts and spacing live on the page." },
+      { title: "Preview", description: "Switch between desktop and mobile to check the page before it goes live." },
+      { title: "Publish", description: "Flip the status and save. That's the same flow staff use every day. (AI generation and publishing to both countries are part of the real product, not this demo.)" },
     ],
     techStack: [
       "Next.js 16",
@@ -55,26 +55,26 @@ export const projects: Project []=[
   {
     slug: "toy-safety-checker",
     title: "Toy Safety Compliance Checker",
-    niche: "Automated chemical-safety screening for Scholastic's toy buying team",
+    niche: "Automatic chemical safety checks for Scholastic's toy buying team",
     problem:
-      "Before importing toys and craft products, Scholastic's purchasing team had to check every product's chemical ingredients against Australian government safety databases by hand — cross-referencing CAS numbers, working out GHS hazard classifications, and figuring out which physical safety tests applied, all manually. Getting a clear answer to 'is this legal to sell in Australia?' took specialist time the team didn't always have.",
+      "Before buying toys and craft products, staff had to check every chemical ingredient against Australian government safety lists by hand. Getting a clear answer on whether a product was legal to sell took specialist time the team didn't always have.",
     solution:
-      "A web tool where a buyer uploads a product's ingredient list and gets an instant first-pass safety screen. It cross-references every chemical by CAS number against three Australian government datasets — including the 40,000+ row AICIS Chemical Inventory — derives the applicable GHS hazard codes, and runs the result through a ~750-rule engine to determine which physical safety tests are required for the Australian and/or New Zealand markets. Governance is built in: any 'safe' classification has to pass an admin-approval gate, and every product carries a full audit trail of who checked what and when.",
+      "A buyer uploads a product's ingredient list and gets an instant first pass safety check. The tool looks up every chemical across three government databases, including one with over 40,000 records, works out its hazard classification, and runs it through around 750 rules to decide which safety tests are needed. A 'safe' result still needs a manager's approval, and every check is logged.",
     impact:
-      "Replaced a manual, specialist-dependent checking workflow. A non-specialist buyer can now screen a product in seconds instead of waiting on expert review, with an approval gate and audit trail that didn't exist before. It's deliberately built and positioned as a first-pass screening tool that informs purchasing decisions — not a certification — an honest framing that's a strength, not a limitation.",
+      "A check that used to need a specialist and a lot of time now takes seconds. There's now an approval step and a full record of every check, which didn't exist before. It's built and described honestly as a first pass screening tool that supports a buying decision, not a certification.",
     highlights: [
-      "Cross-references 3 Australian government datasets",
-      "40,000+ row AICIS Chemical Inventory",
-      "~750-rule engine derives required physical safety tests",
-      "GHS hazard code derivation from CAS numbers",
-      "Admin-approval gate on every 'safe' classification",
-      "Full per-product audit trail",
+      "Checks 3 Australian government databases",
+      "Searches over 40,000 chemical records",
+      "About 750 rules decide the required safety tests",
+      "Works out hazard classifications automatically",
+      "Every 'safe' result needs manager approval",
+      "Full record kept for every check",
     ],
     howItWorks: [
-      { title: "Upload", description: "A buyer uploads a product's ingredient list with CAS numbers." },
-      { title: "Cross-reference", description: "Every chemical is checked against 3 government datasets, including the 40,000+ row AICIS Inventory." },
-      { title: "Classify", description: "GHS hazard codes and a ~750-rule engine determine required physical safety tests." },
-      { title: "Approve", description: "A 'safe' result still needs admin sign-off, logged to a full audit trail." },
+      { title: "Upload", description: "A buyer uploads a product's ingredient list." },
+      { title: "Check", description: "Every chemical is checked against 3 government databases with over 40,000 records." },
+      { title: "Classify", description: "Hazard codes and around 750 rules decide which safety tests are needed." },
+      { title: "Approve", description: "A 'safe' result still needs a manager's sign off, and it's all logged." },
     ],
     techStack: [
       "Next.js 16",
@@ -94,26 +94,26 @@ export const projects: Project []=[
   {
     slug: "sales-submission-tool",
     title: "Retail Submission & Sales Analytics Tool",
-    niche: "Turned a ~2-week monthly spreadsheet marathon into a ~1-minute generation step — and grew into a live sales analytics dashboard",
+    niche: "Turned a two week spreadsheet job into a one minute task, then grew into a live sales dashboard",
     problem:
-      "Every month, Scholastic's sales team built submission spreadsheets for 13 retail accounts entirely by hand — VLOOKUP-ing each column across from a master title list into each retailer's own format and filtering rules, one column at a time. Sell-through reporting was worse: manually reconciling up to seven separate sales and returns exports by ISBN, in spreadsheets never built to handle real-world messy data. The full monthly cycle took a team the better part of two weeks.",
+      "Every month, the sales team built submission spreadsheets for 13 retailers entirely by hand, copying each column across from a master list into each retailer's own format. Matching up sales and returns data from up to seven separate files was just as slow, and the whole cycle took a team the better part of two weeks.",
     solution:
-      "A web tool that automates the process end to end. Upload the master title list and it generates all 13 correctly formatted retailer submissions in about a minute. A second flow ingests up to seven sales and returns files — handling 75,000+ rows with defensive parsing built for messy real-world Excel exports — and reconciles them by ISBN into a persistent, append-only dataset that feeds a live analytics dashboard, a retailer leaderboard, and an ISBN lookup tool. A separate ISBN enrichment pipeline (a re-runnable Node.js ETL) imports roughly 130,000 product records from an external CRM using a non-destructive 'fill-blank, never-overwrite' merge, validates every ISBN-10/13 checksum (catching ~15 corrupted records along the way), and pulls metadata from a second data source into one unified view — including diagnosing and excluding a systemic data-quality issue where ~97% of the source's author records turned out to be placeholder test data, while still recovering the legitimate ~35% of real pricing and release data underneath it.",
+      "Upload the master title list and the tool generates all 13 correctly formatted retailer files in about a minute. A second part of the tool takes in up to seven sales and returns files, matches them by ISBN, and feeds the results into a live dashboard with a retailer leaderboard and lookup tool. I also built a separate pipeline that cleaned and merged around 130,000 product records from an old system, fixing invalid ISBNs and filtering out a large batch of placeholder data along the way.",
     impact:
-      "A process that used to take a team the better part of two weeks now runs in about a minute once source files are uploaded, with sell-through reconciliation and a live dashboard replacing what used to be scattered spreadsheets rebuilt from scratch every month. The ISBN enrichment work turned an external, unreliable data source into a usable asset instead of writing it off.",
+      "A job that used to take a team the better part of two weeks now runs in about a minute once the files are uploaded. The team can now see sales performance on a live dashboard instead of rebuilding spreadsheets from scratch every month, and the old product data is now clean and usable instead of being written off.",
     highlights: [
-      "Generates 13 retailer submissions in ~1 minute",
-      "Reconciles up to 7 sales/returns files by ISBN",
-      "Handles 75,000+ rows per ingestion run",
-      "Live analytics dashboard, leaderboard & ISBN lookup",
-      "ISBN enrichment ETL: ~130,000 records imported",
-      "Diagnosed a 97% placeholder-data issue in source records",
+      "Generates 13 retailer files in about a minute",
+      "Matches up to 7 sales and returns files by ISBN",
+      "Handles over 75,000 rows per upload",
+      "Live dashboard with a retailer leaderboard and lookup tool",
+      "Cleaned and merged about 130,000 product records",
+      "Found and filtered out a large batch of placeholder data",
     ],
     howItWorks: [
       { title: "Upload", description: "Drop in the monthly master title list." },
-      { title: "Generate", description: "All 13 retailer-formatted submissions are produced in about a minute." },
-      { title: "Reconcile", description: "Up to 7 sales/returns files are ingested and matched by ISBN." },
-      { title: "Analyze", description: "Results feed a live dashboard, leaderboard, and ISBN lookup." },
+      { title: "Generate", description: "All 13 retailer formatted files are produced in about a minute." },
+      { title: "Reconcile", description: "Up to 7 sales and returns files are matched by ISBN." },
+      { title: "Analyze", description: "Results feed a live dashboard, leaderboard, and lookup tool." },
     ],
     techStack: [
       "Next.js 16",
@@ -133,25 +133,25 @@ export const projects: Project []=[
   {
     slug: "travel-booking-tool",
     title: "Travel Booking & Charge Management Tool",
-    niche: "End-to-end accommodation booking and expense tracking for Scholastic's Book Fair field teams",
+    niche: "One tool for booking travel and tracking costs for the Book Fair field team",
     problem:
-      "Coordinating accommodation for Scholastic's Book Fair drivers across five states was a manual, multi-step slog: spending wasted time writing booking request emails, filling out chargeback authorisation PDFs, tracking which bookings were confirmed or invoiced in scattered spreadsheets, and manually coding each expense into the NetSuite accounting system. Nothing was connected, so things slipped through the cracks.",
+      "Booking accommodation for Book Fair drivers across five states meant writing emails by hand, filling out paperwork, and tracking bookings across scattered spreadsheets. Nothing was connected, so bookings and invoices were easy to miss.",
     solution:
-      "A single Next.js tool that runs the whole workflow, built from scratch with its own authentication — HMAC-SHA256 signed session cookies verified in Edge middleware, with passwords hashed server-side using bcrypt. A coordinator picks a driver and accommodation from a managed directory and the tool generates the booking request email and a filled-in Corporate Credit Card Charge Authority PDF in one click. A state-by-state dashboard tracks every booking through a charge log from sent to confirmed to invoiced, a live notifications feed surfaces upcoming check-ins, check-outs, and overdue invoices automatically, and the tool auto-generates cost-centre and NetSuite codes so accounting entries come out consistent every time.",
+      "I built one tool with its own secure login that handles the whole process. A coordinator picks a driver and a place to stay, and the tool creates the booking email and the payment paperwork in one click. It tracks every booking on one dashboard from sent to invoiced, sends alerts for check ins, check outs, and unpaid invoices, and generates the right accounting codes automatically.",
     impact:
-      "Replaced a scattered manual process — handwritten emails, manually filled PDFs, disconnected spreadsheets, and hand-coded accounting entries — with one connected workflow with its own secure login. Bookings can no longer fall through the cracks: the notification system flags every check-in, checkout, and unpaid invoice, and accounting codes come out correctly formatted every time.",
+      "Booking travel now takes one click instead of several manual steps, and nothing falls through the cracks. The alert system flags every check in, check out, and unpaid invoice, and accounting codes come out correct every time.",
     highlights: [
-      "Own authentication: HMAC-SHA256 signed cookies + bcrypt",
-      "Books drivers across 5 Australian states",
-      "One-click booking email + Charge Authority PDF",
-      "Live notifications for check-in/out & overdue invoices",
-      "Auto-generated cost-centre / NetSuite codes",
+      "Secure login built from scratch",
+      "Books drivers across 5 states",
+      "Creates the booking email and paperwork in one click",
+      "Alerts for check ins, check outs, and unpaid invoices",
+      "Accounting codes generated automatically",
     ],
     howItWorks: [
       { title: "Select", description: "Pick a driver and accommodation from the managed directory." },
-      { title: "Generate", description: "A booking email and Charge Authority PDF are created in one click." },
-      { title: "Track", description: "A state-by-state dashboard follows every booking from sent to invoiced." },
-      { title: "Notify", description: "Live alerts surface check-ins, check-outs, and overdue invoices automatically." },
+      { title: "Generate", description: "A booking email and payment form are created in one click." },
+      { title: "Track", description: "A dashboard follows every booking, state by state, from sent to invoiced." },
+      { title: "Notify", description: "Alerts flag check ins, check outs, and overdue invoices automatically." },
     ],
     techStack: [
       "Next.js 14",
@@ -162,32 +162,5 @@ export const projects: Project []=[
     ],
     demoUrl: "/demos/travel-booking-demo.html",
     screenshots: ["/screenshots/travel-booking.png", "/screenshots/travel-notifications.png"],
-  },
-
-  {
-    slug: "books-in-homes-converter",
-    title: "Books in Homes Data Converter",
-    niche: "One-click reformatting of raw program data into an upload-ready template",
-    problem:
-      "Scholastic's Books in Homes program data arrived as a raw export that had to be manually reshaped into a specific template before it could be uploaded — re-typing fields into new columns, working out the right program level and contract for each school, and applying sponsor and book-allocation rules by hand, row by row. Tedious, slow, and easy to get wrong.",
-    solution:
-      "A browser tool that does the whole reformat in one click. A staff member drops in the raw export and the tool parses each row, derives the correct values using the program's real business rules (extracting the term and year, mapping program type to the right level and contract, setting sponsor and book-bag flags), writes everything into the correct template, and downloads the finished file ready to upload. Everything runs locally in the browser — no data leaves the user's machine.",
-    impact:
-      "Turned a manual, error-prone reformatting job into a single drag-and-drop step. The business rules that a person used to apply by hand for every row are now applied automatically and identically every time, removing the transcription mistakes that come with manual data entry.",
-    highlights: [
-      "Runs entirely client-side — no data leaves the browser",
-      "Applies program business rules row-by-row automatically",
-    ],
-    howItWorks: [
-      { title: "Drop in", description: "Upload the raw program export." },
-      { title: "Transform", description: "Business rules are applied row-by-row automatically." },
-      { title: "Download", description: "Get an upload-ready file, formatted correctly every time." },
-    ],
-    techStack: [
-      "JavaScript",
-      "HTML5",
-      "SheetJS",
-    ],
-    screenshots: ["/screenshots/books-in-homes.png"],
   },
 ]

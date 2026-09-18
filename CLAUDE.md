@@ -4,7 +4,7 @@
 ## What this is
 A personal portfolio website for Sam Lappan — a self-taught AI web developer with a
 business background (Bachelor in Business, Innovation & Entrepreneurship, majoring in
-Marketing). The site showcases 5 internal tools built for Scholastic Australia.
+Marketing). The site showcases 4 internal tools built for Scholastic Australia.
 
 Core positioning: **"I turn complicated Excel processes into simple web tools."**
 The throughline across every project: spotting a tedious manual business process and
@@ -51,8 +51,6 @@ in mockups one at a time later. `demoUrl` will point at mockups when ready;
 Several source files contain real private data. When building mockups, replace:
 - Travel Booking tool: 8 real driver names + mobile numbers, real manager names,
   company ABN, real motel contact details → all must become fake placeholders.
-- Books in Homes converter: real sponsor names ("Ausenco Foundation",
-  "Rotary Club of Kenthurst") → genericise.
 - Toy Safety / Submissions: a real DB password appears in source docs (the
   `.env` files in those projects, not this repo) — never copy it into this repo
   or into any mockup/demo. Confirm it has been rotated if it was ever used
@@ -96,13 +94,12 @@ files exist):
   (already has a full interactive demo; screenshots here are just a fallback)
 - `toy-safety-checker.png`, `toy-safety-results.png` — toy-safety-checker
   (already has a full interactive demo; screenshots here are just a fallback)
-- `books-in-homes.png` — books-in-homes-converter
 
 Suggested format: PNG, ~1600px wide, 16:10-ish aspect ratio for visual
 consistency across the set. Redact/blur any real staff names, emails, or
 internal data before exporting — same data-hygiene rule as the demos.
 
-## The 5 Projects (final lineup)
+## The 4 Projects (final lineup)
 1. **cms-au-nz** — Custom CMS & AI Page Builder. Replaced a commercial CMS for
    Scholastic across AU & NZ. Visual drag-drop builder + Claude AI page generation.
    (Scholastic can be named publicly — user confirmed. Still worth user double-checking
@@ -117,17 +114,16 @@ internal data before exporting — same data-hygiene rule as the demos.
 4. **travel-booking-tool** — Travel Booking & Charge Management Tool. End-to-end:
    generates booking emails + chargeback PDFs, tracks bookings across 5 states,
    notifications for check-in/out/overdue invoices, auto-generates NetSuite codes.
-5. **books-in-homes-converter** — Books in Homes Data Converter. One-click reformat of
-   raw program data into an upload-ready template, applying business rules per row.
 
-(Dropped: a "Trade Major Detail Tool" — too small and not actually used in practice.)
+(Dropped: a "Trade Major Detail Tool" — too small and not actually used in practice.
+Also dropped: the Books in Homes Data Converter — decided it wasn't worth including.)
 
 ## Hero Copy (draft — not final, user to react when rested)
 - Headline: "I turn complicated Excel processes into simple web tools."
 - Subline: "Self-taught AI web developer with a business background. I look at the
   manual, tedious processes that slow teams down — and build the systems that make
   them disappear."
-- Supporting: "Five tools, built and shipped for a national publisher. Each one
+- Supporting: "Four tools, built and shipped for a national publisher. Each one
   replaced a spreadsheet, a manual workflow, or an external piece of software."
 
 Open questions for the user:
@@ -140,15 +136,15 @@ outcome-neutral so it works for any audience.
 
 ## Build Order / Progress
 - [x] Phase 1 — Scaffold (create-next-app, Tailwind v4 fixed, blank page verified)
-- [x] Phase 2 — Data layer: `data/projects.ts` with all 5 project objects
+- [x] Phase 2 — Data layer: `data/projects.ts` with all 4 project objects
 - [ ] Phase 3 — Homepage: layout shell + nav, hero section (about the user),
       project card grid
 - [ ] Phase 4 — Project pages: `/work/[slug]`, problem/solution/impact sections,
       demo-or-screenshots, tech stack
 - [ ] Phase 5 — Polish + deploy: metadata/OG, Vercel, custom domain
-- [~] Later — Build interactive mockups, swap in for screenshots one at a time
-      (done: toy-safety-checker, travel-booking-tool, sales-submission-tool,
-      cms-au-nz — only books-in-homes-converter still needs one)
+- [x] Later — Build interactive mockups, swap in for screenshots one at a time
+      (done: toy-safety-checker, travel-booking-tool, sales-submission-tool, cms-au-nz —
+      all 4 remaining projects now have one)
 - [ ] Still needed — an "about me" section/intro (the main current gap)
 
 ## Next step when resuming

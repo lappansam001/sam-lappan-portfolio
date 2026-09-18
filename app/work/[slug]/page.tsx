@@ -56,8 +56,8 @@ export default async function ProjectPage({
           </div>
         </div>
 
-        <div className="pointer-events-auto grid grid-cols-1 gap-12 lg:grid-cols-3">
-          <div className={`${CARD_CLASSNAME} space-y-10 p-8 lg:col-span-2`}>
+        <div className="pointer-events-auto space-y-12">
+          <div className={`${CARD_CLASSNAME} grid grid-cols-1 gap-10 p-8 sm:grid-cols-[2fr_3fr_2fr]`}>
             <section>
               <h2 className="font-display text-sm font-bold uppercase tracking-widest text-blue-600">The problem</h2>
               <p className="mt-3 text-base leading-relaxed text-gray-700">{project.problem}</p>
@@ -74,7 +74,7 @@ export default async function ProjectPage({
             </section>
           </div>
 
-          <div className="space-y-12 lg:sticky lg:top-8 lg:h-fit lg:self-start">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {project.howItWorks && (
               <div className={`${CARD_CLASSNAME} p-6`}>
                 <h2 className="font-display text-sm font-bold uppercase tracking-widest text-blue-600">How it works</h2>

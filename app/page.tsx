@@ -18,13 +18,13 @@ export default function Home() {
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-600">
             Self-taught AI web developer with a business background. I find the
-            manual, tedious processes that slow teams down — and build the
-            systems that make them disappear.
+            slow, manual processes that hold a team back, and build simple
+            tools to replace them.
           </p>
         </div>
 
         {/* Right: at-a-glance panel */}
-        <aside className="rounded-2xl bg-[#1a1f2e] p-6 ring-1 ring-white/10">
+        <aside className="self-start rounded-2xl bg-[#1a1f2e] p-6 ring-1 ring-blue-400/80 shadow-[0_0_25px_rgba(59,130,246,0.75),0_0_60px_rgba(59,130,246,0.5),0_0_90px_rgba(59,130,246,0.3)]">
           <dl className="space-y-4 text-sm">
             <div>
               <dt className="text-gray-500">Role</dt>
@@ -40,7 +40,7 @@ export default function Home() {
             </div>
             <div>
               <dt className="text-gray-500">Shipped</dt>
-              <dd className="mt-0.5 font-medium text-white">5 tools in production</dd>
+              <dd className="mt-0.5 font-medium text-white">4 tools in production</dd>
             </div>
           </dl>
         </aside>
@@ -50,7 +50,7 @@ export default function Home() {
       <section className="mt-20">
         <h2 className="text-2xl font-bold text-gray-900">Selected work</h2>
         <p className="mt-2 text-gray-600">
-          Five tools built and shipped for a national publisher.
+          Four tools built and shipped for a national publisher.
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -66,38 +66,24 @@ export default function Home() {
       <section className="mt-20 max-w-3xl">
        <h2 className="text-2xl font-bold text-gray-900">About Me</h2>
         <p className=" mt-6 text-base leading-relaxed text-gray-700">
-          I came to development from a business background — a degree in
-          Business, Innovation &amp; Entrepreneurship, majoring in Marketing —
-          and taught myself to build. It means I look at a problem from both
-          sides: what the business needs, and how to build it. I built and now
-          solely run Scholastic Australia&apos;s automation function, progressing
-          from n8n workflow automation to shipping full-stack Next.js /
-          PostgreSQL applications used across both the Australian and New
-          Zealand businesses.
+          I started out working in Scholastic&apos;s warehouse, and that&apos;s
+          how I found my way into a sales support internship with the
+          company. I have a degree in Business, Innovation and
+          Entrepreneurship, majoring in Marketing, and I taught myself to
+          build software from there. That means I look at a problem from both
+          sides: what the business needs, and how to build it. I built and
+          now run Scholastic Australia&apos;s automation function, starting
+          with simple workflow automation and growing into full web apps used
+          across Australia and New Zealand.
         </p>
       </section>
 
-      {/* Beyond the tools */}
-      <section className="mt-16 max-w-5xl">
-        <h2 className="text-2xl font-bold text-gray-900">Beyond the tools</h2>
-        <p className="mt-2 text-gray-600">
-          Shipping the tools is one thing — keeping them secure, deployed, and running in
-          production is the other job I do.
+      {/* References */}
+      <section className="mt-16 max-w-3xl">
+        <h2 className="text-2xl font-bold text-gray-900">References</h2>
+        <p className="mt-4 text-base leading-relaxed text-gray-700">
+          Available upon request.
         </p>
-
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h3 className="text-base font-semibold text-gray-900">Security &amp; Remediation</h3>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h3 className="text-base font-semibold text-gray-900">Deployment &amp; Operations</h3>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h3 className="text-base font-semibold text-gray-900">Database &amp; Data Operations</h3>
-          </div>
-        </div>
       </section>
     </main>
   );

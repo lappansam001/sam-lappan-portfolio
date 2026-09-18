@@ -7,9 +7,9 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-disp
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sam Lappan — AI Web Developer",
+  title: "Sam Lappan, AI Web Developer",
   description:
-    "I turn complicated Excel processes into simple web tools. Five tools built and shipped for a national publisher.",
+    "I turn complicated Excel processes into simple web tools. Four tools built and shipped for a national publisher.",
 };
 
 export default function RootLayout({
