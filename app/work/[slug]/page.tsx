@@ -3,8 +3,6 @@ import { projects } from "@/data/projects";
 import { notFound } from "next/navigation";
 import DemoVideo from "@/components/DemoVideo";
 import DemoBanner from "@/components/DemoBanner";
-import ParticleDrift from "@/components/UI/particle-drift";
-import { ParallaxLayer } from "@/components/UI/parallax-layer";
 import { ProjectDemoPager } from "@/components/UI/project-demo-pager";
 
 const CARD_CLASSNAME =
@@ -28,13 +26,7 @@ export default async function ProjectPage({
 
   const projectContent = (
     <div className="relative pb-8">
-      <div className="absolute inset-0 left-1/2 w-screen -translate-x-1/2">
-        <ParallaxLayer strength={100}>
-          <ParticleDrift className="h-full w-full" mode="light" density={2} />
-        </ParallaxLayer>
-      </div>
-
-      <div className="relative space-y-16 px-6 pt-16 pointer-events-none sm:px-10 lg:px-16 xl:px-24">
+      <div className="relative space-y-16 px-6 pt-16 sm:px-10 lg:px-16 xl:px-24">
         <div className="pointer-events-auto max-w-4xl">
           <Link href="/" className="text-sm font-medium text-blue-600 transition-opacity hover:opacity-70">
             ← Back to all work
